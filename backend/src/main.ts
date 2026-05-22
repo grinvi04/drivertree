@@ -1,0 +1,44 @@
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  
+  // 글로벌 API 경로 프리픽스 설정 (/api/...)
+  app.setGlobalPrefix('api');
+
+  // CORS 활성화 — 배포 시 ALLOWED_ORIGINS 환경변수로 도메인 화이트리스트
+  // 예: "https://drivetree.vercel.app,https://drivetree-preview.vercel.app"
+  // 미설정 시 로컬 개발용 기본값(localhost:3000, 3001) 사용.
+  const allowedOriginsEnv = process.env.ALLOWED_ORIGINS?.trim();
+  const allowedOrigins = allowedOriginsEnv
+    ? allowedOriginsEnv.split(',').map(o => o.trim()).filter(Boolean)
+    : ['http://localhost:3000', 'http://localhost:3001'];
+
+  app.enableCors({
+    origin: (origin, callback) => {
+      // origin이 없는 경우(서버-서버, curl, 헬스체크 등) 허용
+      if (!origin) return callback(null, true);
+      // Vercel 프리뷰 도메인(*.vercel.app) 자동 허용 — Vercel 미사용 시 무해
+      const isVercelPreview = /\.vercel\.app$/.test(new URL(origin).hostname);
+      if (allowedOrigins.includes(origin) || isVercelPreview) {
+        return callback(null, true);
+      }
+      return callback(new Error(`CORS blocked: ${origin}`), false);
+    },
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  });
+
+  // 전역 DTO 입력 검증 파이프 적용
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true, // DTO에 없는 필드 자동 거름
+    transform: true, // 입력 타입을 DTO 클래스 타입으로 자동 변환
+  }));
+
+  const port = process.env.PORT || 4000;
+  await app.listen(port);
+  console.log(`🚀 DriveTree Backend running on: http://localhost:${port}/api`);
+}
+bootstrap();

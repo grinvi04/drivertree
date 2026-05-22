@@ -1,0 +1,11 @@
+node_modules
+# Keep environment variables out of version control
+.env
+.env.*
+!.env.example
+
+# 빌드 결과 — Railway가 빌드 시 다시 생성
+dist
+*.tsbuildinfo
+
+/generated/prisma

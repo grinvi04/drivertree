@@ -1,0 +1,99 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0B0F19; /* 매우 깊고 세련된 카본 블랙 / 다크 블루 그레이 */
+  --foreground: #F1F5F9; /* 부드러운 화이트 / 실버 슬레이트 */
+  --card-bg: rgba(22, 28, 45, 0.6); /* 반투명 다크 글래스 */
+  --card-border: rgba(255, 255, 255, 0.08);
+  
+  /* 초보운전 노란색과 프리미엄 스포티 골드 옐로우 */
+  --yellow-accent: #FCD34D; /* 선명하고 스포티한 옐로우 */
+  --yellow-glow: rgba(252, 211, 77, 0.25);
+  --yellow-glow-strong: rgba(252, 211, 77, 0.5);
+  
+  --muted-text: #94A3B8;
+  --success: #34D399;
+  --danger: #F87171;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card-bg: var(--card-bg);
+  --color-card-border: var(--card-border);
+  --color-yellow-accent: var(--yellow-accent);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+}
+
+/* 프리미엄 옐로우 아크릴 글래스모피즘 */
+.glass-panel {
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-panel-accent {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(252, 211, 77, 0.15);
+}
+
+/* 스포티 노란색 네온 글로우 버튼 */
+.btn-yellow-glow {
+  background: var(--yellow-accent);
+  color: #0B0F19;
+  font-weight: 700;
+  box-shadow: 0 4px 14px 0 var(--yellow-glow);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-yellow-glow:hover {
+  background: #FBBF24;
+  box-shadow: 0 6px 20px 0 var(--yellow-glow-strong);
+  transform: translateY(-2px);
+}
+
+/* 텍스트 옐로우 그라데이션 */
+.text-yellow-gradient {
+  background: linear-gradient(135deg, #FFFbeb 0%, var(--yellow-accent) 50%, #F59E0B 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* 세련된 스크롤바 디자인 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0B0F19;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(252, 211, 77, 0.3);
+}
+
+/* 주행 실선 점선 애니메이션 효과 (디자인용) */
+@keyframes road-line {
+  0% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: -40; }
+}
+
+.road-stripes {
+  stroke-dasharray: 20, 20;
+  animation: road-line 1.2s linear infinite;
+}

@@ -1,0 +1,57 @@
+generator client {
+  provider        = "prisma-client-js"
+  // Prisma 7부터 PrismaClient는 driver adapter 또는 Accelerate URL 둘 중 하나가 필수.
+  // 로컬 Postgres + pgvector 환경에서는 driverAdapters 프리뷰 기능을 활성화하고
+  // @prisma/adapter-pg + pg 패키지로 직접 연결한다.
+  previewFeatures = ["postgresqlExtensions", "driverAdapters"]
+}
+
+datasource db {
+  // Prisma 7부터 schema 안의 `url` 속성은 더 이상 허용되지 않습니다.
+  // - 마이그레이션용 URL → prisma.config.ts 의 datasource.url 에서 관리
+  // - 런타임 연결       → PrismaService 에서 PrismaPg(driver adapter) 로 주입
+  provider   = "postgresql"
+  extensions = [pgvector(map: "vector")]
+}
+
+model Admin {
+  id           String   @id @default(uuid())
+  username     String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Content {
+  id          String             @id @default(uuid())
+  title       String
+  slug        String             @unique
+  content     String             @db.Text
+  category    String             // e.g., 'license', 'basics', 'rules', 'management', 'accidents'
+  tags        String[]           // e.g., ['독학', '비용']
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  embeddings  ContentEmbedding[]
+}
+
+model ContentEmbedding {
+  id           String                      @id @default(uuid())
+  contentId    String
+  content      Content                     @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  chunkIndex   Int
+  textContent  String                      @db.Text
+  embedding    Unsupported("vector(768)")? // Gemini-embedding dimension (768)
+  createdAt    DateTime                    @default(now())
+
+  @@index([contentId])
+}
+
+model ChatLog {
+  id             String   @id @default(uuid())
+  sessionKey     String
+  userMessage    String   @db.Text
+  botResponse    String   @db.Text
+  matchedSources Json?
+  feedback       String   @default("none") // 'like', 'dislike', 'none'
+  createdAt      DateTime @default(now())
+}
