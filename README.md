@@ -61,7 +61,7 @@ npm run start:dev          # http://localhost:4000/api
 
 서버 최초 기동 시 자동으로 다음이 수행됩니다.
 
-- 관리자 계정 시드 — `admin` / `drivetreeadmin123!`
+- 관리자 계정 시드 — 환경변수 `ADMIN_USERNAME` / `ADMIN_PASSWORD` 우선, 미설정 시 로컬 개발용 기본값(`admin` / `drivetreeadmin123!`). 운영 배포 시에는 반드시 `ADMIN_PASSWORD` 환경변수를 설정할 것 — 변경 후 재배포만으로 기존 계정 비밀번호가 자동 동기화된다.
 - 가이드 6건 시드(slug 기준 idempotent — 누락된 항목만 삽입) + 청크별 Gemini 임베딩 적재(API Key 있을 때) 또는 텍스트만 적재(없을 때)
   - `license-school-vs-self` / `license-type-1-vs-2`
   - `rules-unprotected-left-turn`
