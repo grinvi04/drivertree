@@ -37,8 +37,11 @@ async function bootstrap() {
     transform: true, // 입력 타입을 DTO 클래스 타입으로 자동 변환
   }));
 
-  const port = process.env.PORT || 4000;
-  await app.listen(port);
-  console.log(`🚀 DriveTree Backend running on: http://localhost:${port}/api`);
+  // Railway/Vercel 등 PaaS는 PORT를 동적 주입. 미주입 시 4000 fallback.
+  const port = Number(process.env.PORT) || 4000;
+  // 컨테이너 외부에서 접근 가능하도록 반드시 0.0.0.0 에 바인딩.
+  // (기본값으로 호스트가 localhost/IPv6 가 될 수 있어 명시 필수)
+  await app.listen(port, '0.0.0.0');
+  console.log(`🚀 DriveTree Backend running on: 0.0.0.0:${port}/api`);
 }
 bootstrap();
