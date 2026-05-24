@@ -68,7 +68,8 @@ export default function AdminLoginPage() {
                 <User className="absolute left-3.5 w-4 h-4 text-slate-500" />
                 <input
                   type="text"
-                  placeholder="아이디를 입력하세요 (디폴트: admin)"
+                  placeholder="관리자 아이디"
+                  autoComplete="username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="w-full h-11.5 pl-10.5 pr-4 rounded-xl bg-white/[0.02] border border-white/[0.08] focus:border-yellow-accent text-xs font-semibold text-slate-200 focus:outline-none"
@@ -84,7 +85,8 @@ export default function AdminLoginPage() {
                 <Lock className="absolute left-3.5 w-4 h-4 text-slate-500" />
                 <input
                   type="password"
-                  placeholder="비밀번호를 입력하세요 (디폴트: drivetreeadmin123!)"
+                  placeholder="관리자 비밀번호"
+                  autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full h-11.5 pl-10.5 pr-4 rounded-xl bg-white/[0.02] border border-white/[0.08] focus:border-yellow-accent text-xs font-semibold text-slate-200 focus:outline-none"
@@ -111,10 +113,10 @@ export default function AdminLoginPage() {
           </form>
         </div>
 
-        {/* 개발 시 시딩된 계정 안내 */}
-        <div className="mt-6 text-center text-[10px] text-slate-600 font-medium">
-          💡 시스템 최초 실행 시 데이터베이스에 <br />
-          아이디 <code className="text-slate-400">admin</code>, 비밀번호 <code className="text-slate-400">drivetreeadmin123!</code> 로 관리자 계정이 자동 등록(Seed)됩니다.
+        {/* 관리자 안내 — 자격증명 노출 없음 */}
+        <div className="mt-6 text-center text-[10px] text-slate-600 font-medium leading-relaxed">
+          관리자 계정은 서버 환경변수 <code className="text-slate-400">ADMIN_USERNAME</code> · <code className="text-slate-400">ADMIN_PASSWORD</code> 로 관리되며,
+          <br />초기 시드 이후 비밀번호 변경은 운영자에게 문의하세요.
         </div>
       </div>
     </div>
