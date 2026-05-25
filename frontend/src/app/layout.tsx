@@ -59,7 +59,10 @@ export default function RootLayout({
               </Link>
             </nav>
 
-            <div className="flex md:hidden items-center gap-4">
+            <div className="flex md:hidden items-center gap-2">
+              <Link href="/" className="text-xs bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg border border-white/10 text-slate-300 transition-colors">
+                가이드
+              </Link>
               <Link href="/calculators" className="text-xs bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg border border-white/10 text-slate-300 transition-colors">
                 계산기
               </Link>
