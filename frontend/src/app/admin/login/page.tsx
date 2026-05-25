@@ -37,7 +37,7 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="relative w-full flex flex-col min-h-screen bg-[#0B0F19] items-center justify-center py-20">
+    <div className="relative w-full flex flex-col min-h-screen bg-[#0B0F19] items-center justify-center py-20 overflow-x-hidden">
       {/* 옐로우 글로우 데코 */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-yellow-accent/5 blur-[120px] pointer-events-none" />
 
