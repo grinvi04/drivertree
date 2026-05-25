@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { AskChatDto, FeedbackChatDto } from './chat.dto';
 import { GoogleGenerativeAI } from '@google/generative-ai';
@@ -6,6 +6,7 @@ import { rankContents } from '../common/local-nlp.helper';
 
 @Injectable()
 export class ChatService {
+  private readonly logger = new Logger(ChatService.name);
   private genAI: GoogleGenerativeAI | null = null;
 
   // 명백한 프롬프트 인젝션·역할 변경 시도 패턴.
@@ -47,7 +48,7 @@ export class ChatService {
       const result = await model.embedContent(text);
       return result.embedding.values;
     } catch (error) {
-      console.error('Failed to get query embedding:', error);
+      this.logger.error('Failed to get query embedding', error instanceof Error ? error.stack : String(error));
       return null;
     }
   }
@@ -86,7 +87,7 @@ export class ChatService {
     // 프롬프트 인젝션 의심 패턴 감지 (차단은 안 함, 로깅만)
     const injectionSuspected = this.detectInjectionAttempt(message);
     if (injectionSuspected) {
-      console.warn(`[ChatService] Possible prompt injection from session=${sessionKey}: ${message.slice(0, 80)}`);
+      this.logger.warn(`Possible prompt injection from session="${sessionKey}": "${message.slice(0, 80)}"`);
     }
 
     const vector = await this.getEmbedding(message);
@@ -127,7 +128,10 @@ ${message}`;
         const result = await model.generateContent(systemPrompt);
         botResponse = result.response.text();
       } catch (error) {
-        console.error('LLM generation error, falling back to local model:', error);
+        this.logger.error(
+          'LLM generation error, falling back to local model',
+          error instanceof Error ? error.stack : String(error),
+        );
         // LLM 장애 시 로컬 폴백 트리거
         return this.localNlpFallback(message, sessionKey);
       }

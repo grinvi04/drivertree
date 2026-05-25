@@ -193,13 +193,13 @@ export default function CalculatorsPage() {
                       <button
                         type="button"
                         onClick={() => setIsChildZone(!isChildZone)}
-                        className={`relative inline-flex h-6.5 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                        className={`relative inline-flex h-[26px] w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
                           isChildZone ? 'bg-yellow-accent' : 'bg-slate-700'
                         }`}
                       >
                         <span
-                          className={`pointer-events-none inline-block h-5.5 w-5.5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                            isChildZone ? 'translate-x-5.5' : 'translate-x-0'
+                          className={`pointer-events-none inline-block h-[22px] w-[22px] transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                            isChildZone ? 'translate-x-[22px]' : 'translate-x-0'
                           }`}
                         />
                       </button>
@@ -238,7 +238,7 @@ export default function CalculatorsPage() {
                     </h3>
 
                     {/* 무인 단속 과태료 */}
-                    <div className="w-full flex flex-col gap-0.5 pb-4.5 border-b border-white/[0.05] mb-4.5">
+                    <div className="w-full flex flex-col gap-0.5 pb-[18px] border-b border-white/[0.05] mb-[18px]">
                       <span className="text-[10px] text-slate-400 font-semibold">카메라 무인 단속 시 (과태료)</span>
                       <span className="text-2xl font-black text-yellow-accent">
                         {(isChildZone ? selectedRule.fineChildZone : selectedRule.fineNormal).toLocaleString()}원
@@ -389,7 +389,7 @@ export default function CalculatorsPage() {
                     </div>
 
                     {/* 항목별 비율 시각화 가로 차트 */}
-                    <h4 className="text-xs font-bold text-slate-200 mb-4.5 flex items-center gap-1.5">
+                    <h4 className="text-xs font-bold text-slate-200 mb-[18px] flex items-center gap-1.5">
                       <TrendingUp className="w-4 h-4 text-yellow-accent" />
                       지출 항목 세부 비중
                     </h4>

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ConflictException, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, ConflictException, OnModuleInit } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { CreateContentDto, UpdateContentDto } from './content.dto';
 import { rankContents } from '../common/local-nlp.helper';
@@ -6,6 +6,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 @Injectable()
 export class ContentService implements OnModuleInit {
+  private readonly logger = new Logger(ContentService.name);
   private genAI: GoogleGenerativeAI | null = null;
 
   constructor(private prisma: PrismaService) {
@@ -214,9 +215,9 @@ export class ContentService implements OnModuleInit {
     }
 
     if (insertedCount > 0) {
-      console.log(`🌱 [DriveTree Seed] Inserted ${insertedCount} new seed content(s).`);
+      this.logger.log(`[Seed] Inserted ${insertedCount} new seed content(s).`);
     } else {
-      console.log('✅ [DriveTree Seed] All seed contents already present.');
+      this.logger.log('[Seed] All seed contents already present.');
     }
   }
 
@@ -252,7 +253,7 @@ export class ContentService implements OnModuleInit {
       const result = await model.embedContent(text);
       return result.embedding.values;
     } catch (error) {
-      console.error('Gemini embedding generation failed:', error);
+      this.logger.error('Gemini embedding generation failed', error instanceof Error ? error.stack : String(error));
       return null;
     }
   }

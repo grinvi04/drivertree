@@ -1,12 +1,24 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
+import { AllExceptionsFilter } from './common/all-exceptions.filter';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  
+  // NEST_LOG_LEVEL 환경변수로 운영/로컬 로그 노이즈 제어
+  // 예: production은 "log,warn,error" / 디버그는 "log,warn,error,debug,verbose"
+  const logLevels = (process.env.NEST_LOG_LEVEL?.split(',') ?? [
+    'log',
+    'warn',
+    'error',
+  ]) as ('log' | 'error' | 'warn' | 'debug' | 'verbose')[];
+
+  const app = await NestFactory.create(AppModule, { logger: logLevels });
+
   // 글로벌 API 경로 프리픽스 설정 (/api/...)
   app.setGlobalPrefix('api');
+
+  // 모든 예외를 한 곳에서 처리 — 구조화 로깅 + 일관된 JSON 에러 응답
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   // CORS 활성화 — 배포 시 ALLOWED_ORIGINS 환경변수로 도메인 화이트리스트
   // 예: "https://drivetree.vercel.app,https://drivetree-preview.vercel.app"
@@ -42,6 +54,6 @@ async function bootstrap() {
   // 컨테이너 외부에서 접근 가능하도록 반드시 0.0.0.0 에 바인딩.
   // (기본값으로 호스트가 localhost/IPv6 가 될 수 있어 명시 필수)
   await app.listen(port, '0.0.0.0');
-  console.log(`🚀 DriveTree Backend running on: 0.0.0.0:${port}/api`);
+  new Logger('Bootstrap').log(`🚀 DriveTree Backend running on 0.0.0.0:${port}/api`);
 }
 bootstrap();

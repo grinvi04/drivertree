@@ -219,7 +219,7 @@ export default function AdminDashboardPage() {
                 : 'border-transparent text-slate-500 hover:text-slate-300'
             }`}
           >
-            <FileText className="w-4.5 h-4.5" />
+            <FileText className="w-[18px] h-[18px]" />
             가이드 콘텐츠 관리
           </button>
           <button
@@ -230,7 +230,7 @@ export default function AdminDashboardPage() {
                 : 'border-transparent text-slate-500 hover:text-slate-300'
             }`}
           >
-            <MessageSquare className="w-4.5 h-4.5" />
+            <MessageSquare className="w-[18px] h-[18px]" />
             AI 챗봇 모니터링 로그
           </button>
         </div>
@@ -245,7 +245,7 @@ export default function AdminDashboardPage() {
               </h3>
               <button
                 onClick={handleOpenAddModal}
-                className="flex items-center gap-1.5 px-4.5 py-2.5 rounded-xl btn-yellow-glow text-xs font-bold"
+                className="flex items-center gap-1.5 px-[18px] py-2.5 rounded-xl btn-yellow-glow text-xs font-bold"
               >
                 <Plus className="w-4 h-4" />
                 새 실전 가이드 작성
@@ -393,7 +393,7 @@ export default function AdminDashboardPage() {
             <div className="w-full max-w-2xl rounded-3xl glass-panel border border-white/[0.08] shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-200">
               
               {/* Modal Header */}
-              <div className="px-6 py-4.5 bg-[#121825] border-b border-white/[0.06] flex items-center justify-between">
+              <div className="px-6 py-[18px] bg-[#121825] border-b border-white/[0.06] flex items-center justify-between">
                 <h3 className="text-sm font-bold text-white">
                   {editingPostId ? '🔧 실전 가이드 노하우 수정' : '🌳 새 실전 가이드 등록'}
                 </h3>
@@ -476,7 +476,7 @@ export default function AdminDashboardPage() {
 서행으로 천천히 우회전을 통과하면 됩니다."
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
-                    className="w-full flex-grow p-4.5 rounded-xl bg-white/[0.02] border border-white/[0.08] focus:border-yellow-accent text-xs font-medium text-slate-200 focus:outline-none resize-none font-mono min-h-[180px]"
+                    className="w-full flex-grow p-[18px] rounded-xl bg-white/[0.02] border border-white/[0.08] focus:border-yellow-accent text-xs font-medium text-slate-200 focus:outline-none resize-none font-mono min-h-[180px]"
                     required
                   />
                 </div>

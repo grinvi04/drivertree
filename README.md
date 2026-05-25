@@ -1,5 +1,7 @@
 # 🌳 DriveTree — 초보운전자 가이드
 
+[![CI](https://github.com/grinvi04/drivertree/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/grinvi04/drivertree/actions/workflows/ci.yml)
+
 > **"면허 학원도, 유튜브도, 공식 사이트도 알려주지 않는, 초보운전자가 진짜 막막한 순간들을 정리한 가이드"**
 
 NestJS + Next.js + PostgreSQL(pgvector) + Gemini(RAG) 풀스택 MVP. 자세한 기획은 [`PRD.md`](./PRD.md) 참고.

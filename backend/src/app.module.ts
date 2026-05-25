@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { AppController } from './app.controller';
@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { ContentModule } from './content/content.module';
 import { ChatModule } from './chat/chat.module';
 import { CalculatorModule } from './calculator/calculator.module';
+import { RequestLoggerMiddleware } from './common/request-logger.middleware';
 
 @Module({
   imports: [
@@ -33,4 +34,12 @@ import { CalculatorModule } from './calculator/calculator.module';
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  /**
+   * 모든 라우트에 요청 로깅 미들웨어 적용.
+   * 헬스체크 노이즈는 미들웨어 내부에서 debug 레벨로 강등.
+   */
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(RequestLoggerMiddleware).forRoutes('*');
+  }
+}
