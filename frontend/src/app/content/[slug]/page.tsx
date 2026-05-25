@@ -231,7 +231,7 @@ export default function ContentDetailPage({ params }: PageProps) {
                 <Link
                   key={rec.id}
                   href={`/content/${rec.slug}`}
-                  className="rounded-2xl bg-white/[0.02] border border-white/[0.05] hover:border-yellow-accent/40 p-4.5 flex flex-col justify-between hover:-translate-y-1 transition-all duration-300"
+                  className="rounded-2xl bg-white/[0.02] border border-white/[0.05] hover:border-yellow-accent/40 p-[18px] flex flex-col justify-between hover:-translate-y-1 transition-all duration-300"
                 >
                   <div>
                     <span className="text-[9px] font-bold text-slate-500 mb-1.5 block">
