@@ -5,7 +5,7 @@
 
 ---
 
-## 0. 지금까지 어디까지 왔는지 (2026-05-21 기준)
+## 0. 지금까지 어디까지 왔는지 (2026-05-25 기준)
 
 - ✅ PRD v0.1 확정 (`PRD.md`)
 - ✅ 백엔드 MVP 골격 완성 — NestJS 11 + Prisma 7 (driver adapter) + pgvector + JWT 인증 + 시드 4건 + 챗봇(RAG + 로컬 폴백) + 계산기 2종
@@ -16,8 +16,14 @@
 - ✅ **검증 가설 + 인터뷰 질문지** — `docs/USER_RESEARCH.md` 작성 완료 (가설 4종, 페르소나별 질문지, 의사결정 매트릭스 포함)
 - ✅ **데모 시드 보강** — 콘텐츠 4건 → **6건** (license-type-1-vs-2, maintenance-engine-oil-cycle 추가). P1/P2/P3 데모 시나리오 3건 모두 출처 매칭 가능. 시드 로직도 slug 기준 idempotent로 변경 (2026-05-22)
 - ✅ **인터뷰 데모 환경 셋업 가이드** — `docs/INTERVIEW_SETUP.md` (Gemini API Key 발급, 시드 적재 확인, 챗봇 사전 검증, 30초 점검표)
+- ✅ **CI 파이프라인 안정화 (v1.1.1 ~ v1.1.2, 2026-05-25)** — 아래 항목 5건 연속 핫픽스:
+  - 백엔드 소스 전체 prettier auto-format (`npm run format`) — ESLint 80+ 에러 일괄 해소
+  - 프론트 `npm ci` → `npm install` 전환 — npm 10.x에서 wasm32 optional 패키지 하위 의존성 lock 파일 미등재 버그 우회
+  - 백엔드 TS 빌드 오류 — `chat.service.ts:212` `slug: item.slug ?? ''` (string | undefined → string)
+  - 프론트 ESLint error — `content/[slug]/page.tsx` useMemo 본문과 deps 배열의 optional chaining 불일치 (`post.content` → `post?.content`)
+  - 백엔드 유닛 테스트 실패 — 한국어 인젝션 정규식 `\s*` → `.*?` (사이 단어 허용)
 
-PRD의 6개 기능(F1~F6)이 *기본 동작 가능* 상태로 들어와 있음. 콘텐츠는 6건 시드된 상태.
+PRD의 6개 기능(F1~F6)이 *기본 동작 가능* 상태로 들어와 있음. 콘텐츠는 6건 시드된 상태. **CI 파이프라인 현재 안정.**
 
 ---
 
@@ -58,6 +64,7 @@ PRD의 6개 기능(F1~F6)이 *기본 동작 가능* 상태로 들어와 있음. 
 - [x] **XSS 방어 강화** — 마크다운 렌더러 escapeHtml + DOMPurify 이중 sanitize, 콘텐츠 DTO 길이/패턴 검증, Next.js 보안 헤더(CSP/X-Frame-Options/Referrer-Policy) 적용 (Phase 3)
 - [x] **CI 파이프라인 + 핵심 유닛테스트** — GitHub Actions(.github/workflows/ci.yml) 백/프론트 lint+build+test, pgvector Postgres 서비스 컨테이너로 마이그레이션 검증, CalculatorService(9건)·ChatService 인젝션 감지(20건+)·AppController 헬스(2건) 유닛테스트 (Phase 4)
 - [x] **구조화 로깅 & 글로벌 예외 필터** — AllExceptionsFilter(상태별 warn/error 분리, 일관된 JSON 응답), RequestLoggerMiddleware(method·url·status·durationMs·UA), 모든 `console.*` → NestJS Logger 변환, `NEST_LOG_LEVEL` env 도입 (Phase 5)
+- [x] **CI 파이프라인 완전 안정화** — v1.1.1~v1.1.2 hotfix 5건. prettier 미실행 경고, npm 10.x 잠금파일 버그, TS 타입, React Compiler deps, 한국어 regex (2026-05-25)
 - [ ] **JWT 저장 위치 마이그레이션 (Follow-up)** — 현재 `localStorage`에 저장(XSS 발생 시 토큰 탈취 위험). 백엔드는 `httpOnly + Secure + SameSite=Lax` 쿠키로 발급, 프론트는 `credentials: 'include'` 호출로 전환 필요. Phase 3에서 XSS 차단으로 1차 완화했으나 토큰 저장 자체는 그대로.
 - [ ] **Sentry forwarding 활성화 (Follow-up)** — `@sentry/node` 미설치 상태. `backend/src/common/all-exceptions.filter.ts` TODO 위치에 `Sentry.captureException(exception)` 추가하고 `SENTRY_DSN` env 설정만 하면 5xx가 Sentry로 전송됨. 프론트는 `@sentry/nextjs` 별도 셋업.
 - [ ] **Gemini API 비용 모니터링** — 일일/월 호출 횟수 로깅, 임계치 알림.
@@ -76,6 +83,17 @@ PRD의 6개 기능(F1~F6)이 *기본 동작 가능* 상태로 들어와 있음. 
 ### React 19 + ESLint 신규 규칙
 - `react-hooks/set-state-in-effect`, `react-hooks/immutability` 두 신규 규칙이 매우 엄격함.
 - 본 프로젝트에서는 `eslint.config.mjs`에서 warning으로 완화 처리. 실제로 효과 큰 안티패턴이면 그때마다 리팩토링 권장.
+- `react-hooks/preserve-manual-memoization` 규칙은 **error** 수준. `useMemo` 본문과 deps 배열의 optional chaining(`post.content` vs `post?.content`)이 일치하지 않으면 CI 실패. 반드시 동일한 표현 사용.
+
+### Prettier 미실행 → 백엔드 CI lint 실패
+- 백엔드 소스 수정 후 `npm run format`(`prettier --write`) 없이 push하면 CI의 `lint:check` 단계에서 80+ prettier 에러 발생. **백엔드 코드 변경 시 항상 `cd backend && npm run format` 선행.**
+
+### npm 10.x + wasm32 optional 패키지 lock 파일 버그
+- Node 22와 함께 오는 npm 10.x에서 `npm ci`는 `@unrs/resolver-binding-wasm32-wasi` 같은 wasm32-only optional 패키지의 하위 의존성(`@emnapi/core@1.10.0` 등)이 lock 파일에 없으면 실패. 로컬(npm 11.x)에서는 통과.
+- **해결**: CI workflow에서 프론트엔드 `npm ci` → `npm install` 전환 (`.github/workflows/ci.yml`). lock 파일을 존중하면서 누락된 optional 패키지는 건너뜀.
+
+### 한국어 정규식 — 사이 단어 허용
+- `/(이전|위)의?\s*(지시|...)\s*(무시|잊)/` 처럼 `\s*`로 이어붙이면 "이전의 **모든** 지시를 무시해" 같이 수식어가 끼면 미매칭. `\s*` 대신 `.*?` (lazy wildcard) 사용.
 
 ### Next.js 16 + SWC 바이너리
 - `next build`는 첫 실행 시 플랫폼별 SWC 바이너리를 npm 레지스트리에서 추가 다운로드. **샌드박스/오프라인 환경에서는 막힘.** 로컬 머신에서 직접 빌드 필요.

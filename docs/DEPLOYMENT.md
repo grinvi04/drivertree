@@ -124,7 +124,7 @@ Railway 프로젝트 → **Variables** 탭에서 다음 추가:
 - [ ] 카드 클릭 → 콘텐츠 상세 페이지 마크다운 렌더링 정상
 - [ ] 챗봇 다이얼로그 → *"엔진오일 언제 갈아야 해요?"* → 답변 + 출처 카드 노출
 - [ ] `/calculators` 페이지에서 범칙금/유지비 계산기 동작
-- [ ] `/admin/login` → `admin` / `drivetreeadmin123!` 로 로그인 → 대시보드 진입
+- [ ] `/admin/login` → `admin` / (Railway에 설정한 `ADMIN_PASSWORD` 값) 으로 로그인 → 대시보드 진입
 - [ ] 브라우저 콘솔(F12)에 CORS 에러 없음
 - [ ] Railway 로그에 5xx 에러 없음
 
