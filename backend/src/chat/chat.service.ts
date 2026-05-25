@@ -41,7 +41,7 @@ export class ChatService {
     /disregard\s+(the\s+)?(system|previous|above)/i,
     /you\s+are\s+now\s+(a|an)\s+/i,
     /act\s+as\s+(a|an)\s+/i,
-    /(이전|위)의?\s*(지시|명령|프롬프트|규칙)을?\s*(무시|잊)/,
+    /(이전|위)의?.*?(지시|명령|프롬프트|규칙).*?(무시|잊)/,
     /당신은?\s*이제부터\s*/,
     /시스템\s*프롬프트/,
     /\bDAN\b/,
