@@ -1,4 +1,5 @@
 import { Injectable, Logger, NotFoundException, ConflictException, OnModuleInit } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
 import { CreateContentDto, UpdateContentDto } from './content.dto';
 import { rankContents } from '../common/local-nlp.helper';
@@ -322,7 +323,7 @@ export class ContentService implements OnModuleInit {
    * 콘텐츠 목록을 조회합니다. 카테고리 필터와 검색어를 지원합니다.
    */
   async findAll(category?: string, search?: string) {
-    const where: any = {};
+    const where: Prisma.ContentWhereInput = {};
     if (category) {
       where.category = category;
     }
