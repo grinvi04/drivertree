@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect, use, useMemo } from 'react';
 import Link from 'next/link';
+import DOMPurify from 'isomorphic-dompurify';
 import { api } from '@/lib/api';
-import { 
-  ArrowLeft, 
-  Calendar, 
-  Tag, 
-  ChevronRight, 
+import {
+  ArrowLeft,
+  Calendar,
+  Tag,
+  ChevronRight,
   BookOpen,
   Car,
   MapPin,
@@ -35,7 +36,22 @@ const CATEGORIES = [
 ];
 
 /**
+ * HTML 특수문자 escape — XSS 1차 방어
+ * parseInlineMarkdown이 사용자 입력을 정규식으로 변환하기 전에 호출.
+ * 이후 markdown 패턴(**, `)이 적용되어 <strong>/<code> 등이 새로 생성됨.
+ */
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+/**
  * 간단하고 빠른 한국어 마크다운 파서 및 HTML 렌더러 헬퍼 함수
+ * 보안: parseInlineMarkdown 내부에서 escapeHtml 1차 처리 + 최종 출력은 호출부에서 DOMPurify로 2차 sanitize.
  */
 function renderMarkdown(md: string) {
   if (!md) return '';
@@ -93,16 +109,18 @@ function renderMarkdown(md: string) {
 
 /**
  * 인라인 볼드(**), 하이라이트(`), 기울임(*) 파싱
+ * 1차로 HTML escape → 사용자 입력에 포함된 <script>, onerror= 등은 모두 텍스트로 무력화.
+ * 이후 markdown 패턴만 안전한 태그로 치환.
  */
 function parseInlineMarkdown(text: string) {
-  let parsed = text;
-  
+  let parsed = escapeHtml(text);
+
   // 1. 볼드 (**text**)
   parsed = parsed.replace(/\*\*(.*?)\*\*/g, '<strong class="font-extrabold text-white">$1</strong>');
-  
+
   // 2. 백틱 코드 하이라이트 (`code`)
   parsed = parsed.replace(/`(.*?)`/g, '<code class="bg-[#1e293b]/70 border border-white/5 text-yellow-accent px-1.5 py-0.5 rounded text-[11px] font-mono">$1</code>');
-  
+
   return parsed;
 }
 
@@ -117,6 +135,21 @@ export default function ContentDetailPage({ params }: PageProps) {
   const [post, setPost] = useState<GuideContent | null>(null);
   const [recommendations, setRecommendations] = useState<GuideContent[]>([]);
   const [loading, setLoading] = useState(true);
+
+  /**
+   * XSS 2차 방어 — escapeHtml(1차)로 escape 됐지만 만약 누락된 패턴이 있어도
+   * DOMPurify가 <script>, on*= 이벤트, javascript:URL, <iframe> 등 모든 위험 요소 제거.
+   * useMemo로 본문 변경 시에만 재계산.
+   */
+  const sanitizedHtml = useMemo(() => {
+    if (!post?.content) return '';
+    const raw = renderMarkdown(post.content);
+    return DOMPurify.sanitize(raw, {
+      USE_PROFILES: { html: true },
+      FORBID_TAGS: ['style', 'iframe', 'form', 'input', 'button', 'object', 'embed'],
+      FORBID_ATTR: ['style', 'onerror', 'onload', 'onclick'],
+    });
+  }, [post?.content]);
 
   useEffect(() => {
     // slug가 변경될 때마다 상세 데이터를 다시 로드 (취소 가능 패턴)
@@ -215,7 +248,7 @@ export default function ContentDetailPage({ params }: PageProps) {
           {/* 마크다운 렌더링 본문 */}
           <div 
             className="prose prose-invert max-w-none text-slate-300 font-medium"
-            dangerouslySetInnerHTML={{ __html: renderMarkdown(post.content) }}
+            dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
           />
         </article>
 
