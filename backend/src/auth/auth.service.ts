@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from './auth.dto';
@@ -6,6 +6,8 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService implements OnModuleInit {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
@@ -37,15 +39,16 @@ export class AuthService implements OnModuleInit {
       await this.prisma.admin.create({
         data: { username, passwordHash },
       });
-      console.log('----------------------------------------------------');
-      console.log(`🎉 [DriveTree Seed] Admin account created: ${username}`);
+      this.logger.log(`[Seed] Admin account created: username="${username}"`);
       if (envPassword) {
-        console.log('🔒 Password sourced from ADMIN_PASSWORD env (value hidden).');
+        this.logger.log('[Seed] Password sourced from ADMIN_PASSWORD env (value hidden).');
       } else {
-        console.log(`🔑 Password (DEV DEFAULT): ${defaultPassword}`);
-        console.log('⚠️  Set ADMIN_PASSWORD env in production!');
+        // 로컬 개발 모드에서만 평문 비밀번호 노출. 운영(NODE_ENV=production)에서는 절대 출력 안 함.
+        if (process.env.NODE_ENV !== 'production') {
+          this.logger.warn(`[Seed] Using DEV DEFAULT password: ${defaultPassword}`);
+        }
+        this.logger.warn('[Seed] ADMIN_PASSWORD env is NOT set — set it before production deploy!');
       }
-      console.log('----------------------------------------------------');
       return;
     }
 
@@ -57,7 +60,7 @@ export class AuthService implements OnModuleInit {
           where: { id: existing.id },
           data: { passwordHash },
         });
-        console.log(`🔄 [DriveTree Seed] Admin password rotated for ${username} via ADMIN_PASSWORD env.`);
+        this.logger.log(`[Seed] Admin password rotated for username="${username}" via ADMIN_PASSWORD env.`);
       }
     }
   }
