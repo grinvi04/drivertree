@@ -3,11 +3,18 @@ import type { NextConfig } from "next";
 /**
  * 보안 헤더 — XSS, clickjacking, MIME sniffing 등 일반적 웹 공격 방어 라인
  *
- * CSP 주의:
- * - Next.js 16은 dev 모드에서 inline eval/style을 사용하므로 'unsafe-eval', 'unsafe-inline' 허용 필요
- * - production 빌드에서도 React가 inline style을 일부 주입하므로 style-src 'unsafe-inline' 유지
- * - script-src는 strict 모드 — self만 허용 (admin 마크다운에 inline script가 들어와도 차단됨)
- * - connect-src는 API 도메인 환경변수로 동적 확장
+ * CSP 정책 결정:
+ * - script-src: production에서도 'unsafe-inline' 허용. Next.js 16은 hydration용
+ *   인라인 <script>로 초기 state/route 데이터를 직렬화하는데, 'self'만 허용하면
+ *   모든 인라인 스크립트가 차단되어 페이지가 SSR HTML 그대로 멈춤(JS 미실행).
+ *   진짜 strict mode를 원하면 Next.js middleware로 nonce 기반 CSP 도입이 정석이며,
+ *   현재 단계는 'unsafe-inline'으로 hydration을 살리고 XSS는 DOMPurify·escapeHtml
+ *   이중 sanitize + script-src 'self' 외부 출처 차단으로 방어한다.
+ *   (follow-up: docs/NEXT_STEPS.md — nonce 기반 CSP migration)
+ * - style-src: 'unsafe-inline' 유지(React가 style props로 inline style 주입)
+ * - connect-src: API 도메인 환경변수로 동적 확장
+ * - 그 외 frame-ancestors none / object-src none / X-Frame-Options DENY 로
+ *   clickjacking·플러그인 임베드 차단
  */
 const apiOrigin = process.env.NEXT_PUBLIC_API_URL
   ? new URL(process.env.NEXT_PUBLIC_API_URL).origin
@@ -15,9 +22,9 @@ const apiOrigin = process.env.NEXT_PUBLIC_API_URL
 
 const cspDirectives = [
   "default-src 'self'",
-  // Next.js 16은 dev에서 eval을 쓰므로 dev는 unsafe-eval 추가. production은 self만
+  // dev는 HMR을 위해 unsafe-eval 추가, production은 unsafe-inline 만(eval 차단)
   process.env.NODE_ENV === "production"
-    ? "script-src 'self'"
+    ? "script-src 'self' 'unsafe-inline'"
     : "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
   // Tailwind v4 + React inline styles
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
