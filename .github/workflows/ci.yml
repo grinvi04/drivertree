@@ -1,0 +1,106 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+# 동일 브랜치 push가 빠르게 연속 들어오면 진행 중인 워크플로 취소 → 비용 절약
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend — lint · build · test
+    runs-on: ubuntu-latest
+
+    # 컨테이너에서 pgvector 가 켜진 Postgres를 띄워 Prisma 마이그레이션 검증
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: drivetree_user
+          POSTGRES_PASSWORD: drivetree_password123!
+          POSTGRES_DB: drivetree
+        ports:
+          - 5432:5432
+        # health check — Postgres가 준비될 때까지 기다림
+        options: >-
+          --health-cmd "pg_isready -U drivetree_user -d drivetree"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://drivetree_user:drivetree_password123!@localhost:5432/drivetree?schema=public
+      JWT_SECRET: ci_jwt_secret_for_tests_only_not_for_production
+      # CI에서는 Gemini 호출 안 함 — 로컬 TF-IDF 폴백으로 충분
+      GEMINI_API_KEY: ""
+      ADMIN_USERNAME: admin
+      ADMIN_PASSWORD: ci_admin_password
+      NODE_ENV: test
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: backend/.nvmrc
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prisma generate
+        run: npx prisma generate
+
+      - name: Prisma migrate deploy
+        run: npx prisma migrate deploy
+
+      - name: Lint
+        run: npm run lint --if-present
+
+      - name: Build (compile check)
+        run: npm run build
+
+      - name: Unit tests
+        run: npm test
+
+  frontend:
+    name: Frontend — lint · build
+    runs-on: ubuntu-latest
+
+    env:
+      NEXT_PUBLIC_API_URL: http://localhost:4000/api
+      NEXT_TELEMETRY_DISABLED: 1
+
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: frontend/.nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint --if-present
+
+      - name: Build (Next.js production compile)
+        run: npm run build

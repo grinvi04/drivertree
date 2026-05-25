@@ -51,9 +51,15 @@ PRD의 6개 기능(F1~F6)이 *기본 동작 가능* 상태로 들어와 있음. 
 - ❓ **비대면 검증으로 전환 가능** — 데스크 리서치(유튜브/카페/블로그) + 서베이 폼(구글 폼). USER_RESEARCH.md 가설은 그대로, 검증 방법만 교체.
 
 ### 운영/품질 트랙 (배포하기 전에)
-- [ ] **Rate Limiting** — 특히 `/chat/ask` (Gemini API 비용 보호). `@nestjs/throttler` 권장.
-- [ ] **프롬프트 인젝션 방어** — 챗봇 시스템 프롬프트에 *"운전 무관 질문 거부"* 강화, 사용자 입력 검증.
-- [ ] **Sentry 에러 로깅** — 백/프론트 둘 다.
+- [x] **Rate Limiting** — 글로벌 60/min + `/chat/ask` 추가 강화 (2026-05-22)
+- [x] **프롬프트 인젝션 방어** — DTO MaxLength + 9개 패턴 감지 + 시스템 프롬프트 강화 (2026-05-22)
+- [x] **Critical Security 핫픽스** — admin/login placeholder 자격증명 제거, README 디폴트 비번 노출 완화 (Phase 1, 2026-05-24, v1.0.1)
+- [x] **디자인 깨짐 수정** — Tailwind v4 비표준 spacing 클래스 임의값으로 정규화 (Phase 2)
+- [x] **XSS 방어 강화** — 마크다운 렌더러 escapeHtml + DOMPurify 이중 sanitize, 콘텐츠 DTO 길이/패턴 검증, Next.js 보안 헤더(CSP/X-Frame-Options/Referrer-Policy) 적용 (Phase 3)
+- [x] **CI 파이프라인 + 핵심 유닛테스트** — GitHub Actions(.github/workflows/ci.yml) 백/프론트 lint+build+test, pgvector Postgres 서비스 컨테이너로 마이그레이션 검증, CalculatorService(9건)·ChatService 인젝션 감지(20건+)·AppController 헬스(2건) 유닛테스트 (Phase 4)
+- [x] **구조화 로깅 & 글로벌 예외 필터** — AllExceptionsFilter(상태별 warn/error 분리, 일관된 JSON 응답), RequestLoggerMiddleware(method·url·status·durationMs·UA), 모든 `console.*` → NestJS Logger 변환, `NEST_LOG_LEVEL` env 도입 (Phase 5)
+- [ ] **JWT 저장 위치 마이그레이션 (Follow-up)** — 현재 `localStorage`에 저장(XSS 발생 시 토큰 탈취 위험). 백엔드는 `httpOnly + Secure + SameSite=Lax` 쿠키로 발급, 프론트는 `credentials: 'include'` 호출로 전환 필요. Phase 3에서 XSS 차단으로 1차 완화했으나 토큰 저장 자체는 그대로.
+- [ ] **Sentry forwarding 활성화 (Follow-up)** — `@sentry/node` 미설치 상태. `backend/src/common/all-exceptions.filter.ts` TODO 위치에 `Sentry.captureException(exception)` 추가하고 `SENTRY_DSN` env 설정만 하면 5xx가 Sentry로 전송됨. 프론트는 `@sentry/nextjs` 별도 셋업.
 - [ ] **Gemini API 비용 모니터링** — 일일/월 호출 횟수 로깅, 임계치 알림.
 - [ ] **모바일 UX 점검** — 운전자가 모바일로 더 자주 접근 (PRD 6.3). 카드 그리드, 챗봇 다이얼로그.
 

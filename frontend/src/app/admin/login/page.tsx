@@ -72,7 +72,7 @@ export default function AdminLoginPage() {
                   autoComplete="username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full h-11.5 pl-10.5 pr-4 rounded-xl bg-white/[0.02] border border-white/[0.08] focus:border-yellow-accent text-xs font-semibold text-slate-200 focus:outline-none"
+                  className="w-full h-[46px] pl-[42px] pr-4 rounded-xl bg-white/[0.02] border border-white/[0.08] focus:border-yellow-accent text-xs font-semibold text-slate-200 focus:outline-none"
                   required
                 />
               </div>
@@ -89,7 +89,7 @@ export default function AdminLoginPage() {
                   autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full h-11.5 pl-10.5 pr-4 rounded-xl bg-white/[0.02] border border-white/[0.08] focus:border-yellow-accent text-xs font-semibold text-slate-200 focus:outline-none"
+                  className="w-full h-[46px] pl-[42px] pr-4 rounded-xl bg-white/[0.02] border border-white/[0.08] focus:border-yellow-accent text-xs font-semibold text-slate-200 focus:outline-none"
                   required
                 />
               </div>
@@ -106,7 +106,7 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full h-11.5 rounded-xl btn-yellow-glow text-xs font-bold mt-4"
+              className="w-full h-[46px] rounded-xl btn-yellow-glow text-xs font-bold mt-4"
             >
               {loading ? '인증 토큰 발급 중...' : '백오피스 입장하기'}
             </button>

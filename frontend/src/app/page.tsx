@@ -225,7 +225,7 @@ export default function Home() {
               <button
                 key={cat.id}
                 onClick={() => handleCategoryChange(cat.id)}
-                className={`snap-start flex items-center gap-2.5 px-4.5 py-3.5 rounded-2xl shrink-0 border text-left cursor-pointer transition-all duration-300 ${
+                className={`snap-start flex items-center gap-2.5 px-[18px] py-3.5 rounded-2xl shrink-0 border text-left cursor-pointer transition-all duration-300 ${
                   isActive
                     ? 'bg-yellow-accent/15 border-yellow-accent text-white shadow-[0_0_15px_rgba(252,211,77,0.1)]'
                     : 'bg-white/[0.02] border-white/[0.05] text-slate-400 hover:border-slate-800 hover:text-slate-200'
@@ -308,7 +308,7 @@ export default function Home() {
 
                     <Link
                       href={`/content/${post.slug}`}
-                      className="w-full flex items-center justify-center gap-1.5 h-10.5 rounded-xl bg-white/[0.03] border border-white/[0.06] group-hover:bg-yellow-accent group-hover:text-[#0B0F19] text-xs font-bold text-slate-300 group-hover:border-transparent transition-all duration-300"
+                      className="w-full flex items-center justify-center gap-1.5 h-[42px] rounded-xl bg-white/[0.03] border border-white/[0.06] group-hover:bg-yellow-accent group-hover:text-[#0B0F19] text-xs font-bold text-slate-300 group-hover:border-transparent transition-all duration-300"
                     >
                       실전 노하우 읽기
                       <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
@@ -424,7 +424,7 @@ export default function Home() {
               })}
 
               {isChatTyping && (
-                <div className="flex items-center gap-1.5 bg-white/[0.03] border border-white/[0.06] rounded-2xl rounded-tl-none px-4.5 py-3 w-fit">
+                <div className="flex items-center gap-1.5 bg-white/[0.03] border border-white/[0.06] rounded-2xl rounded-tl-none px-[18px] py-3 w-fit">
                   <span className="w-1.5 h-1.5 rounded-full bg-yellow-accent animate-bounce" style={{ animationDelay: '0ms' }} />
                   <span className="w-1.5 h-1.5 rounded-full bg-yellow-accent animate-bounce" style={{ animationDelay: '150ms' }} />
                   <span className="w-1.5 h-1.5 rounded-full bg-yellow-accent animate-bounce" style={{ animationDelay: '300ms' }} />
@@ -441,12 +441,12 @@ export default function Home() {
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
                 disabled={isChatTyping}
-                className="flex-grow h-10.5 px-3.5 rounded-xl bg-white/[0.02] border border-white/[0.06] text-xs font-semibold focus:outline-none focus:border-yellow-accent text-slate-200"
+                className="flex-grow h-[42px] px-3.5 rounded-xl bg-white/[0.02] border border-white/[0.06] text-xs font-semibold focus:outline-none focus:border-yellow-accent text-slate-200"
               />
               <button
                 type="submit"
                 disabled={isChatTyping || !chatInput.trim()}
-                className="w-10.5 h-10.5 rounded-xl btn-yellow-glow flex items-center justify-center disabled:opacity-50 disabled:scale-100 disabled:shadow-none transition-transform"
+                className="w-[42px] h-[42px] rounded-xl btn-yellow-glow flex items-center justify-center disabled:opacity-50 disabled:scale-100 disabled:shadow-none transition-transform"
               >
                 <Send className="w-4 h-4" />
               </button>
