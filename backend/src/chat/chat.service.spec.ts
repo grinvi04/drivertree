@@ -26,8 +26,9 @@ describe('ChatService — prompt injection detector', () => {
 
   // private 메서드 접근용 헬퍼
   const detect = (msg: string): boolean =>
-    (service as unknown as { detectInjectionAttempt: (m: string) => boolean })
-      .detectInjectionAttempt(msg);
+    (
+      service as unknown as { detectInjectionAttempt: (m: string) => boolean }
+    ).detectInjectionAttempt(msg);
 
   describe('flags known injection vectors', () => {
     it.each([

@@ -38,3 +38,4 @@ yarn-error.log*
 # 임시
 *.tmp
 .cache
+.claude/

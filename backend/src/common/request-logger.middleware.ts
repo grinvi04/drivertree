@@ -22,7 +22,8 @@ export class RequestLoggerMiddleware implements NestMiddleware {
     const ua = req.get('user-agent') ?? '-';
 
     res.on('finish', () => {
-      const durationMs = Number(process.hrtime.bigint() - startedAt) / 1_000_000;
+      const durationMs =
+        Number(process.hrtime.bigint() - startedAt) / 1_000_000;
       const { statusCode } = res;
       const contentLength = res.get('content-length') ?? '-';
       const line = `${method} ${originalUrl} ${statusCode} ${contentLength}b ${durationMs.toFixed(1)}ms ua="${ua}"`;
