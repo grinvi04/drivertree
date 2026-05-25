@@ -47,6 +47,23 @@
 - `any` 타입과 deprecated `String.prototype.substr` 제거.
 - 운영 가이드(`README.md`, `.env.example`, 본 문서) 추가.
 
+## 7. CI/CD 안정화 작업 (2026-05-25, Claude Code)
+
+v1.1.0 quality sprint 이후 GitHub Actions CI가 연속 실패. Claude Code와 협업해 5건 순차 수정.
+
+| # | 증상 | 원인 | 해결 |
+|---|---|---|---|
+| 1 | 백엔드 lint 80+ prettier 에러 | 코드 변경 후 `npm run format` 미실행 | `npm run format` 일괄 실행, 19개 파일 자동 수정 |
+| 2 | 프론트 `npm ci` EUSAGE | npm 10.x가 wasm32-only optional 패키지(`@unrs/resolver-binding-wasm32-wasi`)의 하위 의존성을 lock 파일에서 찾지 못함 | CI workflow를 `npm install`로 변경, wasm32 패키지는 플랫폼 불일치로 자동 skip |
+| 3 | 백엔드 TS 빌드 TS2322 | `chat.service.ts:212` `item.slug`가 `string \| undefined`인데 `MatchedSource.slug`는 `string` | `slug: item.slug ?? ''` |
+| 4 | 프론트 ESLint error (preserve-manual-memoization) | `useMemo` 본문에서 `post.content`, deps에서 `post?.content` — React Compiler가 불일치 감지 | 본문을 `post?.content`로 통일 |
+| 5 | 백엔드 유닛 테스트 1건 실패 | 인젝션 감지 regex `\s*`가 "이전의 **모든** 지시를 무시해" 의 중간 단어를 허용 못 함 | `\s*` → `.*?` (lazy wildcard) |
+
+**배운 점:**
+- npm 버전 차이(10 vs 11)가 lock 파일 검증 동작에 영향을 줌. CI 환경 Node/npm 버전을 로컬과 맞추거나, optional 패키지 lock 파일 이슈는 `npm install` fallback이 안전.
+- React Compiler(19)는 `useMemo` deps를 정적 분석해 본문과 불일치 시 error. `post?.content`처럼 optional chaining은 deps와 본문에서 동일하게 사용해야 함.
+- 백엔드 소스 수정 시 prettier 실행은 필수 단계. 후속 세션에서도 반드시 `npm run format` 선행.
+
 ## 6. 한계와 후속 과제
 
 - 챗봇 답변 비용/속도 모니터링은 단순 로그만 남기고 있음 — Prometheus/Sentry 연동 미적용.

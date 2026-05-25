@@ -205,7 +205,7 @@ export default function Home() {
           </div>
         </form>
         
-        <div className="text-xs text-slate-500 flex items-center justify-center gap-2">
+        <div className="text-xs text-slate-500 flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
           <span>인기 검색어:</span>
           <button onClick={() => { setSearchQuery('비보호 좌회전'); fetchContents(activeCategory, '비보호 좌회전'); }} className="hover:text-yellow-accent underline">비보호 좌회전</button>
           <span className="text-slate-800">•</span>
@@ -330,9 +330,9 @@ export default function Home() {
           {isChatOpen ? <X className="w-6 h-6" /> : <MessageSquare className="w-6 h-6" />}
         </button>
 
-        {/* Chat Dialog */}
+        {/* Chat Dialog — 모바일: 뷰포트 가득, 데스크톱: 우하단 고정 */}
         {isChatOpen && (
-          <div className="absolute bottom-18 right-0 w-[350px] sm:w-[400px] h-[500px] rounded-3xl glass-panel border border-white/[0.08] shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-5 duration-300">
+          <div className="fixed left-2 right-2 bottom-[76px] max-h-[80dvh] sm:fixed sm:left-auto sm:right-6 sm:bottom-[88px] sm:w-[400px] sm:max-h-none sm:h-[520px] rounded-3xl glass-panel border border-white/[0.08] shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-5 duration-300">
             {/* Chat Header */}
             <div className="bg-[#121825] px-5 py-4 flex items-center justify-between border-b border-white/[0.06]">
               <div className="flex items-center gap-2.5">

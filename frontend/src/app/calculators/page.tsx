@@ -131,25 +131,27 @@ export default function CalculatorsPage() {
         <div className="flex p-1.5 rounded-2xl bg-white/[0.02] border border-white/[0.06] mb-8 max-w-md mx-auto">
           <button
             onClick={() => setActiveTab('penalty')}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-bold transition-all duration-300 ${
+            className={`flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl text-xs font-bold transition-all duration-300 ${
               activeTab === 'penalty'
                 ? 'bg-yellow-accent text-[#0B0F19] shadow-md'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            <Scale className="w-4 h-4" />
-            범칙금 · 과태료 계산기
+            <Scale className="w-4 h-4 shrink-0" />
+            <span className="hidden sm:inline">범칙금 · 과태료 계산기</span>
+            <span className="sm:hidden">범칙금 · 과태료</span>
           </button>
           <button
             onClick={() => setActiveTab('maintenance')}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-bold transition-all duration-300 ${
+            className={`flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl text-xs font-bold transition-all duration-300 ${
               activeTab === 'maintenance'
                 ? 'bg-yellow-accent text-[#0B0F19] shadow-md'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            <Calculator className="w-4 h-4" />
-            차량 유지비 계산기
+            <Calculator className="w-4 h-4 shrink-0" />
+            <span className="hidden sm:inline">차량 유지비 계산기</span>
+            <span className="sm:hidden">차량 유지비</span>
           </button>
         </div>
 
@@ -280,9 +282,9 @@ export default function CalculatorsPage() {
 
         {/* 2. 차량 유지비 계산기 화면 */}
         {activeTab === 'maintenance' && (
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-            {/* 입력 폼 (왼쪽 2.5칸) */}
-            <div className="md:col-span-2.5 rounded-3xl glass-panel p-6 border border-white/[0.06] space-y-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* 입력 폼 */}
+            <div className="rounded-3xl glass-panel p-6 border border-white/[0.06] space-y-5">
               <h3 className="text-base font-bold text-white mb-2 flex items-center gap-2">
                 <Car className="w-5 h-5 text-yellow-accent" />
                 내 차량 조건 입력
@@ -370,8 +372,8 @@ export default function CalculatorsPage() {
               </button>
             </div>
 
-            {/* 결과 차트 및 분석 (오른쪽 2.5칸) */}
-            <div className="md:col-span-2.5 space-y-6">
+            {/* 결과 차트 및 분석 */}
+            <div className="space-y-6">
               {maintenanceResult ? (
                 <div className="rounded-3xl glass-panel p-6 border border-white/[0.06] flex flex-col justify-between min-h-full">
                   <div>
