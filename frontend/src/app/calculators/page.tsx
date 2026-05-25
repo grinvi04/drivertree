@@ -112,7 +112,7 @@ export default function CalculatorsPage() {
   const selectedRule = penalties.find(r => r.id === selectedRuleId);
 
   return (
-    <div className="relative w-full flex flex-col min-h-screen bg-[#0B0F19] py-12">
+    <div className="relative w-full flex flex-col min-h-screen bg-[#0B0F19] py-12 overflow-x-hidden">
       {/* 장식용 글로우 */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full bg-yellow-accent/4 blur-[130px] pointer-events-none" />
 

@@ -207,7 +207,7 @@ export default function ContentDetailPage({ params }: PageProps) {
   const CatIcon = catInfo.icon;
 
   return (
-    <div className="relative w-full flex flex-col min-h-screen bg-[#0B0F19] py-10">
+    <div className="relative w-full flex flex-col min-h-screen bg-[#0B0F19] py-10 overflow-x-hidden">
       {/* 백그라운드 데코 */}
       <div className="absolute top-0 right-10 w-[500px] h-[500px] rounded-full bg-yellow-accent/4 blur-[130px] pointer-events-none" />
 
