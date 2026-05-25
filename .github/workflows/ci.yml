@@ -65,8 +65,8 @@ jobs:
       - name: Prisma migrate deploy
         run: npx prisma migrate deploy
 
-      - name: Lint
-        run: npm run lint --if-present
+      - name: Lint (check only, no auto-fix)
+        run: npm run lint:check
 
       - name: Build (compile check)
         run: npm run build

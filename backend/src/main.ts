@@ -1,16 +1,21 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { Logger, LogLevel, ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from './common/all-exceptions.filter';
 
-async function bootstrap() {
+/**
+ * CORS origin callback 시그니처 — express의 cors 라이브러리 콜백 형태.
+ */
+type CorsOriginCallback = (err: Error | null, allow?: boolean) => void;
+
+async function bootstrap(): Promise<void> {
   // NEST_LOG_LEVEL 환경변수로 운영/로컬 로그 노이즈 제어
   // 예: production은 "log,warn,error" / 디버그는 "log,warn,error,debug,verbose"
-  const logLevels = (process.env.NEST_LOG_LEVEL?.split(',') ?? [
-    'log',
-    'warn',
-    'error',
-  ]) as ('log' | 'error' | 'warn' | 'debug' | 'verbose')[];
+  const validLevels: readonly LogLevel[] = ['log', 'warn', 'error', 'debug', 'verbose', 'fatal'];
+  const envLevels = process.env.NEST_LOG_LEVEL?.split(',').map(s => s.trim()) ?? [];
+  const logLevels: LogLevel[] = envLevels.length > 0
+    ? envLevels.filter((l): l is LogLevel => (validLevels as readonly string[]).includes(l))
+    : ['log', 'warn', 'error'];
 
   const app = await NestFactory.create(AppModule, { logger: logLevels });
 
@@ -29,15 +34,19 @@ async function bootstrap() {
     : ['http://localhost:3000', 'http://localhost:3001'];
 
   app.enableCors({
-    origin: (origin, callback) => {
+    origin: (origin: string | undefined, callback: CorsOriginCallback): void => {
       // origin이 없는 경우(서버-서버, curl, 헬스체크 등) 허용
-      if (!origin) return callback(null, true);
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
       // Vercel 프리뷰 도메인(*.vercel.app) 자동 허용 — Vercel 미사용 시 무해
       const isVercelPreview = /\.vercel\.app$/.test(new URL(origin).hostname);
       if (allowedOrigins.includes(origin) || isVercelPreview) {
-        return callback(null, true);
+        callback(null, true);
+        return;
       }
-      return callback(new Error(`CORS blocked: ${origin}`), false);
+      callback(new Error(`CORS blocked: ${origin}`), false);
     },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
@@ -56,4 +65,4 @@ async function bootstrap() {
   await app.listen(port, '0.0.0.0');
   new Logger('Bootstrap').log(`🚀 DriveTree Backend running on 0.0.0.0:${port}/api`);
 }
-bootstrap();
+void bootstrap();

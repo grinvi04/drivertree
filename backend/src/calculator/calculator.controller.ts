@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, UsePipes, ValidationPipe } from '@nestjs/common';
-import { CalculatorService, MaintenanceInput } from './calculator.service';
+import { CalculatorService } from './calculator.service';
 import { IsIn, IsNumber, IsNotEmpty } from 'class-validator';
 
 class MaintenanceDto {

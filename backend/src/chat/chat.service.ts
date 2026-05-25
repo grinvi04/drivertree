@@ -1,8 +1,32 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
 import { AskChatDto, FeedbackChatDto } from './chat.dto';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { rankContents } from '../common/local-nlp.helper';
+
+/**
+ * pgvector 코사인 검색 결과 한 청크의 형태.
+ * $queryRawUnsafe 가 unknown 으로 반환하는 행을 안전하게 사용하기 위한 인터페이스.
+ */
+interface SemanticChunk {
+  id: string;
+  contentId: string;
+  chunkIndex: number;
+  textContent: string;
+  distance: number;
+  contentTitle: string;
+  contentSlug: string;
+}
+
+/**
+ * 챗봇 답변에 첨부되는 출처 카드 — id/title/slug 만 노출.
+ */
+interface MatchedSource {
+  id: string;
+  title: string;
+  slug: string;
+}
 
 @Injectable()
 export class ChatService {
@@ -56,12 +80,12 @@ export class ChatService {
   /**
    * pgvector 코사인 유사도 검색을 통해 최적의 청크들을 찾습니다.
    */
-  private async searchSemanticChunks(vector: number[], limit = 3): Promise<any[]> {
+  private async searchSemanticChunks(vector: number[], limit = 3): Promise<SemanticChunk[]> {
     const vectorStr = `[${vector.join(',')}]`;
-    
+
     // pgvector 코사인 거리 연산 (<=>) 을 사용해 거리 기준 오름차순(유사도 기준 내림차순)으로 조회
-    const rawChunks = await this.prisma.$queryRawUnsafe<any[]>(
-      `SELECT CE.id, CE."contentId", CE."chunkIndex", CE."textContent", 
+    const rawChunks = await this.prisma.$queryRawUnsafe<SemanticChunk[]>(
+      `SELECT CE.id, CE."contentId", CE."chunkIndex", CE."textContent",
               (CE.embedding <=> $1::vector) as distance,
               C.title as "contentTitle", C.slug as "contentSlug"
        FROM "ContentEmbedding" CE
@@ -82,7 +106,7 @@ export class ChatService {
   async ask(dto: AskChatDto) {
     const { message, sessionKey } = dto;
     let botResponse = '';
-    let matchedSources: any[] = [];
+    let matchedSources: MatchedSource[] = [];
 
     // 프롬프트 인젝션 의심 패턴 감지 (차단은 안 함, 로깅만)
     const injectionSuspected = this.detectInjectionAttempt(message);
@@ -101,7 +125,12 @@ export class ChatService {
         .join('\n\n');
 
       matchedSources = Array.from(
-        new Map(matchedChunks.map(c => [c.contentId, { id: c.contentId, title: c.contentTitle, slug: c.contentSlug }])).values()
+        new Map(
+          matchedChunks.map((c): [string, MatchedSource] => [
+            c.contentId,
+            { id: c.contentId, title: c.contentTitle, slug: c.contentSlug },
+          ]),
+        ).values(),
       );
 
       try {
@@ -146,7 +175,7 @@ ${message}`;
         sessionKey,
         userMessage: message,
         botResponse,
-        matchedSources: matchedSources as any,
+        matchedSources: matchedSources as unknown as Prisma.InputJsonValue,
       }
     });
 
@@ -163,7 +192,7 @@ ${message}`;
 
     const ranked = rankContents(message, allContents, 2);
     let botResponse = '';
-    let matchedSources: any[] = [];
+    let matchedSources: MatchedSource[] = [];
 
     if (ranked.length > 0) {
       const topMatch = ranked[0];
@@ -207,7 +236,7 @@ ${message}`;
         sessionKey,
         userMessage: message,
         botResponse,
-        matchedSources: matchedSources as any,
+        matchedSources: matchedSources as unknown as Prisma.InputJsonValue,
       }
     });
 
