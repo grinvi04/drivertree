@@ -166,7 +166,7 @@ export default function Home() {
   };
 
   return (
-    <div className="relative w-full flex flex-col min-h-screen bg-[#0B0F19]">
+    <div className="relative w-full flex flex-col min-h-screen bg-[#0B0F19] overflow-x-hidden">
       {/* 백그라운드 디자인 데코 레이션 */}
       <div className="absolute top-0 left-1/4 w-[500px] h-[500px] rounded-full bg-yellow-accent/5 blur-[120px] pointer-events-none" />
       <div className="absolute top-[800px] right-1/4 w-[400px] h-[400px] rounded-full bg-yellow-accent/3 blur-[100px] pointer-events-none" />
