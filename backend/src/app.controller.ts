@@ -12,7 +12,12 @@ export class AppController {
    * - 글로벌 throttler가 너무 공격적으로 health check를 막지 않도록 default 60/min 그대로 사용
    */
   @Get()
-  getHello(): { status: string; service: string; version: string; timestamp: string } {
+  getHello(): {
+    status: string;
+    service: string;
+    version: string;
+    timestamp: string;
+  } {
     return this.appService.getHealth();
   }
 

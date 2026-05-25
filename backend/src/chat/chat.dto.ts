@@ -1,4 +1,10 @@
-import { IsString, IsNotEmpty, IsIn, MaxLength, MinLength } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsIn,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 export class AskChatDto {
   // 프롬프트 인젝션 방어: 200자 제한으로 jailbreak용 긴 프롬프트 차단

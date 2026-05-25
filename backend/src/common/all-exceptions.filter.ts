@@ -39,8 +39,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const message =
       typeof errorBody === 'string'
         ? errorBody
-        : (errorBody as { message?: string | string[] })?.message ??
-          (exception instanceof Error ? exception.message : 'Internal error');
+        : ((errorBody as { message?: string | string[] })?.message ??
+          (exception instanceof Error ? exception.message : 'Internal error'));
 
     const isServerError = status >= 500;
     const logPayload = {

@@ -59,7 +59,7 @@ export class ChatService {
    * 사용자 입력에 인젝션 의심 패턴이 있는지 검사. 차단하지 않고 boolean만 반환.
    */
   private detectInjectionAttempt(message: string): boolean {
-    return ChatService.INJECTION_PATTERNS.some(p => p.test(message));
+    return ChatService.INJECTION_PATTERNS.some((p) => p.test(message));
   }
 
   /**
@@ -68,11 +68,16 @@ export class ChatService {
   private async getEmbedding(text: string): Promise<number[] | null> {
     if (!this.genAI) return null;
     try {
-      const model = this.genAI.getGenerativeModel({ model: 'text-embedding-004' });
+      const model = this.genAI.getGenerativeModel({
+        model: 'text-embedding-004',
+      });
       const result = await model.embedContent(text);
       return result.embedding.values;
     } catch (error) {
-      this.logger.error('Failed to get query embedding', error instanceof Error ? error.stack : String(error));
+      this.logger.error(
+        'Failed to get query embedding',
+        error instanceof Error ? error.stack : String(error),
+      );
       return null;
     }
   }
@@ -80,7 +85,10 @@ export class ChatService {
   /**
    * pgvector 코사인 유사도 검색을 통해 최적의 청크들을 찾습니다.
    */
-  private async searchSemanticChunks(vector: number[], limit = 3): Promise<SemanticChunk[]> {
+  private async searchSemanticChunks(
+    vector: number[],
+    limit = 3,
+  ): Promise<SemanticChunk[]> {
     const vectorStr = `[${vector.join(',')}]`;
 
     // pgvector 코사인 거리 연산 (<=>) 을 사용해 거리 기준 오름차순(유사도 기준 내림차순)으로 조회
@@ -93,11 +101,12 @@ export class ChatService {
        WHERE CE.embedding IS NOT NULL
        ORDER BY distance ASC
        LIMIT $2`,
-      vectorStr, limit
+      vectorStr,
+      limit,
     );
 
     // 거리가 0.6 이하인 (유사도가 어느 정도 높은) 것들만 신뢰성 있게 채택
-    return rawChunks.filter(chunk => chunk.distance <= 0.6);
+    return rawChunks.filter((chunk) => chunk.distance <= 0.6);
   }
 
   /**
@@ -111,7 +120,9 @@ export class ChatService {
     // 프롬프트 인젝션 의심 패턴 감지 (차단은 안 함, 로깅만)
     const injectionSuspected = this.detectInjectionAttempt(message);
     if (injectionSuspected) {
-      this.logger.warn(`Possible prompt injection from session="${sessionKey}": "${message.slice(0, 80)}"`);
+      this.logger.warn(
+        `Possible prompt injection from session="${sessionKey}": "${message.slice(0, 80)}"`,
+      );
     }
 
     const vector = await this.getEmbedding(message);
@@ -119,9 +130,9 @@ export class ChatService {
     if (vector && this.genAI) {
       // 1. 실제 RAG 모드 (Gemini + pgvector)
       const matchedChunks = await this.searchSemanticChunks(vector, 3);
-      
+
       const contextText = matchedChunks
-        .map(chunk => `[출처: ${chunk.contentTitle}]\n${chunk.textContent}`)
+        .map((chunk) => `[출처: ${chunk.contentTitle}]\n${chunk.textContent}`)
         .join('\n\n');
 
       matchedSources = Array.from(
@@ -134,7 +145,9 @@ export class ChatService {
       );
 
       try {
-        const model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        const model = this.genAI.getGenerativeModel({
+          model: 'gemini-1.5-flash',
+        });
         const systemPrompt = `당신은 초보운전자들의 든든한 등대이자 친절한 AI 길잡이인 "DriveTree 비서"입니다. 🚗💛
 사용자의 막막함과 당황스러움을 깊이 공감하고, 다정하고 친근한 한글 어조(~요, ~해보세요 등)로 답변해주세요.
 
@@ -176,7 +189,7 @@ ${message}`;
         userMessage: message,
         botResponse,
         matchedSources: matchedSources as unknown as Prisma.InputJsonValue,
-      }
+      },
     });
 
     return log;
@@ -187,7 +200,7 @@ ${message}`;
    */
   private async localNlpFallback(message: string, sessionKey: string) {
     const allContents = await this.prisma.content.findMany({
-      select: { id: true, title: true, content: true, slug: true }
+      select: { id: true, title: true, content: true, slug: true },
     });
 
     const ranked = rankContents(message, allContents, 2);
@@ -196,16 +209,15 @@ ${message}`;
 
     if (ranked.length > 0) {
       const topMatch = ranked[0];
-      matchedSources = ranked.map(item => ({
+      matchedSources = ranked.map((item) => ({
         id: item.id,
         title: item.title,
-        slug: item.slug
+        slug: item.slug,
       }));
 
       // 본문 앞부분 대략 가져와서 요약본 구성
-      const cleanContent = topMatch.content
-        .replace(/[#*`_-]/g, '')
-        .substring(0, 200) + '...';
+      const cleanContent =
+        topMatch.content.replace(/[#*`_-]/g, '').substring(0, 200) + '...';
 
       botResponse = `안녕하세요! 초보운전자의 든든한 길잡이 **DriveTree** 도우미입니다. 🚗💛
 
@@ -237,7 +249,7 @@ ${message}`;
         userMessage: message,
         botResponse,
         matchedSources: matchedSources as unknown as Prisma.InputJsonValue,
-      }
+      },
     });
 
     return log;
@@ -248,13 +260,13 @@ ${message}`;
    */
   async feedback(id: string, dto: FeedbackChatDto) {
     const log = await this.prisma.chatLog.findUnique({
-      where: { id }
+      where: { id },
     });
     if (!log) throw new NotFoundException('대화 로그를 찾을 수 없습니다.');
 
     return this.prisma.chatLog.update({
       where: { id },
-      data: { feedback: dto.feedback }
+      data: { feedback: dto.feedback },
     });
   }
 
@@ -263,7 +275,7 @@ ${message}`;
    */
   async getLogs() {
     return this.prisma.chatLog.findMany({
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
     });
   }
 }

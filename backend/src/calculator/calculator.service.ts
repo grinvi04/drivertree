@@ -5,11 +5,11 @@ export interface PenaltyRule {
   id: string;
   name: string;
   category: string;
-  fineNormal: number;      // 일반 도로 과태료 (승용차 기준)
-  fineChildZone: number;   // 어린이 보호구역 과태료 (승용차 기준)
-  penaltyNormal: number;   // 일반 도로 범칙금 (승용차 기준)
-  penaltyChildZone: number;// 어린이 보호구역 범칙금 (승용차 기준)
-  pointsNormal: number;    // 일반 도로 벌점
+  fineNormal: number; // 일반 도로 과태료 (승용차 기준)
+  fineChildZone: number; // 어린이 보호구역 과태료 (승용차 기준)
+  penaltyNormal: number; // 일반 도로 범칙금 (승용차 기준)
+  penaltyChildZone: number; // 어린이 보호구역 범칙금 (승용차 기준)
+  pointsNormal: number; // 일반 도로 벌점
   pointsChildZone: number; // 어린이 보호구역 벌점
   description: string;
 }
@@ -17,8 +17,8 @@ export interface PenaltyRule {
 export interface MaintenanceInput {
   carType: 'compact' | 'sedan' | 'suv' | 'large';
   fuelType: 'gasoline' | 'diesel' | 'electric';
-  annualMileage: number;  // 연간 주행거리 (km)
-  insuranceCost: number;  // 연간 보험료 (원)
+  annualMileage: number; // 연간 주행거리 (km)
+  insuranceCost: number; // 연간 보험료 (원)
 }
 
 @Injectable()
@@ -34,7 +34,8 @@ export class CalculatorService {
       penaltyChildZone: 120000,
       pointsNormal: 15,
       pointsChildZone: 30,
-      description: '적색 신호나 꼬리물기, 좌회전 금지 구역에서 신호를 위반한 경우 적용됩니다.',
+      description:
+        '적색 신호나 꼬리물기, 좌회전 금지 구역에서 신호를 위반한 경우 적용됩니다.',
     },
     {
       id: 'speed_20_under',
@@ -46,7 +47,8 @@ export class CalculatorService {
       penaltyChildZone: 60000,
       pointsNormal: 0,
       pointsChildZone: 15,
-      description: '제한속도를 20km/h 이하로 초과하여 단속된 경우로, 일반도로에서는 벌점이 없습니다.',
+      description:
+        '제한속도를 20km/h 이하로 초과하여 단속된 경우로, 일반도로에서는 벌점이 없습니다.',
     },
     {
       id: 'speed_20_40',
@@ -58,7 +60,8 @@ export class CalculatorService {
       penaltyChildZone: 90000,
       pointsNormal: 15,
       pointsChildZone: 30,
-      description: '제한속도를 20km/h 초과 40km/h 이하로 주행하여 단속된 경우입니다.',
+      description:
+        '제한속도를 20km/h 초과 40km/h 이하로 주행하여 단속된 경우입니다.',
     },
     {
       id: 'speed_40_60',
@@ -70,7 +73,8 @@ export class CalculatorService {
       penaltyChildZone: 120000,
       pointsNormal: 30,
       pointsChildZone: 60,
-      description: '속도를 크게 위반한 경우로, 벌점이 대폭 무거워져 면허 정지 처분으로 이어질 수 있습니다.',
+      description:
+        '속도를 크게 위반한 경우로, 벌점이 대폭 무거워져 면허 정지 처분으로 이어질 수 있습니다.',
     },
     {
       id: 'parking_violation',
@@ -82,7 +86,8 @@ export class CalculatorService {
       penaltyChildZone: 120000,
       pointsNormal: 0,
       pointsChildZone: 0,
-      description: '불법 주정차 금지 구역에 주차 시 부과됩니다. 어린이 보호구역은 일반 도로의 3배가 부과됩니다.',
+      description:
+        '불법 주정차 금지 구역에 주차 시 부과됩니다. 어린이 보호구역은 일반 도로의 3배가 부과됩니다.',
     },
     {
       id: 'cellphone_use',
@@ -94,7 +99,8 @@ export class CalculatorService {
       penaltyChildZone: 120000,
       pointsNormal: 15,
       pointsChildZone: 30,
-      description: '주행 중 휴대전화를 조작하거나 통화하는 행동은 사고 위험이 매우 높아 단속 및 벌점 대상입니다.',
+      description:
+        '주행 중 휴대전화를 조작하거나 통화하는 행동은 사고 위험이 매우 높아 단속 및 벌점 대상입니다.',
     },
     {
       id: 'seatbelt_unfastened',
@@ -107,7 +113,7 @@ export class CalculatorService {
       pointsNormal: 0,
       pointsChildZone: 0,
       description: '운전석 및 동승자 전 좌석 안전띠 착용은 필수 의무입니다.',
-    }
+    },
   ];
 
   /**
@@ -125,7 +131,7 @@ export class CalculatorService {
 
     // 1. 연비 및 연료 가격 세팅
     let fuelEfficiency = 12.0; // km/L (또는 km/kWh)
-    let fuelUnitPrice = 1650;  // 원/L (또는 원/kWh)
+    let fuelUnitPrice = 1650; // 원/L (또는 원/kWh)
 
     // 차종별 연비 보정
     switch (carType) {
@@ -158,7 +164,9 @@ export class CalculatorService {
 
     // 2. 항목별 연간 비용 계산
     // 연간 유류비 = (연간주행거리 / 연비) * 연료단가
-    const annualFuelCost = Math.round((annualMileage / fuelEfficiency) * fuelUnitPrice);
+    const annualFuelCost = Math.round(
+      (annualMileage / fuelEfficiency) * fuelUnitPrice,
+    );
 
     // 연간 세금 계산
     let annualTax = 290000; // 준중형/중형 세단 기본세율 가정
@@ -201,8 +209,9 @@ export class CalculatorService {
       annualMaintenanceCost = Math.round(annualMaintenanceCost * 0.7);
     }
 
-    const annualTotal = annualFuelCost + annualTax + insuranceCost + annualMaintenanceCost;
-    
+    const annualTotal =
+      annualFuelCost + annualTax + insuranceCost + annualMaintenanceCost;
+
     // 3. 월 평균 비용 도출
     const monthlyTotal = Math.round(annualTotal / 12);
 
@@ -225,8 +234,10 @@ export class CalculatorService {
         fuelPercentage: Math.round((annualFuelCost / annualTotal) * 100),
         taxPercentage: Math.round((annualTax / annualTotal) * 100),
         insurancePercentage: Math.round((insuranceCost / annualTotal) * 100),
-        maintenancePercentage: Math.round((annualMaintenanceCost / annualTotal) * 100),
-      }
+        maintenancePercentage: Math.round(
+          (annualMaintenanceCost / annualTotal) * 100,
+        ),
+      },
     };
   }
 }

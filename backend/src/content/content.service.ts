@@ -1,4 +1,10 @@
-import { Injectable, Logger, NotFoundException, ConflictException, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  ConflictException,
+  OnModuleInit,
+} from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
 import { CreateContentDto, UpdateContentDto } from './content.dto';
@@ -42,7 +48,7 @@ export class ContentService implements OnModuleInit {
 > [!TIP]
 > **이런 분께 추천해 드립니다!**
 > - **학원 추천**: 운동 신경이 평균 이하이거나, 시간에 쫓겨서 빠르게 합격해야 하는 예비 운전자.
-> - **독학 추천**: 가족이나 지인의 안전한 차로 연습할 수 있고, 비용을 극단적으로 아끼고 싶은 분.`
+> - **독학 추천**: 가족이나 지인의 안전한 차로 연습할 수 있고, 비용을 극단적으로 아끼고 싶은 분.`,
       },
       {
         title: '비보호 좌회전할 때 빨간불에 가도 되나요? (벌점 폭탄 피하기!)',
@@ -63,7 +69,7 @@ export class ContentService implements OnModuleInit {
 3. **안전하게 진입**: 맞은편 차선이 완벽히 비었을 때 신속하고 부드럽게 좌회전합니다.
 
 ### 💡 보행자 신호 유의사항
-맞은편 직진 차선뿐만 아니라, **좌회전하여 들어가는 차선의 횡단보도 보행자 신호**가 녹색인지도 반드시 확인하고 서행하셔야 안전합니다.`
+맞은편 직진 차선뿐만 아니라, **좌회전하여 들어가는 차선의 횡단보도 보행자 신호**가 녹색인지도 반드시 확인하고 서행하셔야 안전합니다.`,
       },
       {
         title: '좁은 골목길 마주친 두 차량, 과연 누가 비켜줘야 할까?',
@@ -82,7 +88,7 @@ export class ContentService implements OnModuleInit {
 - **이유**: 무거운 짐을 싣고 있거나 탑승객이 많은 차량이 이동과 후진이 훨씬 둔하고 위험하기 때문입니다.
 
 ### 3. 직진 차량과 골목길 진입 차량
-- **우선권**: **큰 도로에서 이미 진입하여 쭉 오던 차량**이 우선권을 갖습니다. 이제 막 골목 입구에서 진입하려던 차량이 뒤로 조금 물러나 길을 터주는 것이 가장 정석입니다.`
+- **우선권**: **큰 도로에서 이미 진입하여 쭉 오던 차량**이 우선권을 갖습니다. 이제 막 골목 입구에서 진입하려던 차량이 뒤로 조금 물러나 길을 터주는 것이 가장 정석입니다.`,
       },
       {
         title: '생애 첫 접촉사고! 당황하지 않고 해결하는 5단계 대처법',
@@ -109,10 +115,11 @@ export class ContentService implements OnModuleInit {
 - *Tip: 사설 렉카(견인차)가 동의 없이 내 차를 끌고 가려 하면 절대 승인하시면 안 됩니다! 반드시 보험사 전용 견인 서비스를 이용하세요.*
 
 ### 5단계: 안전지대 대피 후 대기
-사고 경위가 담긴 사진을 확보했다면, 뒤따라오는 차량에 의한 **2차 추돌 사고를 막기 위해** 모든 탑승자는 도로 밖 안전 펜스 너머로 신속히 대피하여 대기합니다.`
+사고 경위가 담긴 사진을 확보했다면, 뒤따라오는 차량에 의한 **2차 추돌 사고를 막기 위해** 모든 탑승자는 도로 밖 안전 펜스 너머로 신속히 대피하여 대기합니다.`,
       },
       {
-        title: '1종 보통 vs 2종 보통, 나에게 맞는 면허는? (운전 가능 차종·시험 차이·합격률)',
+        title:
+          '1종 보통 vs 2종 보통, 나에게 맞는 면허는? (운전 가능 차종·시험 차이·합격률)',
         slug: 'license-type-1-vs-2',
         category: 'license',
         tags: ['1종보통', '2종보통', '면허종류'],
@@ -150,10 +157,11 @@ export class ContentService implements OnModuleInit {
 1종 보통은 2종 보통과 달리 **시력 등 적성검사 기준이 더 엄격**합니다. 한쪽 눈이 안 보이거나 시력 교정이 어려운 경우 1종 응시가 제한될 수 있으니 사전 확인이 필요합니다.
 
 > [!WARNING]
-> **본 내용은 작성 시점의 일반적인 기준입니다.** 면허 종류·시험 차종·적성검사 기준은 도로교통공단 고시·시행규칙에 따라 변경될 수 있으니, 학원 등록 또는 시험 응시 전 반드시 [도로교통공단 운전면허 안내(safedriving.or.kr)](https://www.safedriving.or.kr)에서 최신 정보를 확인해 주세요.`
+> **본 내용은 작성 시점의 일반적인 기준입니다.** 면허 종류·시험 차종·적성검사 기준은 도로교통공단 고시·시행규칙에 따라 변경될 수 있으니, 학원 등록 또는 시험 응시 전 반드시 [도로교통공단 운전면허 안내(safedriving.or.kr)](https://www.safedriving.or.kr)에서 최신 정보를 확인해 주세요.`,
       },
       {
-        title: '엔진오일 교체 주기, 5천 km? 1만 km? (가솔린·디젤·하이브리드별 정리 + 가혹조건 체크)',
+        title:
+          '엔진오일 교체 주기, 5천 km? 1만 km? (가솔린·디젤·하이브리드별 정리 + 가혹조건 체크)',
         slug: 'maintenance-engine-oil-cycle',
         category: 'maintenance',
         tags: ['엔진오일', '정비', '주행거리'],
@@ -200,14 +208,14 @@ export class ContentService implements OnModuleInit {
 - 신차 출고 후 일정 기간 내 **제조사 무상 점검**
 
 > [!TIP]
-> **차량 매뉴얼이 가장 정확합니다.** 위 수치는 일반론이고, 본인 차량 매뉴얼의 권장 주기·오일 등급·점도(예: 5W-30, 0W-20)를 우선 확인해 주세요.`
-      }
+> **차량 매뉴얼이 가장 정확합니다.** 위 수치는 일반론이고, 본인 차량 매뉴얼의 권장 주기·오일 등급·점도(예: 5W-30, 0W-20)를 우선 확인해 주세요.`,
+      },
     ];
 
     let insertedCount = 0;
     for (const post of seedPosts) {
       const existing = await this.prisma.content.findUnique({
-        where: { slug: post.slug }
+        where: { slug: post.slug },
       });
       if (!existing) {
         await this.create(post);
@@ -250,11 +258,16 @@ export class ContentService implements OnModuleInit {
   private async getEmbedding(text: string): Promise<number[] | null> {
     if (!this.genAI) return null;
     try {
-      const model = this.genAI.getGenerativeModel({ model: 'text-embedding-004' });
+      const model = this.genAI.getGenerativeModel({
+        model: 'text-embedding-004',
+      });
       const result = await model.embedContent(text);
       return result.embedding.values;
     } catch (error) {
-      this.logger.error('Gemini embedding generation failed', error instanceof Error ? error.stack : String(error));
+      this.logger.error(
+        'Gemini embedding generation failed',
+        error instanceof Error ? error.stack : String(error),
+      );
       return null;
     }
   }
@@ -264,7 +277,7 @@ export class ContentService implements OnModuleInit {
    */
   async create(dto: CreateContentDto) {
     const existing = await this.prisma.content.findUnique({
-      where: { slug: dto.slug }
+      where: { slug: dto.slug },
     });
     if (existing) {
       throw new ConflictException('이미 존재하는 슬러그(Slug)입니다.');
@@ -277,7 +290,7 @@ export class ContentService implements OnModuleInit {
         content: dto.content,
         category: dto.category,
         tags: dto.tags || [],
-      }
+      },
     });
 
     await this.indexContent(content.id, dto.content);
@@ -290,7 +303,7 @@ export class ContentService implements OnModuleInit {
    */
   private async indexContent(contentId: string, fullText: string) {
     await this.prisma.contentEmbedding.deleteMany({
-      where: { contentId }
+      where: { contentId },
     });
 
     const chunks = this.chunkText(fullText);
@@ -305,7 +318,11 @@ export class ContentService implements OnModuleInit {
         await this.prisma.$executeRawUnsafe(
           `INSERT INTO "ContentEmbedding" (id, "contentId", "chunkIndex", "textContent", embedding, "createdAt") 
            VALUES ($1, $2, $3, $4, $5::vector, NOW())`,
-          embeddingId, contentId, i, chunkText, vectorStr
+          embeddingId,
+          contentId,
+          i,
+          chunkText,
+          vectorStr,
         );
       } else {
         await this.prisma.contentEmbedding.create({
@@ -313,7 +330,7 @@ export class ContentService implements OnModuleInit {
             contentId,
             chunkIndex: i,
             textContent: chunkText,
-          }
+          },
         });
       }
     }
@@ -332,24 +349,24 @@ export class ContentService implements OnModuleInit {
       where.OR = [
         { title: { contains: search, mode: 'insensitive' } },
         { content: { contains: search, mode: 'insensitive' } },
-        { tags: { has: search } }
+        { tags: { has: search } },
       ];
     }
 
     const items = await this.prisma.content.findMany({
       where,
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
     });
 
     if (search && items.length > 0) {
       const allPosts = await this.prisma.content.findMany({
-        select: { id: true, title: true, content: true }
+        select: { id: true, title: true, content: true },
       });
       const ranked = rankContents(search, allPosts, 15);
-      
-      const rankedIds = new Set(ranked.map(r => r.id));
-      const filteredAndRanked = items.filter(item => rankedIds.has(item.id));
-      
+
+      const rankedIds = new Set(ranked.map((r) => r.id));
+      const filteredAndRanked = items.filter((item) => rankedIds.has(item.id));
+
       if (filteredAndRanked.length > 0) {
         return filteredAndRanked;
       }
@@ -360,7 +377,7 @@ export class ContentService implements OnModuleInit {
 
   async findOne(id: string) {
     const item = await this.prisma.content.findUnique({
-      where: { id }
+      where: { id },
     });
     if (!item) throw new NotFoundException('콘텐츠를 찾을 수 없습니다.');
     return item;
@@ -368,7 +385,7 @@ export class ContentService implements OnModuleInit {
 
   async findOneBySlug(slug: string) {
     const item = await this.prisma.content.findUnique({
-      where: { slug }
+      where: { slug },
     });
     if (!item) throw new NotFoundException('콘텐츠를 찾을 수 없습니다.');
     return item;
@@ -385,7 +402,7 @@ export class ContentService implements OnModuleInit {
         content: dto.content ?? item.content,
         category: dto.category ?? item.category,
         tags: dto.tags ?? item.tags,
-      }
+      },
     });
 
     if (dto.content) {
@@ -398,7 +415,7 @@ export class ContentService implements OnModuleInit {
   async remove(id: string) {
     await this.findOne(id);
     return this.prisma.content.delete({
-      where: { id }
+      where: { id },
     });
   }
 }

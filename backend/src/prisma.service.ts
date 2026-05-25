@@ -17,7 +17,9 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
   constructor() {
     const connectionString = process.env.DATABASE_URL;
     if (!connectionString) {
-      throw new Error('DATABASE_URL 환경 변수가 비어 있습니다. backend/.env 파일을 확인해주세요.');
+      throw new Error(
+        'DATABASE_URL 환경 변수가 비어 있습니다. backend/.env 파일을 확인해주세요.',
+      );
     }
 
     const adapter = new PrismaPg({ connectionString });

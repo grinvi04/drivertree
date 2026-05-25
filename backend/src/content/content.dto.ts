@@ -17,7 +17,13 @@ import {
 const CONTENT_MAX = 50_000;
 const TITLE_MAX = 200;
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const ALLOWED_CATEGORIES = ['license', 'basics', 'rules', 'management', 'accidents'];
+const ALLOWED_CATEGORIES = [
+  'license',
+  'basics',
+  'rules',
+  'management',
+  'accidents',
+];
 
 export class CreateContentDto {
   @IsString()
@@ -31,7 +37,8 @@ export class CreateContentDto {
   @MinLength(2)
   @MaxLength(120)
   @Matches(SLUG_PATTERN, {
-    message: 'slug는 소문자/숫자/하이픈만 허용됩니다 (예: license-school-vs-self)',
+    message:
+      'slug는 소문자/숫자/하이픈만 허용됩니다 (예: license-school-vs-self)',
   })
   slug: string;
 

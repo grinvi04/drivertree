@@ -1,4 +1,9 @@
-import { Injectable, Logger, OnModuleInit, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleInit,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from './auth.dto';
@@ -41,26 +46,37 @@ export class AuthService implements OnModuleInit {
       });
       this.logger.log(`[Seed] Admin account created: username="${username}"`);
       if (envPassword) {
-        this.logger.log('[Seed] Password sourced from ADMIN_PASSWORD env (value hidden).');
+        this.logger.log(
+          '[Seed] Password sourced from ADMIN_PASSWORD env (value hidden).',
+        );
       } else {
         // 로컬 개발 모드에서만 평문 비밀번호 노출. 운영(NODE_ENV=production)에서는 절대 출력 안 함.
         if (process.env.NODE_ENV !== 'production') {
-          this.logger.warn(`[Seed] Using DEV DEFAULT password: ${defaultPassword}`);
+          this.logger.warn(
+            `[Seed] Using DEV DEFAULT password: ${defaultPassword}`,
+          );
         }
-        this.logger.warn('[Seed] ADMIN_PASSWORD env is NOT set — set it before production deploy!');
+        this.logger.warn(
+          '[Seed] ADMIN_PASSWORD env is NOT set — set it before production deploy!',
+        );
       }
       return;
     }
 
     // 이미 계정이 있는 경우 — env로 받은 새 비밀번호와 다를 때만 갱신
     if (envPassword) {
-      const sameAsExisting = await bcrypt.compare(password, existing.passwordHash);
+      const sameAsExisting = await bcrypt.compare(
+        password,
+        existing.passwordHash,
+      );
       if (!sameAsExisting) {
         await this.prisma.admin.update({
           where: { id: existing.id },
           data: { passwordHash },
         });
-        this.logger.log(`[Seed] Admin password rotated for username="${username}" via ADMIN_PASSWORD env.`);
+        this.logger.log(
+          `[Seed] Admin password rotated for username="${username}" via ADMIN_PASSWORD env.`,
+        );
       }
     }
   }
@@ -70,20 +86,23 @@ export class AuthService implements OnModuleInit {
    */
   async login(dto: LoginDto) {
     const admin = await this.prisma.admin.findUnique({
-      where: { username: dto.username }
+      where: { username: dto.username },
     });
 
     if (!admin) {
       throw new UnauthorizedException('존재하지 않는 관리자 아이디입니다.');
     }
 
-    const isPasswordValid = await bcrypt.compare(dto.password, admin.passwordHash);
+    const isPasswordValid = await bcrypt.compare(
+      dto.password,
+      admin.passwordHash,
+    );
     if (!isPasswordValid) {
       throw new UnauthorizedException('비밀번호가 올바르지 않습니다.');
     }
 
     const payload = { sub: admin.id, username: admin.username };
-    
+
     return {
       accessToken: this.jwtService.sign(payload),
       username: admin.username,

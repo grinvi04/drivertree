@@ -97,7 +97,10 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        # npm ci fails on optional wasm32 packages whose sub-deps aren't in the
+        # lock file (npm 10.x bug). npm install respects the lock file but skips
+        # platform-incompatible optional packages gracefully.
+        run: npm install
 
       - name: Lint
         run: npm run lint --if-present

@@ -25,7 +25,9 @@ describe('CalculatorService', () => {
     it('every rule has child-zone amounts at least as high as normal (child zone is never cheaper)', () => {
       for (const rule of service.getPenaltyRules()) {
         expect(rule.fineChildZone).toBeGreaterThanOrEqual(rule.fineNormal);
-        expect(rule.penaltyChildZone).toBeGreaterThanOrEqual(rule.penaltyNormal);
+        expect(rule.penaltyChildZone).toBeGreaterThanOrEqual(
+          rule.penaltyNormal,
+        );
         expect(rule.pointsChildZone).toBeGreaterThanOrEqual(rule.pointsNormal);
       }
     });
@@ -74,31 +76,60 @@ describe('CalculatorService', () => {
     });
 
     it('electric vehicles have lower tax than equivalent ICE for sedan', () => {
-      const electric = service.calculateMaintenance({ ...baseSedan, fuelType: 'electric' });
-      const gasoline = service.calculateMaintenance({ ...baseSedan, fuelType: 'gasoline' });
+      const electric = service.calculateMaintenance({
+        ...baseSedan,
+        fuelType: 'electric',
+      });
+      const gasoline = service.calculateMaintenance({
+        ...baseSedan,
+        fuelType: 'gasoline',
+      });
       expect(electric.annual.tax).toBeLessThan(gasoline.annual.tax);
     });
 
     it('electric vehicles have lower maintenance (30% rule) than ICE', () => {
-      const electric = service.calculateMaintenance({ ...baseSedan, fuelType: 'electric' });
-      const gasoline = service.calculateMaintenance({ ...baseSedan, fuelType: 'gasoline' });
-      expect(electric.annual.maintenance).toBeLessThan(gasoline.annual.maintenance);
+      const electric = service.calculateMaintenance({
+        ...baseSedan,
+        fuelType: 'electric',
+      });
+      const gasoline = service.calculateMaintenance({
+        ...baseSedan,
+        fuelType: 'gasoline',
+      });
+      expect(electric.annual.maintenance).toBeLessThan(
+        gasoline.annual.maintenance,
+      );
     });
 
     it('higher mileage → higher fuel cost (monotonic)', () => {
-      const low = service.calculateMaintenance({ ...baseSedan, annualMileage: 5_000 });
-      const high = service.calculateMaintenance({ ...baseSedan, annualMileage: 20_000 });
+      const low = service.calculateMaintenance({
+        ...baseSedan,
+        annualMileage: 5_000,
+      });
+      const high = service.calculateMaintenance({
+        ...baseSedan,
+        annualMileage: 20_000,
+      });
       expect(high.annual.fuel).toBeGreaterThan(low.annual.fuel);
     });
 
     it('large SUV has higher tax than compact', () => {
-      const compact = service.calculateMaintenance({ ...baseSedan, carType: 'compact' });
-      const large = service.calculateMaintenance({ ...baseSedan, carType: 'large' });
+      const compact = service.calculateMaintenance({
+        ...baseSedan,
+        carType: 'compact',
+      });
+      const large = service.calculateMaintenance({
+        ...baseSedan,
+        carType: 'large',
+      });
       expect(large.annual.tax).toBeGreaterThan(compact.annual.tax);
     });
 
     it('zero insurance cost still produces valid result (no NaN)', () => {
-      const res = service.calculateMaintenance({ ...baseSedan, insuranceCost: 0 });
+      const res = service.calculateMaintenance({
+        ...baseSedan,
+        insuranceCost: 0,
+      });
       expect(Number.isFinite(res.annual.total)).toBe(true);
       expect(res.annual.insurance).toBe(0);
     });
