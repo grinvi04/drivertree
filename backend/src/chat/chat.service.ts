@@ -212,7 +212,7 @@ ${message}`;
       matchedSources = ranked.map((item) => ({
         id: item.id,
         title: item.title,
-        slug: item.slug,
+        slug: item.slug ?? '',
       }));
 
       // 본문 앞부분 대략 가져와서 요약본 구성

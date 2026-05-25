@@ -143,7 +143,7 @@ export default function ContentDetailPage({ params }: PageProps) {
    */
   const sanitizedHtml = useMemo(() => {
     if (!post?.content) return '';
-    const raw = renderMarkdown(post.content);
+    const raw = renderMarkdown(post?.content);
     return DOMPurify.sanitize(raw, {
       USE_PROFILES: { html: true },
       FORBID_TAGS: ['style', 'iframe', 'form', 'input', 'button', 'object', 'embed'],
