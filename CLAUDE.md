@@ -56,6 +56,55 @@ develop → release/vX.X.X → main (tag) + develop (merge --no-ff)
 
 ---
 
+## 커밋 메시지 규칙
+
+모든 커밋 메시지는 **한국어**로 작성한다.
+
+### 형식
+```
+타입(범위): 제목  ← 50자 이내, 마침표 없음
+
+본문               ← 선택. 변경 이유 위주, 72자 줄바꿈
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>  ← Claude Code 작업 시 필수
+```
+
+### 타입 목록
+
+| 타입 | 의미 |
+|---|---|
+| `feat` | 새 기능 추가 |
+| `fix` | 버그 수정 |
+| `hotfix` | 운영 긴급 수정 |
+| `refactor` | 기능 변화 없는 코드 개선 |
+| `style` | 포맷, 세미콜론 등 코드 변경 없음 |
+| `test` | 테스트 추가·수정 |
+| `docs` | 문서 변경 |
+| `chore` | 빌드, 설정, 패키지 등 |
+| `perf` | 성능 개선 |
+| `ci` | CI/CD 변경 |
+
+### 범위 예시
+`backend`, `frontend`, `auth`, `chat`, `ci`, `docs`, `layout`, `계산기`, `챗봇`
+
+### 예시
+```
+feat(챗봇): 모바일 다이얼로그 전체 화면 전환
+
+고정 너비(350px)가 320px 기기에서 잘리는 문제 수정.
+모바일에서 fixed + inset으로 뷰포트 가득 채우도록 변경.
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+```
+```
+fix(계산기): col-span-2.5 → 유효한 Tailwind 클래스로 교체
+```
+```
+docs(claude): 커밋 메시지 한국어 규칙 추가
+```
+
+---
+
 ## 백엔드 코드 수정 시
 
 ```bash
