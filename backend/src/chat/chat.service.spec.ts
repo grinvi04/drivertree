@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ChatService } from './chat.service';
 import { PrismaService } from '../prisma.service';
+import { GeminiService } from '../common/gemini.service';
 
 /**
  * ChatService — 프롬프트 인젝션 패턴 감지기 단위테스트
@@ -13,12 +14,13 @@ describe('ChatService — prompt injection detector', () => {
   let service: ChatService;
 
   beforeEach(async () => {
-    // Prisma는 실제 DB 연결이 필요 없으므로 빈 stub 주입
     const prismaStub = {} as Partial<PrismaService>;
+    const geminiStub = {} as Partial<GeminiService>;
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ChatService,
         { provide: PrismaService, useValue: prismaStub },
+        { provide: GeminiService, useValue: geminiStub },
       ],
     }).compile();
     service = module.get<ChatService>(ChatService);
