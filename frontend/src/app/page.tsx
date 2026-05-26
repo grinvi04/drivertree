@@ -16,26 +16,38 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const [submittedQuery, setSubmittedQuery] = useState('');
 
+  const [currentPage, setCurrentPage] = useState(1);
+
   const fetchContents = useCallback(
-    () => api.getContents(activeCategory === 'all' ? undefined : activeCategory, submittedQuery || undefined),
-    [activeCategory, submittedQuery],
+    () => api.getContents(
+      activeCategory === 'all' ? undefined : activeCategory,
+      submittedQuery || undefined,
+      currentPage,
+      12,
+    ),
+    [activeCategory, submittedQuery, currentPage],
   );
 
-  const { data: contents, isLoading } = useAsyncData<GuideContent[]>(
+  const { data: result, isLoading } = useAsyncData(
     fetchContents,
-    [],
-    [activeCategory, submittedQuery],
+    { data: [] as GuideContent[], meta: { total: 0, page: 1, limit: 12, totalPages: 1 } },
+    [activeCategory, submittedQuery, currentPage],
   );
+
+  const contents = result.data;
+  const meta = result.meta;
 
   const handleCategoryChange = (catId: string) => {
     setActiveCategory(catId);
     setSubmittedQuery('');
     setSearchQuery('');
+    setCurrentPage(1);
   };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setSubmittedQuery(searchQuery);
+    setCurrentPage(1);
   };
 
   const handlePopularSearch = (term: string) => {
@@ -185,59 +197,93 @@ export default function Home() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {contents.map((post) => {
-              const catInfo = CATEGORIES.find((c) => c.id === post.category) ?? CATEGORIES[0];
-              const CatIcon = catInfo.icon;
-              return (
-                <article
-                  key={post.id}
-                  className="rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:border-yellow-accent/40 p-5 flex flex-col justify-between group hover:-translate-y-1 transition-all duration-300 hover:shadow-[0_10px_30px_rgba(252,211,77,0.03)]"
-                >
-                  <div>
-                    <div className="flex items-center gap-2 mb-3.5">
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/[0.04] text-[10px] font-bold text-slate-300">
-                        <CatIcon className="w-3 h-3 text-yellow-accent" aria-hidden="true" />
-                        {catInfo.name}
-                      </span>
-                      <span className="text-[10px] text-slate-500">
-                        {new Date(post.createdAt).toLocaleDateString('ko-KR')}
-                      </span>
-                    </div>
-
-                    <h2 className="text-base font-bold text-slate-100 group-hover:text-yellow-accent transition-colors duration-300 line-clamp-2 mb-2 leading-snug">
-                      {post.title}
-                    </h2>
-
-                    <p className="text-xs text-slate-400 leading-relaxed line-clamp-3 mb-4 font-medium">
-                      {post.content.replace(/[#*`_-]/g, '').trim()}
-                    </p>
-                  </div>
-
-                  <div>
-                    <div className="flex flex-wrap gap-1.5 mb-4" aria-label="태그">
-                      {post.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="text-[10px] font-semibold text-slate-500 bg-[#121824] px-2 py-0.5 rounded border border-white/[0.02]"
-                        >
-                          #{tag}
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {contents.map((post) => {
+                const catInfo = CATEGORIES.find((c) => c.id === post.category) ?? CATEGORIES[0];
+                const CatIcon = catInfo.icon;
+                return (
+                  <article
+                    key={post.id}
+                    className="rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:border-yellow-accent/40 p-5 flex flex-col justify-between group hover:-translate-y-1 transition-all duration-300 hover:shadow-[0_10px_30px_rgba(252,211,77,0.03)]"
+                  >
+                    <div>
+                      <div className="flex items-center gap-2 mb-3.5">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/[0.04] text-[10px] font-bold text-slate-300">
+                          <CatIcon className="w-3 h-3 text-yellow-accent" aria-hidden="true" />
+                          {catInfo.name}
                         </span>
-                      ))}
+                        <span className="text-[10px] text-slate-500">
+                          {new Date(post.createdAt).toLocaleDateString('ko-KR')}
+                        </span>
+                      </div>
+                      <h2 className="text-base font-bold text-slate-100 group-hover:text-yellow-accent transition-colors duration-300 line-clamp-2 mb-2 leading-snug">
+                        {post.title}
+                      </h2>
+                      <p className="text-xs text-slate-400 leading-relaxed line-clamp-3 mb-4 font-medium">
+                        {post.content.replace(/[#*`_-]/g, '').trim()}
+                      </p>
                     </div>
+                    <div>
+                      <div className="flex flex-wrap gap-1.5 mb-4" aria-label="태그">
+                        {post.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="text-[10px] font-semibold text-slate-500 bg-[#121824] px-2 py-0.5 rounded border border-white/[0.02]"
+                          >
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+                      <Link
+                        href={`/content/${post.slug}`}
+                        className="w-full flex items-center justify-center gap-1.5 h-[42px] rounded-xl bg-white/[0.03] border border-white/[0.06] group-hover:bg-yellow-accent group-hover:text-[#0B0F19] text-xs font-bold text-slate-300 group-hover:border-transparent transition-all duration-300"
+                      >
+                        실전 노하우 읽기
+                        <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
+                      </Link>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
 
-                    <Link
-                      href={`/content/${post.slug}`}
-                      className="w-full flex items-center justify-center gap-1.5 h-[42px] rounded-xl bg-white/[0.03] border border-white/[0.06] group-hover:bg-yellow-accent group-hover:text-[#0B0F19] text-xs font-bold text-slate-300 group-hover:border-transparent transition-all duration-300"
-                    >
-                      실전 노하우 읽기
-                      <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
-                    </Link>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
+            {/* 페이지네이션 */}
+            {meta.totalPages > 1 && (
+              <nav aria-label="가이드 목록 페이지 이동" className="flex items-center justify-center gap-2 mt-10">
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  aria-label="이전 페이지"
+                  className="px-3 py-2 rounded-xl bg-white/[0.03] border border-white/[0.06] text-xs font-bold text-slate-400 hover:text-slate-200 hover:border-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                >
+                  ←
+                </button>
+                {Array.from({ length: meta.totalPages }, (_, i) => i + 1).map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => setCurrentPage(p)}
+                    aria-current={p === currentPage ? 'page' : undefined}
+                    className={`w-9 h-9 rounded-xl text-xs font-bold transition-all ${
+                      p === currentPage
+                        ? 'bg-yellow-accent text-[#0B0F19]'
+                        : 'bg-white/[0.03] border border-white/[0.06] text-slate-400 hover:text-slate-200 hover:border-slate-600'
+                    }`}
+                  >
+                    {p}
+                  </button>
+                ))}
+                <button
+                  onClick={() => setCurrentPage((p) => Math.min(meta.totalPages, p + 1))}
+                  disabled={currentPage === meta.totalPages}
+                  aria-label="다음 페이지"
+                  className="px-3 py-2 rounded-xl bg-white/[0.03] border border-white/[0.06] text-xs font-bold text-slate-400 hover:text-slate-200 hover:border-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                >
+                  →
+                </button>
+              </nav>
+            )}
+          </>
         )}
       </section>
 

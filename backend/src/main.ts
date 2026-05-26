@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger, LogLevel, ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from './common/all-exceptions.filter';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 /**
  * CORS origin callback 시그니처 — express의 cors 라이브러리 콜백 형태.
@@ -77,13 +78,26 @@ async function bootstrap(): Promise<void> {
     }),
   );
 
-  // Railway/Vercel 등 PaaS는 PORT를 동적 주입. 미주입 시 4000 fallback.
+  // Swagger — production에서도 활성화 (팀/외부 개발자 참고용)
+  // 필요 시 NODE_ENV === 'production' 조건으로 비활성화 가능
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('DriveTree API')
+    .setDescription('초보운전자 가이드 서비스 REST API')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup('api/docs', app, document, {
+    swaggerOptions: { persistAuthorization: true },
+  });
+
   const port = Number(process.env.PORT) || 4000;
-  // 컨테이너 외부에서 접근 가능하도록 반드시 0.0.0.0 에 바인딩.
-  // (기본값으로 호스트가 localhost/IPv6 가 될 수 있어 명시 필수)
   await app.listen(port, '0.0.0.0');
   new Logger('Bootstrap').log(
     `🚀 DriveTree Backend running on 0.0.0.0:${port}/api`,
+  );
+  new Logger('Bootstrap').log(
+    `📖 Swagger UI: http://localhost:${port}/api/docs`,
   );
 }
 void bootstrap();

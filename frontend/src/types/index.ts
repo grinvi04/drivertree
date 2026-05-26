@@ -1,5 +1,16 @@
 // 프로젝트 전체 공유 타입 — 이 파일 하나에서 관리
 
+export interface PaginatedResult<T> {
+  data: T[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
+
 export interface GuideContent {
   id: string;
   title: string;

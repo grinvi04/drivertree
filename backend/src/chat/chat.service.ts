@@ -1,10 +1,11 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
-import { AskChatDto, FeedbackChatDto } from './chat.dto';
+import { AskChatDto, FeedbackChatDto, ChatLogQueryDto } from './chat.dto';
 import { GeminiService } from '../common/gemini.service';
 import { RAG_CONFIG } from '../common/constants/rag.config';
 import { rankContents } from '../common/local-nlp.helper';
+import { paginate, PaginatedResult } from '../common/dto/pagination.dto';
 
 /**
  * pgvector 코사인 검색 결과 한 청크의 형태.
@@ -250,12 +251,19 @@ ${message}`;
     });
   }
 
-  /**
-   * 대화 이력 로그를 조회합니다 (관리자 백오피스 모니터링용).
-   */
-  async getLogs() {
-    return this.prisma.chatLog.findMany({
-      orderBy: { createdAt: 'desc' },
-    });
+  async getLogs(query: ChatLogQueryDto): Promise<PaginatedResult<unknown>> {
+    const { page, limit } = query;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.chatLog.findMany({
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      this.prisma.chatLog.count(),
+    ]);
+
+    return paginate(data, total, page, limit);
   }
 }

@@ -8,6 +8,7 @@ import type {
   MaintenanceResult,
   AdminContent,
   ChatLog,
+  PaginatedResult,
 } from '@/types';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
@@ -44,9 +45,7 @@ async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T
   const token = getAuthToken();
   const headers = new Headers(options.headers ?? {});
 
-  if (token) {
-    headers.set('Authorization', `Bearer ${token}`);
-  }
+  if (token) headers.set('Authorization', `Bearer ${token}`);
   if (options.body && !(options.body instanceof FormData)) {
     headers.set('Content-Type', 'application/json');
   }
@@ -77,12 +76,19 @@ export const api = {
 
   getProfile: (): Promise<unknown> => apiRequest<unknown>('/auth/profile'),
 
-  // Content
-  getContents: (category?: string, search?: string): Promise<GuideContent[]> => {
+  // Content — 페이지네이션 응답
+  getContents: (
+    category?: string,
+    search?: string,
+    page = 1,
+    limit = 12,
+  ): Promise<PaginatedResult<GuideContent>> => {
     const params = new URLSearchParams();
     if (category) params.append('category', category);
     if (search) params.append('search', search);
-    return apiRequest<GuideContent[]>(`/content?${params.toString()}`);
+    params.append('page', String(page));
+    params.append('limit', String(limit));
+    return apiRequest<PaginatedResult<GuideContent>>(`/content?${params.toString()}`);
   },
 
   getContentBySlug: (slug: string): Promise<GuideContent> =>
@@ -103,8 +109,8 @@ export const api = {
       body: JSON.stringify(data),
     }),
 
-  deleteContent: (id: string): Promise<AdminContent[]> =>
-    apiRequest<AdminContent[]>(`/content/${id}`, { method: 'DELETE' }),
+  deleteContent: (id: string): Promise<{ id: string }> =>
+    apiRequest<{ id: string }>(`/content/${id}`, { method: 'DELETE' }),
 
   // Chat
   askChat: (message: string, sessionKey: string): Promise<AskChatResponse> =>
@@ -113,16 +119,16 @@ export const api = {
       body: JSON.stringify({ message, sessionKey }),
     }),
 
-  sendFeedback: (
-    id: string,
-    feedback: ChatMessage['feedback'],
-  ): Promise<unknown> =>
+  sendFeedback: (id: string, feedback: ChatMessage['feedback']): Promise<unknown> =>
     apiRequest<unknown>(`/chat/feedback/${id}`, {
       method: 'POST',
       body: JSON.stringify({ feedback }),
     }),
 
-  getChatLogs: (): Promise<ChatLog[]> => apiRequest<ChatLog[]>('/chat/logs'),
+  getChatLogs: (page = 1, limit = 20): Promise<PaginatedResult<ChatLog>> => {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    return apiRequest<PaginatedResult<ChatLog>>(`/chat/logs?${params.toString()}`);
+  },
 
   // Calculator
   getPenalties: (): Promise<PenaltyRule[]> =>
@@ -134,3 +140,6 @@ export const api = {
       body: JSON.stringify(data),
     }),
 };
+
+// 타입 re-export (하위 호환)
+export type { AdminContent };
