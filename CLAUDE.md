@@ -111,7 +111,46 @@ docs(claude): 커밋 메시지 한국어 규칙 추가
 cd backend && npm run format   # 커밋 전 필수 — prettier 미실행 시 CI lint 실패
 ```
 
-## 프론트엔드 CI
+## 백엔드/프론트엔드 CI install
 
-`.github/workflows/ci.yml`에서 프론트 install은 `npm install` 사용 (not `npm ci`).
-npm 10.x + wasm32 optional 패키지 lock 파일 버그 우회용이므로 변경하지 말 것.
+`.github/workflows/ci.yml`에서 백엔드·프론트 모두 `npm install` 사용 (not `npm ci`).
+npm 10.x + wasm32/emnapi optional 패키지 lock 파일 버그 우회용이므로 변경하지 말 것.
+
+---
+
+## 테스트 규칙
+
+### 핵심 원칙
+
+- **모든 테스트는 100% 통과** 상태를 유지한다 — failing 테스트가 있으면 커밋하지 않는다.
+- `npm test` (backend) 기준: 새 파일을 추가할 때마다 스펙 파일도 함께 작성한다.
+- 테스트는 `*.spec.ts` 패턴으로 `src/` 안에 위치시킨다.
+
+### 유닛 테스트 (서비스 레이어)
+
+- **외부 의존성은 항상 Mock** — `PrismaService`, `JwtService`, `GeminiService`는 jest.fn() stub으로 교체한다.
+- **실제 DB 연결 금지** — `$transaction`, `$executeRawUnsafe`도 mock 처리한다.
+- Private 메서드 접근이 필요하면 `(service as unknown as { method: ... }).method()` 패턴을 사용한다.
+- Mock 설정은 `beforeEach`에서 매 테스트마다 초기화한다.
+
+### 테스트 범위 기준
+
+| 레이어 | 커버 범위 | 비고 |
+|---|---|---|
+| 서비스 비즈니스 로직 | 정상 경로 + 모든 예외 경로 | NotFoundException, ConflictException, UnauthorizedException 등 |
+| 순수 도메인 함수 | 입출력 계약, 경계값, 단조성 | 계산기 수식, 청킹 로직 등 |
+| 보안 핵심 로직 | 모든 인젝션 패턴 + 정상 입력 | 프롬프트 인젝션 감지기 등 |
+| Controller / DTO | 필수 검증 룰 | 별도 e2e 테스트로 다룬다 |
+
+### 테스트 작성 순서
+
+1. 정상 경로(happy path) 먼저 — 기대 반환값, 의존성 호출 여부
+2. 예외 경로 — 각 `throw`마다 1개 테스트
+3. 경계값·edge case — 빈 배열, 0, null, 빈 문자열 등
+
+### 커밋 전 확인
+
+```bash
+cd backend && npm test   # 모든 테스트 통과 확인
+cd backend && npm run lint:check   # lint 0 errors
+```

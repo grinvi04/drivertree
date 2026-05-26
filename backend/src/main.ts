@@ -2,6 +2,9 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger, LogLevel, ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from './common/all-exceptions.filter';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import cookieParser from 'cookie-parser';
+import * as Sentry from '@sentry/node';
 
 /**
  * CORS origin callback 시그니처 — express의 cors 라이브러리 콜백 형태.
@@ -9,6 +12,13 @@ import { AllExceptionsFilter } from './common/all-exceptions.filter';
 type CorsOriginCallback = (err: Error | null, allow?: boolean) => void;
 
 async function bootstrap(): Promise<void> {
+  if (process.env.SENTRY_DSN) {
+    Sentry.init({
+      dsn: process.env.SENTRY_DSN,
+      environment: process.env.NODE_ENV || 'development',
+      tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 0,
+    });
+  }
   // NEST_LOG_LEVEL 환경변수로 운영/로컬 로그 노이즈 제어
   // 예: production은 "log,warn,error" / 디버그는 "log,warn,error,debug,verbose"
   const validLevels: readonly LogLevel[] = [
@@ -32,6 +42,8 @@ async function bootstrap(): Promise<void> {
 
   // 글로벌 API 경로 프리픽스 설정 (/api/...)
   app.setGlobalPrefix('api');
+
+  app.use(cookieParser());
 
   // 모든 예외를 한 곳에서 처리 — 구조화 로깅 + 일관된 JSON 에러 응답
   app.useGlobalFilters(new AllExceptionsFilter());
@@ -77,13 +89,26 @@ async function bootstrap(): Promise<void> {
     }),
   );
 
-  // Railway/Vercel 등 PaaS는 PORT를 동적 주입. 미주입 시 4000 fallback.
+  // Swagger — production에서도 활성화 (팀/외부 개발자 참고용)
+  // 필요 시 NODE_ENV === 'production' 조건으로 비활성화 가능
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('DriveTree API')
+    .setDescription('초보운전자 가이드 서비스 REST API')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup('api/docs', app, document, {
+    swaggerOptions: { persistAuthorization: true },
+  });
+
   const port = Number(process.env.PORT) || 4000;
-  // 컨테이너 외부에서 접근 가능하도록 반드시 0.0.0.0 에 바인딩.
-  // (기본값으로 호스트가 localhost/IPv6 가 될 수 있어 명시 필수)
   await app.listen(port, '0.0.0.0');
   new Logger('Bootstrap').log(
     `🚀 DriveTree Backend running on 0.0.0.0:${port}/api`,
+  );
+  new Logger('Bootstrap').log(
+    `📖 Swagger UI: http://localhost:${port}/api/docs`,
   );
 }
 void bootstrap();

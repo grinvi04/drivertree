@@ -26,10 +26,14 @@ export default function AdminDashboardPage() {
   // 가이드 콘텐츠 상태
   const [contents, setContents] = useState<GuideContent[]>([]);
   const [contentsLoading, setContentsLoading] = useState(true);
+  const [contentsPage, setContentsPage] = useState(1);
+  const [contentsMeta, setContentsMeta] = useState({ totalPages: 1, total: 0 });
 
   // 챗 로그 상태
   const [chatLogs, setChatLogs] = useState<ChatLog[]>([]);
   const [logsLoading, setLogsLoading] = useState(true);
+  const [logsPage, setLogsPage] = useState(1);
+  const [logsMeta, setLogsMeta] = useState({ totalPages: 1, total: 0 });
 
   // 콘텐츠 추가/수정 모달 상태
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -45,45 +49,49 @@ export default function AdminDashboardPage() {
   const fetchContents = useCallback(async () => {
     setContentsLoading(true);
     try {
-      const data = await api.getContents();
-      setContents(data);
+      const result = await api.getContents(undefined, undefined, contentsPage, 10);
+      setContents(result.data);
+      setContentsMeta({ totalPages: result.meta.totalPages, total: result.meta.total });
     } catch (err) {
       console.error('가이드 리스트 조회 실패:', err);
     } finally {
       setContentsLoading(false);
     }
-  }, []);
+  }, [contentsPage]);
 
   const fetchChatLogs = useCallback(async () => {
     setLogsLoading(true);
     try {
-      const data = await api.getChatLogs();
-      setChatLogs(data);
+      const result = await api.getChatLogs(logsPage, 20);
+      setChatLogs(result.data);
+      setLogsMeta({ totalPages: result.meta.totalPages, total: result.meta.total });
     } catch (err) {
       console.error('챗봇 모니터링 로그 조회 실패:', err);
     } finally {
       setLogsLoading(false);
     }
-  }, []);
+  }, [logsPage]);
 
-  // 인증 가드 + 초기 데이터 로딩 (마운트 1회만)
+  // 인증 가드 — httpOnly 쿠키 검증 (마운트 1회)
   useEffect(() => {
-    const init = async () => {
-      const token = localStorage.getItem('drivetree_token');
-      const user = localStorage.getItem('drivetree_user');
-      if (!token || !user) {
+    api.getProfile()
+      .then((profile) => {
+        setAdminUser(profile.username);
+        localStorage.setItem('drivetree_user', profile.username);
+      })
+      .catch(() => {
+        localStorage.removeItem('drivetree_user');
         router.push('/admin/login');
-        return;
-      }
-      setAdminUser(user);
-      await Promise.all([fetchContents(), fetchChatLogs()]);
-    };
-    void init();
-  }, [router, fetchContents, fetchChatLogs]);
+      });
+  }, [router]);
 
-  // 로그아웃
-  const handleLogout = () => {
-    localStorage.removeItem('drivetree_token');
+  // 페이지 변경 시 콘텐츠 재조회
+  useEffect(() => { void fetchContents(); }, [fetchContents]);
+  useEffect(() => { void fetchChatLogs(); }, [fetchChatLogs]);
+
+  // 로그아웃 — 서버에서 쿠키 삭제 + refresh token 무효화
+  const handleLogout = async () => {
+    try { await api.logout(); } catch { /* ignore */ }
     localStorage.removeItem('drivetree_user');
     router.push('/admin/login');
   };
@@ -183,7 +191,7 @@ export default function AdminDashboardPage() {
           </div>
           
           <button
-            onClick={handleLogout}
+            onClick={() => { void handleLogout(); }}
             className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl border border-red-500/20 bg-red-500/5 hover:bg-red-500/10 text-xs font-bold text-red-400 cursor-pointer transition-colors w-fit"
           >
             <LogOut className="w-4 h-4" />
@@ -223,7 +231,7 @@ export default function AdminDashboardPage() {
             <div className="flex items-center justify-between">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
                 <BookOpen className="w-5 h-5 text-yellow-accent" />
-                등록된 가이드 포스트 ({contents.length}개)
+                등록된 가이드 포스트 ({contentsMeta.total}개)
               </h3>
               <button
                 onClick={handleOpenAddModal}
@@ -287,6 +295,17 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
             )}
+
+            {/* 콘텐츠 페이지네이션 */}
+            {contentsMeta.totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 mt-4">
+                <button onClick={() => setContentsPage((p) => Math.max(1, p - 1))} disabled={contentsPage === 1}
+                  className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all">← 이전</button>
+                <span className="text-xs text-slate-500">{contentsPage} / {contentsMeta.totalPages} 페이지</span>
+                <button onClick={() => setContentsPage((p) => Math.min(contentsMeta.totalPages, p + 1))} disabled={contentsPage === contentsMeta.totalPages}
+                  className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all">다음 →</button>
+              </div>
+            )}
           </div>
         )}
 
@@ -295,7 +314,7 @@ export default function AdminDashboardPage() {
           <div className="space-y-6">
             <h3 className="text-base font-bold text-white flex items-center gap-2">
               <MessageSquare className="w-5 h-5 text-yellow-accent" />
-              챗봇 사용 및 평가지표 모니터링 로그 ({chatLogs.length}건)
+              챗봇 사용 및 평가지표 모니터링 로그 ({logsMeta.total}건)
             </h3>
 
             {logsLoading ? (
@@ -364,6 +383,17 @@ export default function AdminDashboardPage() {
                     </tbody>
                   </table>
                 </div>
+              </div>
+            )}
+
+            {/* 로그 페이지네이션 */}
+            {logsMeta.totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 mt-6">
+                <button onClick={() => setLogsPage((p) => Math.max(1, p - 1))} disabled={logsPage === 1}
+                  className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all">← 이전</button>
+                <span className="text-xs text-slate-500">{logsPage} / {logsMeta.totalPages} 페이지</span>
+                <button onClick={() => setLogsPage((p) => Math.min(logsMeta.totalPages, p + 1))} disabled={logsPage === logsMeta.totalPages}
+                  className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all">다음 →</button>
               </div>
             )}
           </div>

@@ -8,6 +8,7 @@ import type {
   MaintenanceResult,
   AdminContent,
   ChatLog,
+  PaginatedResult,
 } from '@/types';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
@@ -33,34 +34,68 @@ interface AskChatResponse {
   matchedSources?: MatchedSource[];
 }
 
-function getAuthToken(): string | null {
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem('drivetree_token');
-  }
-  return null;
+let isRefreshing = false;
+let refreshPromise: Promise<void> | null = null;
+
+async function tryRefresh(): Promise<void> {
+  const res = await fetch(`${BASE_URL}/auth/refresh`, {
+    method: 'POST',
+    credentials: 'include',
+  });
+  if (!res.ok) throw new ApiError(401, '세션이 만료되었습니다. 다시 로그인하세요.');
 }
 
 async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const token = getAuthToken();
   const headers = new Headers(options.headers ?? {});
 
-  if (token) {
-    headers.set('Authorization', `Bearer ${token}`);
-  }
   if (options.body && !(options.body instanceof FormData)) {
     headers.set('Content-Type', 'application/json');
   }
 
-  const response = await fetch(`${BASE_URL}${path}`, { ...options, headers });
+  const response = await fetch(`${BASE_URL}${path}`, {
+    ...options,
+    headers,
+    credentials: 'include',
+  });
+
+  // 401 — 액세스 토큰 만료 시 refresh 후 1회 재시도
+  if (response.status === 401 && !path.startsWith('/auth/')) {
+    if (!isRefreshing) {
+      isRefreshing = true;
+      refreshPromise = tryRefresh().finally(() => {
+        isRefreshing = false;
+        refreshPromise = null;
+      });
+    }
+    try {
+      await refreshPromise;
+    } catch {
+      throw new ApiError(401, '세션이 만료되었습니다. 다시 로그인하세요.');
+    }
+
+    // 원래 요청 재시도
+    const retryResponse = await fetch(`${BASE_URL}${path}`, {
+      ...options,
+      headers,
+      credentials: 'include',
+    });
+    if (!retryResponse.ok) {
+      let message = '요청 처리 중 오류가 발생했습니다.';
+      try {
+        const errorData = (await retryResponse.json()) as { message?: string };
+        message = errorData.message ?? message;
+      } catch { /* ignore */ }
+      throw new ApiError(retryResponse.status, message);
+    }
+    return retryResponse.json() as Promise<T>;
+  }
 
   if (!response.ok) {
     let message = '요청 처리 중 오류가 발생했습니다.';
     try {
       const errorData = (await response.json()) as { message?: string };
       message = errorData.message ?? message;
-    } catch {
-      // JSON 파싱 실패 시 기본 메시지 유지
-    }
+    } catch { /* ignore */ }
     throw new ApiError(response.status, message);
   }
 
@@ -75,14 +110,25 @@ export const api = {
       body: JSON.stringify({ username, password }),
     }),
 
-  getProfile: (): Promise<unknown> => apiRequest<unknown>('/auth/profile'),
+  logout: (): Promise<{ message: string }> =>
+    apiRequest<{ message: string }>('/auth/logout', { method: 'POST' }),
 
-  // Content
-  getContents: (category?: string, search?: string): Promise<GuideContent[]> => {
+  getProfile: (): Promise<{ userId: string; username: string }> =>
+    apiRequest<{ userId: string; username: string }>('/auth/profile'),
+
+  // Content — 페이지네이션 응답
+  getContents: (
+    category?: string,
+    search?: string,
+    page = 1,
+    limit = 12,
+  ): Promise<PaginatedResult<GuideContent>> => {
     const params = new URLSearchParams();
     if (category) params.append('category', category);
     if (search) params.append('search', search);
-    return apiRequest<GuideContent[]>(`/content?${params.toString()}`);
+    params.append('page', String(page));
+    params.append('limit', String(limit));
+    return apiRequest<PaginatedResult<GuideContent>>(`/content?${params.toString()}`);
   },
 
   getContentBySlug: (slug: string): Promise<GuideContent> =>
@@ -103,8 +149,8 @@ export const api = {
       body: JSON.stringify(data),
     }),
 
-  deleteContent: (id: string): Promise<AdminContent[]> =>
-    apiRequest<AdminContent[]>(`/content/${id}`, { method: 'DELETE' }),
+  deleteContent: (id: string): Promise<{ id: string }> =>
+    apiRequest<{ id: string }>(`/content/${id}`, { method: 'DELETE' }),
 
   // Chat
   askChat: (message: string, sessionKey: string): Promise<AskChatResponse> =>
@@ -113,16 +159,16 @@ export const api = {
       body: JSON.stringify({ message, sessionKey }),
     }),
 
-  sendFeedback: (
-    id: string,
-    feedback: ChatMessage['feedback'],
-  ): Promise<unknown> =>
+  sendFeedback: (id: string, feedback: ChatMessage['feedback']): Promise<unknown> =>
     apiRequest<unknown>(`/chat/feedback/${id}`, {
       method: 'POST',
       body: JSON.stringify({ feedback }),
     }),
 
-  getChatLogs: (): Promise<ChatLog[]> => apiRequest<ChatLog[]>('/chat/logs'),
+  getChatLogs: (page = 1, limit = 20): Promise<PaginatedResult<ChatLog>> => {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    return apiRequest<PaginatedResult<ChatLog>>(`/chat/logs?${params.toString()}`);
+  },
 
   // Calculator
   getPenalties: (): Promise<PenaltyRule[]> =>
@@ -134,3 +180,6 @@ export const api = {
       body: JSON.stringify(data),
     }),
 };
+
+// 타입 re-export (하위 호환)
+export type { AdminContent };

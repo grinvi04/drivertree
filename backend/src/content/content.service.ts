@@ -7,10 +7,16 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
-import { CreateContentDto, UpdateContentDto } from './content.dto';
+import {
+  CreateContentDto,
+  UpdateContentDto,
+  ContentQueryDto,
+} from './content.dto';
 import { rankContents } from '../common/local-nlp.helper';
 import { GeminiService } from '../common/gemini.service';
 import { RAG_CONFIG } from '../common/constants/rag.config';
+import { paginate, PaginatedResult } from '../common/dto/pagination.dto';
+import { SEED_CONTENTS } from '../../prisma/seeds/content.data';
 
 @Injectable()
 export class ContentService implements OnModuleInit {
@@ -21,248 +27,49 @@ export class ContentService implements OnModuleInit {
     private readonly gemini: GeminiService,
   ) {}
 
-  /**
-   * 백엔드 실행 시 대표 시드 데이터의 존재 여부를 확인하고,
-   * slug 기준으로 누락된 항목만 삽입(Idempotent Seeding)합니다.
-   */
   async onModuleInit() {
-    const seedPosts = [
-      {
-        title: '운전면허 독학 vs 학원, 총비용과 꿀팁 완벽 비교!',
-        slug: 'license-school-vs-self',
-        category: 'license',
-        tags: ['독학', '비용', '면허취득'],
-        content: `## 1. 운전면허 취득의 갈림길: 학원 vs 독학
-운전면허를 딸 때 가장 먼저 마주하는 고민은 **전문학원에 등록할 것인가**, 아니면 **독학(시험장 직접 응시)으로 취득할 것인가**입니다.
-
-### 💰 비용 비교
-- **전문 학원**: 약 80만원 ~ 100만원 선 (의무 교육 13시간 및 검정료 포함)
-- **독학 취득**: 약 10만원 ~ 15만원 선 (순수 시험 수수료 및 연습면허 발급 비용)
-
-### ⏱️ 취득 기간 비교
-- **전문 학원**: 단기 속성반 이용 시 대략 1주일~2주일 내에 속성 취득 가능.
-- **독학 취득**: 시험장의 일정 예약 대기 및 연습 시간 확보에 따라 평균 2주~1달 소요.
-
-> [!TIP]
-> **이런 분께 추천해 드립니다!**
-> - **학원 추천**: 운동 신경이 평균 이하이거나, 시간에 쫓겨서 빠르게 합격해야 하는 예비 운전자.
-> - **독학 추천**: 가족이나 지인의 안전한 차로 연습할 수 있고, 비용을 극단적으로 아끼고 싶은 분.`,
-      },
-      {
-        title: '비보호 좌회전할 때 빨간불에 가도 되나요? (벌점 폭탄 피하기!)',
-        slug: 'rules-unprotected-left-turn',
-        category: 'rules',
-        tags: ['비보호', '좌회전', '신호위반'],
-        content: `## 🚨 비보호 좌회전의 가장 흔한 오해!
-초보 운전자들이 가장 많이 실수하고, 도로 위에서 범칙금 딱지를 가장 쉽게 끊는 구간이 바로 **'비보호 좌회전'**입니다.
-
-### ❌ 절대 불가능한 행동: 적색 신호에 좌회전!
-> [!WARNING]
-> **빨간불(적색 신호)일 때 비보호 좌회전을 시도하면 100% 신호위반 단속 대상입니다!**
-> 이는 교통사고 발생 시 12대 중과실에 처해지는 매우 위험한 행위입니다.
-
-### 🟢 올바른 비보호 좌회전 공식 (3단계)
-1. **직진 신호(녹색불)일 때**: 교차로 중앙 부근까지 안전거리를 확보하고 대기합니다.
-2. **반대편 차선 확인**: 맞은편에서 직진해 오는 차량이 전혀 없는지 시야를 확실하게 넓혀 봅니다.
-3. **안전하게 진입**: 맞은편 차선이 완벽히 비었을 때 신속하고 부드럽게 좌회전합니다.
-
-### 💡 보행자 신호 유의사항
-맞은편 직진 차선뿐만 아니라, **좌회전하여 들어가는 차선의 횡단보도 보행자 신호**가 녹색인지도 반드시 확인하고 서행하셔야 안전합니다.`,
-      },
-      {
-        title: '좁은 골목길 마주친 두 차량, 과연 누가 비켜줘야 할까?',
-        slug: 'basics-alleyway-priority',
-        category: 'basics',
-        tags: ['골목길', '양보', '주행기초'],
-        content: `## 좁은 주택가 골목길, 양보의 우선순위!
-맞은편 차량과 좁은 외길 골목에서 마주쳐 오도 가도 못하는 곤란한 상황을 마주친 경험이 다들 있으실 겁니다. 도로교통법규 및 교통 매너가 정리하는 **'양보의 우선순위'**를 콕 집어 드립니다.
-
-### 1. 오르막길과 내리막길의 마주침
-- **우선권**: **내려가는 차량**이 양보해야 합니다.
-- **이유**: 언덕 위에 있는 내려가는 차량은 제동(브레이크)이 용이하고 후진이 위험한 오르막길 차량에 비해 제어와 양보 공간 포착이 훨씬 쉽기 때문입니다.
-
-### 2. 빈 차와 승객/화물이 실린 차의 마주침
-- **우선권**: **빈 차(가벼운 차)**가 양보합니다.
-- **이유**: 무거운 짐을 싣고 있거나 탑승객이 많은 차량이 이동과 후진이 훨씬 둔하고 위험하기 때문입니다.
-
-### 3. 직진 차량과 골목길 진입 차량
-- **우선권**: **큰 도로에서 이미 진입하여 쭉 오던 차량**이 우선권을 갖습니다. 이제 막 골목 입구에서 진입하려던 차량이 뒤로 조금 물러나 길을 터주는 것이 가장 정석입니다.`,
-      },
-      {
-        title: '생애 첫 접촉사고! 당황하지 않고 해결하는 5단계 대처법',
-        slug: 'accidents-crash-guide',
-        category: 'accidents',
-        tags: ['접촉사고', '보험처리', '과태료대처'],
-        content: `## 💥 사고 순간, 이것만 기억하세요!
-아무리 운전을 오래 한 베테랑이라도 첫 접촉 사고를 겪으면 머릿속이 새하얘집니다. 초보자분들이 2차 사고 없이 가장 현명하게 상황을 정리할 수 있는 실전 5단계 매뉴얼입니다.
-
-### 1단계: 비상등 작동 후 안전 지대로 정차
-사고가 났다면 당황하지 말고 비상등을 즉시 켜고, 뒤차에 사고 상황을 알린 뒤 갓길 등 안전한 장소로 서서히 차량을 정차합니다.
-
-### 2단계: 양측 탑승객 부상 유무 확인
-가장 중요한 것은 사람입니다. 상대 차량과 본인 차량 탑승객의 몸 상태를 먼저 차분하게 확인해 봅니다.
-
-### 3단계: 현장 사진 확보 (매우 중요!)
-보험 합의 및 과실 비율 판정을 위해 아래 사진 3종을 차량 이동 전에 꼭 찍어두세요.
-- **원거리 사진 (전체 구도)**: 바퀴의 방향, 차선의 위치가 잘 보이게 10m 뒤에서 촬영.
-- **근거리 사진**: 차량 파손 부위와 스크래치를 클로즈업하여 촬영.
-- **블랙박스 촬영**: 정상 녹화 중인지 화면을 확인하고, 필요 시 전원을 즉시 차단하여 메모리카드 덮어쓰기를 방지합니다.
-
-### 4단계: 보험사 접수 및 현장 출동 요청
-가입하신 자동차 보험사 고객센터에 사고를 즉시 접수하고 출동을 요청하세요.
-- *Tip: 사설 렉카(견인차)가 동의 없이 내 차를 끌고 가려 하면 절대 승인하시면 안 됩니다! 반드시 보험사 전용 견인 서비스를 이용하세요.*
-
-### 5단계: 안전지대 대피 후 대기
-사고 경위가 담긴 사진을 확보했다면, 뒤따라오는 차량에 의한 **2차 추돌 사고를 막기 위해** 모든 탑승자는 도로 밖 안전 펜스 너머로 신속히 대피하여 대기합니다.`,
-      },
-      {
-        title:
-          '1종 보통 vs 2종 보통, 나에게 맞는 면허는? (운전 가능 차종·시험 차이·합격률)',
-        slug: 'license-type-1-vs-2',
-        category: 'license',
-        tags: ['1종보통', '2종보통', '면허종류'],
-        content: `## 어떤 운전면허를 선택해야 할까?
-면허 학원에 가기 전 가장 먼저 마주치는 갈림길은 **1종 보통이냐, 2종 보통이냐** 입니다. 결론부터 말하면, 일반 자가용만 몰 거라면 2종 보통이 더 편하고, 화물·승합·생업 운전까지 고려한다면 1종 보통이 유리합니다.
-
-### 🚗 운전 가능한 차종 비교
-
-| 구분 | 1종 보통 | 2종 보통 |
-|---|---|---|
-| 승용차 | ✅ | ✅ |
-| 승합차 | 승차정원 15명 이하 | 승차정원 10명 이하 |
-| 화물차 | 적재중량 12톤 미만 | 적재중량 4톤 이하 |
-| 특수차 | 총중량 10톤 미만 | ❌ |
-| 변속기 | **수동** (자동 신설형 별도) | **자동/수동** 선택 |
-
-> [!TIP]
-> 2024년부터 **1종 자동 보통(자동변속기)** 면허가 신설되어, 자동변속기 차량으로 1종 운전 범위를 커버할 수 있게 되었습니다. 시험·취득 조건은 도로교통공단 공식 사이트(safedriving.or.kr)에서 최신 정보를 확인해 주세요.
-
-### 🧪 시험 차이
-- **1종 보통**: 1.5톤 트럭(수동변속기)으로 시험. 클러치 조작 등이 추가되어 난도가 다소 높습니다.
-- **2종 보통**: 일반 승용차로 시험. 자동변속기를 선택하면 클러치 조작이 빠져 시험이 가장 쉬운 편입니다.
-
-### 📊 합격률·취득 난도 체감
-- **2종 자동** > **2종 수동** > **1종 보통** 순서로 보통 합격이 쉽다고 알려져 있습니다.
-- 다만 사람마다 차이가 크니, 본인이 어떤 변속기를 평소에 운전할지를 기준으로 결정하는 것이 좋습니다.
-
-### 🎯 누구에게 어떤 면허가 좋을까
-
-- **2종 보통(자동) 추천**: 일반 자가용·통근·여행 위주, 수동 운전 부담스러움, 빠르게 합격하고 싶음.
-- **2종 보통(수동) 추천**: 캠핑카·올드카 등 수동 차량을 다룰 가능성, 향후 1종 갱신 시 도움.
-- **1종 보통 추천**: 1.5톤 화물차·15인승 승합차 운전 가능성, 직업(택배·자영업 등)에 운전이 포함될 수 있음, 군 운전병 경력 연계.
-
-### ⚖️ 1종 보통 적성검사 주의
-1종 보통은 2종 보통과 달리 **시력 등 적성검사 기준이 더 엄격**합니다. 한쪽 눈이 안 보이거나 시력 교정이 어려운 경우 1종 응시가 제한될 수 있으니 사전 확인이 필요합니다.
-
-> [!WARNING]
-> **본 내용은 작성 시점의 일반적인 기준입니다.** 면허 종류·시험 차종·적성검사 기준은 도로교통공단 고시·시행규칙에 따라 변경될 수 있으니, 학원 등록 또는 시험 응시 전 반드시 [도로교통공단 운전면허 안내(safedriving.or.kr)](https://www.safedriving.or.kr)에서 최신 정보를 확인해 주세요.`,
-      },
-      {
-        title:
-          '엔진오일 교체 주기, 5천 km? 1만 km? (가솔린·디젤·하이브리드별 정리 + 가혹조건 체크)',
-        slug: 'maintenance-engine-oil-cycle',
-        category: 'maintenance',
-        tags: ['엔진오일', '정비', '주행거리'],
-        content: `## 💧 엔진오일은 결국 "차의 피"입니다
-엔진오일은 엔진 내부의 마찰을 줄이고 열을 식히는 핵심 소모품입니다. 너무 늦게 갈면 엔진 손상으로 수백만원 단위의 수리비가 들 수 있고, 너무 자주 갈면 멀쩡한 오일을 버리는 셈이 됩니다. 그래서 **"적정 주기"** 를 아는 게 정비비를 가장 효율적으로 쓰는 첫걸음입니다.
-
-### 🛢️ 연료 타입별 일반 교체 주기
-
-| 연료 타입 | 주행거리 기준 | 기간 기준 |
-|---|---|---|
-| 가솔린 (일반) | 7,500 ~ 10,000 km | 6 ~ 12개월 |
-| 가솔린 (터보·직분사) | 5,000 ~ 8,000 km | 6개월 권장 |
-| 디젤 | 7,000 ~ 10,000 km | 6 ~ 12개월 |
-| LPG | 8,000 ~ 10,000 km | 6 ~ 12개월 |
-| 하이브리드 | 10,000 ~ 15,000 km | 12개월 |
-
-> 두 기준(거리·기간) 중 **먼저 도달한 시점**에 교체합니다.
-
-### ⚠️ "가혹 조건" 운전이면 절반 주기로
-다음 중 하나라도 평소 해당된다면, 위 주기의 **약 50~70% 수준**에서 더 일찍 교체하는 게 안전합니다.
-
-- 1회 주행거리 8 km 미만의 단거리·잦은 시동 (도심·출퇴근)
-- 정체 잦은 도심 주행, 공회전 시간이 긴 경우
-- 산악·고온·저온·다습 환경 잦은 운행
-- 비포장도로·먼지 많은 구간 잦은 통행
-- 짧은 시간 안에 급가속·급제동 잦은 스포츠 주행
-
-### 🔍 자가 점검 방법 (1분이면 끝)
-1. 평탄한 곳에 차량을 세우고 시동 끈 후 **10분 대기**.
-2. 보닛 열고 **딥스틱(노란 손잡이)** 을 뽑아 깨끗이 닦은 후 다시 끝까지 꽂습니다.
-3. 다시 뽑아 끝부분의 색·점도·잔량을 확인:
-   - **호박색 ~ 갈색**: 정상
-   - **검고 묽음**: 교체 시기
-   - **우유색**: 냉각수 혼입 가능성 → 즉시 정비소
-   - 잔량이 MIN 선 이하: 누유 또는 소모 → 점검 필요
-
-### 💸 비용 가이드 (2026년 기준 시장가)
-- **일반 정비소**: 5 ~ 8만원 (광유 + 공임)
-- **수입차·합성유**: 10 ~ 18만원
-- **자가 교체**: 부품·오일 비용만 약 3 ~ 5만원, 단 폐오일 처리·공구·리프트 문제로 초보 비추천
-
-### 🎁 무료 점검 활용
-- 자동차 보험 가입 시 제공되는 **무료 점검 쿠폰** (현대·삼성·DB 등 대부분 제공)
-- 신차 출고 후 일정 기간 내 **제조사 무상 점검**
-
-> [!TIP]
-> **차량 매뉴얼이 가장 정확합니다.** 위 수치는 일반론이고, 본인 차량 매뉴얼의 권장 주기·오일 등급·점도(예: 5W-30, 0W-20)를 우선 확인해 주세요.`,
-      },
-    ];
-
-    let insertedCount = 0;
-    for (const post of seedPosts) {
+    let inserted = 0;
+    for (const post of SEED_CONTENTS) {
       const existing = await this.prisma.content.findUnique({
         where: { slug: post.slug },
       });
       if (!existing) {
         await this.create(post);
-        insertedCount++;
+        inserted++;
       }
     }
-
-    if (insertedCount > 0) {
-      this.logger.log(`[Seed] Inserted ${insertedCount} new seed content(s).`);
+    if (inserted > 0) {
+      this.logger.log(`[Seed] Inserted ${inserted} new seed content(s).`);
     } else {
       this.logger.log('[Seed] All seed contents already present.');
     }
   }
 
-  /**
-   * 텍스트를 의미 있는 청크(Chunk)로 나눕니다. (RAG용)
-   */
   private chunkText(
     text: string,
     maxChars = RAG_CONFIG.MAX_CHUNK_SIZE,
   ): string[] {
     const sentences = text.split(/(\n+?|\.\s+)/);
     const chunks: string[] = [];
-    let currentChunk = '';
-
+    let current = '';
     for (const part of sentences) {
-      if (currentChunk.length + part.length > maxChars) {
-        if (currentChunk.trim()) chunks.push(currentChunk.trim());
-        currentChunk = part;
+      if (current.length + part.length > maxChars) {
+        if (current.trim()) chunks.push(current.trim());
+        current = part;
       } else {
-        currentChunk += part;
+        current += part;
       }
     }
-    if (currentChunk.trim()) {
-      chunks.push(currentChunk.trim());
-    }
+    if (current.trim()) chunks.push(current.trim());
     return chunks;
   }
 
-  /**
-   * 콘텐츠를 생성하고, RAG용 청크 및 임베딩을 빌드합니다.
-   */
   async create(dto: CreateContentDto) {
     const existing = await this.prisma.content.findUnique({
       where: { slug: dto.slug },
     });
-    if (existing) {
+    if (existing)
       throw new ConflictException('이미 존재하는 슬러그(Slug)입니다.');
-    }
 
     const content = await this.prisma.content.create({
       data: {
@@ -275,18 +82,11 @@ export class ContentService implements OnModuleInit {
     });
 
     await this.indexContent(content.id, dto.content);
-
-    return content;
+    return this.toResponseDto(content);
   }
 
-  /**
-   * 특정 콘텐츠의 본문을 청킹하고 임베딩을 DB에 적재합니다.
-   */
   private async indexContent(contentId: string, fullText: string) {
-    await this.prisma.contentEmbedding.deleteMany({
-      where: { contentId },
-    });
-
+    await this.prisma.contentEmbedding.deleteMany({ where: { contentId } });
     const chunks = this.chunkText(fullText);
 
     for (let i = 0; i < chunks.length; i++) {
@@ -297,7 +97,7 @@ export class ContentService implements OnModuleInit {
         const embeddingId = crypto.randomUUID();
         const vectorStr = `[${vector.join(',')}]`;
         await this.prisma.$executeRawUnsafe(
-          `INSERT INTO "ContentEmbedding" (id, "contentId", "chunkIndex", "textContent", embedding, "createdAt") 
+          `INSERT INTO "ContentEmbedding" (id, "contentId", "chunkIndex", "textContent", embedding, "createdAt")
            VALUES ($1, $2, $3, $4, $5::vector, NOW())`,
           embeddingId,
           contentId,
@@ -307,24 +107,20 @@ export class ContentService implements OnModuleInit {
         );
       } else {
         await this.prisma.contentEmbedding.create({
-          data: {
-            contentId,
-            chunkIndex: i,
-            textContent: chunkText,
-          },
+          data: { contentId, chunkIndex: i, textContent: chunkText },
         });
       }
     }
   }
 
-  /**
-   * 콘텐츠 목록을 조회합니다. 카테고리 필터와 검색어를 지원합니다.
-   */
-  async findAll(category?: string, search?: string) {
+  async findAll(
+    query: ContentQueryDto,
+  ): Promise<PaginatedResult<ReturnType<ContentService['toResponseDto']>>> {
+    const { page, limit, category, search } = query;
+    const skip = (page - 1) * limit;
+
     const where: Prisma.ContentWhereInput = {};
-    if (category) {
-      where.category = category;
-    }
+    if (category) where.category = category;
 
     if (search) {
       where.OR = [
@@ -334,46 +130,46 @@ export class ContentService implements OnModuleInit {
       ];
     }
 
-    const items = await this.prisma.content.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-    });
+    const [items, total] = await this.prisma.$transaction([
+      this.prisma.content.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      this.prisma.content.count({ where }),
+    ]);
 
-    if (search && items.length > 0) {
-      const allPosts = await this.prisma.content.findMany({
-        select: { id: true, title: true, content: true },
-      });
-      const ranked = rankContents(search, allPosts, 15);
+    const toDto = (item: (typeof items)[number]) => this.toResponseDto(item);
 
-      const rankedIds = new Set(ranked.map((r) => r.id));
-      const filteredAndRanked = items.filter((item) => rankedIds.has(item.id));
-
-      if (filteredAndRanked.length > 0) {
-        return filteredAndRanked;
-      }
+    // 검색어가 있을 때 결과 내에서만 TF-IDF 재정렬 (전체 DB 재조회 없음)
+    if (search && items.length > 1) {
+      const ranked = rankContents(search, items, limit);
+      const rankedIds = ranked.map((r) => r.id);
+      const reordered = rankedIds
+        .map((id) => items.find((item) => item.id === id))
+        .filter((item): item is NonNullable<typeof item> => item != null);
+      return paginate(reordered.map(toDto), total, page, limit);
     }
 
-    return items;
+    return paginate(items.map(toDto), total, page, limit);
   }
 
   async findOne(id: string) {
-    const item = await this.prisma.content.findUnique({
-      where: { id },
-    });
+    const item = await this.prisma.content.findUnique({ where: { id } });
     if (!item) throw new NotFoundException('콘텐츠를 찾을 수 없습니다.');
-    return item;
+    return this.toResponseDto(item);
   }
 
   async findOneBySlug(slug: string) {
-    const item = await this.prisma.content.findUnique({
-      where: { slug },
-    });
+    const item = await this.prisma.content.findUnique({ where: { slug } });
     if (!item) throw new NotFoundException('콘텐츠를 찾을 수 없습니다.');
-    return item;
+    return this.toResponseDto(item);
   }
 
   async update(id: string, dto: UpdateContentDto) {
-    const item = await this.findOne(id);
+    const item = await this.prisma.content.findUnique({ where: { id } });
+    if (!item) throw new NotFoundException('콘텐츠를 찾을 수 없습니다.');
 
     const updated = await this.prisma.content.update({
       where: { id },
@@ -386,17 +182,36 @@ export class ContentService implements OnModuleInit {
       },
     });
 
-    if (dto.content) {
-      await this.indexContent(updated.id, dto.content);
-    }
-
-    return updated;
+    if (dto.content) await this.indexContent(updated.id, dto.content);
+    return this.toResponseDto(updated);
   }
 
   async remove(id: string) {
-    await this.findOne(id);
-    return this.prisma.content.delete({
-      where: { id },
-    });
+    const item = await this.prisma.content.findUnique({ where: { id } });
+    if (!item) throw new NotFoundException('콘텐츠를 찾을 수 없습니다.');
+    await this.prisma.content.delete({ where: { id } });
+    return { id };
+  }
+
+  private toResponseDto(item: {
+    id: string;
+    title: string;
+    slug: string;
+    content: string;
+    category: string;
+    tags: string[];
+    createdAt: Date;
+    updatedAt: Date;
+  }) {
+    return {
+      id: item.id,
+      title: item.title,
+      slug: item.slug,
+      content: item.content,
+      category: item.category,
+      tags: item.tags,
+      createdAt: item.createdAt,
+      updatedAt: item.updatedAt,
+    };
   }
 }
