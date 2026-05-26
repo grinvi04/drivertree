@@ -18,7 +18,6 @@ import { RequestLoggerMiddleware } from './common/request-logger.middleware';
       { name: 'short', ttl: 60_000, limit: 10 },
       { name: 'long', ttl: 3_600_000, limit: 60 },
     ]),
-    // 인메모리 캐시 — 콘텐츠 목록 TTL 60초
     CacheModule.register({ isGlobal: true, ttl: 60_000 }),
     PrismaModule,
     AuthModule,
