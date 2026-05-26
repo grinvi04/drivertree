@@ -72,21 +72,26 @@ export default function AdminDashboardPage() {
     }
   }, [logsPage]);
 
-  // 인증 가드 (마운트 1회)
+  // 인증 가드 — httpOnly 쿠키 검증 (마운트 1회)
   useEffect(() => {
-    const token = localStorage.getItem('drivetree_token');
-    const user = localStorage.getItem('drivetree_user');
-    if (!token || !user) { router.push('/admin/login'); return; }
-    setAdminUser(user);
+    api.getProfile()
+      .then((profile) => {
+        setAdminUser(profile.username);
+        localStorage.setItem('drivetree_user', profile.username);
+      })
+      .catch(() => {
+        localStorage.removeItem('drivetree_user');
+        router.push('/admin/login');
+      });
   }, [router]);
 
   // 페이지 변경 시 콘텐츠 재조회
   useEffect(() => { void fetchContents(); }, [fetchContents]);
   useEffect(() => { void fetchChatLogs(); }, [fetchChatLogs]);
 
-  // 로그아웃
-  const handleLogout = () => {
-    localStorage.removeItem('drivetree_token');
+  // 로그아웃 — 서버에서 쿠키 삭제 + refresh token 무효화
+  const handleLogout = async () => {
+    try { await api.logout(); } catch { /* ignore */ }
     localStorage.removeItem('drivetree_user');
     router.push('/admin/login');
   };
@@ -186,7 +191,7 @@ export default function AdminDashboardPage() {
           </div>
           
           <button
-            onClick={handleLogout}
+            onClick={() => { void handleLogout(); }}
             className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl border border-red-500/20 bg-red-500/5 hover:bg-red-500/10 text-xs font-bold text-red-400 cursor-pointer transition-colors w-fit"
           >
             <LogOut className="w-4 h-4" />

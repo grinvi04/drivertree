@@ -7,6 +7,7 @@ import {
 import { PrismaService } from '../prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from './auth.dto';
+import type { JwtPayload } from './jwt.strategy';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -18,17 +19,6 @@ export class AuthService implements OnModuleInit {
     private jwtService: JwtService,
   ) {}
 
-  /**
-   * 백엔드 서버 시작 시 관리자 계정을 시드합니다.
-   *
-   * 동작:
-   * 1) ADMIN_USERNAME / ADMIN_PASSWORD 환경변수가 있으면 그 값으로 시드(권장: 운영).
-   *    미설정 시 로컬 개발용 기본값(admin / drivetreeadmin123!) 사용.
-   * 2) 동일 username의 계정이 이미 있고 ADMIN_PASSWORD env가 설정되어 있다면,
-   *    저장된 해시와 비교하여 *변경 감지 시에만* 비밀번호를 동기화한다.
-   *    → Railway/Vercel 등에서 ADMIN_PASSWORD env를 갱신 후 재배포만으로 비밀번호 회전 완료.
-   * 3) env 비밀번호는 절대 평문 로그에 찍지 않는다(Railway 로그 누출 방지).
-   */
   async onModuleInit() {
     const username = process.env.ADMIN_USERNAME?.trim() || 'admin';
     const envPassword = process.env.ADMIN_PASSWORD?.trim();
@@ -50,7 +40,6 @@ export class AuthService implements OnModuleInit {
           '[Seed] Password sourced from ADMIN_PASSWORD env (value hidden).',
         );
       } else {
-        // 로컬 개발 모드에서만 평문 비밀번호 노출. 운영(NODE_ENV=production)에서는 절대 출력 안 함.
         if (process.env.NODE_ENV !== 'production') {
           this.logger.warn(
             `[Seed] Using DEV DEFAULT password: ${defaultPassword}`,
@@ -63,7 +52,6 @@ export class AuthService implements OnModuleInit {
       return;
     }
 
-    // 이미 계정이 있는 경우 — env로 받은 새 비밀번호와 다를 때만 갱신
     if (envPassword) {
       const sameAsExisting = await bcrypt.compare(
         password,
@@ -81,10 +69,9 @@ export class AuthService implements OnModuleInit {
     }
   }
 
-  /**
-   * 관리자 계정 로그인을 처리하고 JWT 토큰을 발급합니다.
-   */
-  async login(dto: LoginDto) {
+  async login(
+    dto: LoginDto,
+  ): Promise<{ username: string; accessToken: string; refreshToken: string }> {
     const admin = await this.prisma.admin.findUnique({
       where: { username: dto.username },
     });
@@ -101,11 +88,69 @@ export class AuthService implements OnModuleInit {
       throw new UnauthorizedException('비밀번호가 올바르지 않습니다.');
     }
 
-    const payload = { sub: admin.id, username: admin.username };
-
-    return {
-      accessToken: this.jwtService.sign(payload),
+    const payload: Omit<JwtPayload, 'iat' | 'exp'> = {
+      sub: admin.id,
       username: admin.username,
     };
+
+    const accessToken = this.jwtService.sign(payload);
+    const refreshToken = this.jwtService.sign(payload, {
+      secret:
+        process.env.JWT_REFRESH_SECRET ||
+        'drivetree_refresh_secret_7d_not_for_prod!',
+      expiresIn: '7d',
+    });
+
+    const refreshTokenHash = await bcrypt.hash(refreshToken, 10);
+    await this.prisma.admin.update({
+      where: { id: admin.id },
+      data: { refreshTokenHash },
+    });
+
+    return { username: admin.username, accessToken, refreshToken };
+  }
+
+  async refreshAccessToken(
+    refreshToken: string,
+  ): Promise<{ accessToken: string }> {
+    let payload: JwtPayload;
+    try {
+      payload = this.jwtService.verify<JwtPayload>(refreshToken, {
+        secret:
+          process.env.JWT_REFRESH_SECRET ||
+          'drivetree_refresh_secret_7d_not_for_prod!',
+      });
+    } catch {
+      throw new UnauthorizedException(
+        '리프레시 토큰이 만료되었거나 유효하지 않습니다.',
+      );
+    }
+
+    const admin = await this.prisma.admin.findUnique({
+      where: { id: payload.sub },
+    });
+    if (!admin?.refreshTokenHash) {
+      throw new UnauthorizedException(
+        '세션이 만료되었습니다. 다시 로그인하세요.',
+      );
+    }
+
+    const isValid = await bcrypt.compare(refreshToken, admin.refreshTokenHash);
+    if (!isValid) {
+      throw new UnauthorizedException('리프레시 토큰이 유효하지 않습니다.');
+    }
+
+    const accessToken = this.jwtService.sign({
+      sub: admin.id,
+      username: admin.username,
+    });
+    return { accessToken };
+  }
+
+  async logout(userId: string): Promise<void> {
+    await this.prisma.admin.update({
+      where: { id: userId },
+      data: { refreshTokenHash: null },
+    });
   }
 }
