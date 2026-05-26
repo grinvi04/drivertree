@@ -4,6 +4,7 @@ import { Logger, LogLevel, ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from './common/all-exceptions.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
+import * as Sentry from '@sentry/node';
 
 /**
  * CORS origin callback 시그니처 — express의 cors 라이브러리 콜백 형태.
@@ -11,6 +12,13 @@ import cookieParser from 'cookie-parser';
 type CorsOriginCallback = (err: Error | null, allow?: boolean) => void;
 
 async function bootstrap(): Promise<void> {
+  if (process.env.SENTRY_DSN) {
+    Sentry.init({
+      dsn: process.env.SENTRY_DSN,
+      environment: process.env.NODE_ENV || 'development',
+      tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 0,
+    });
+  }
   // NEST_LOG_LEVEL 환경변수로 운영/로컬 로그 노이즈 제어
   // 예: production은 "log,warn,error" / 디버그는 "log,warn,error,debug,verbose"
   const validLevels: readonly LogLevel[] = [
