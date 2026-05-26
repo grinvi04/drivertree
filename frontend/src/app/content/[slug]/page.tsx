@@ -4,36 +4,9 @@ import { useState, useEffect, use, useMemo } from 'react';
 import Link from 'next/link';
 import DOMPurify from 'isomorphic-dompurify';
 import { api } from '@/lib/api';
-import {
-  ArrowLeft,
-  Calendar,
-  Tag,
-  ChevronRight,
-  BookOpen,
-  Car,
-  MapPin,
-  Wrench,
-  ShieldAlert,
-  FileText
-} from 'lucide-react';
-
-interface GuideContent {
-  id: string;
-  title: string;
-  slug: string;
-  content: string;
-  category: string;
-  tags: string[];
-  createdAt: string;
-}
-
-const CATEGORIES = [
-  { id: 'license', name: '면허 취득 가이드', icon: FileText },
-  { id: 'basics', name: '운전 기본기', icon: Car },
-  { id: 'rules', name: '도로 법규 · 신호', icon: MapPin },
-  { id: 'management', name: '차량 관리 · 생활', icon: Wrench },
-  { id: 'accidents', name: '사고 · 이슈 대처', icon: ShieldAlert },
-];
+import { ArrowLeft, Calendar, Tag, ChevronRight, BookOpen } from 'lucide-react';
+import type { GuideContent } from '@/types';
+import { CATEGORIES } from '@/constants/categories';
 
 /**
  * HTML 특수문자 escape — XSS 1차 방어
@@ -158,11 +131,11 @@ export default function ContentDetailPage({ params }: PageProps) {
     const load = async () => {
       setLoading(true);
       try {
-        const data = (await api.getContentBySlug(slug)) as GuideContent;
+        const data = await api.getContentBySlug(slug);
         if (cancelled) return;
         setPost(data);
 
-        const related = (await api.getContents(data.category)) as GuideContent[];
+        const related = await api.getContents(data.category);
         if (cancelled) return;
         const filtered = related
           .filter((item) => item.id !== data.id)
