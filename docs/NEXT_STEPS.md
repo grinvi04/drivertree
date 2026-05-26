@@ -33,10 +33,11 @@
 
 ### P1 — 포트폴리오 강화 (이번 주)
 
-- [ ] **Gemini API Key 투입 + RAG 품질 검증**
-  - Railway Production Variables에 `GEMINI_API_KEY` 추가 (Google AI Studio에서 발급)
-  - 챗봇 로그에서 `Failed to get query embedding` 없는지 확인
-  - 로컬 폴백 vs 실제 RAG 답변 품질 비교 스크린샷 → `docs/AI_LOG.md`에 추가
+- [ ] **공공 API 기능 추가** (Gemini 대체)
+  - 챗봇 RAG/Gemini 연동은 제외 결정 (2026-05-26)
+  - 대신 공공 API를 활용한 실용적인 기능 추가 예정
+  - 후보: 도로교통공단 API (교통사고/면허 데이터), 기상청 API (날씨 기반 운전 안전 알림), 경찰청 공공데이터 (단속 카메라 위치, 도로 공사 정보)
+  - 구체적인 API 선택은 별도 세션에서 결정
 
 - [ ] **AI_LOG 강화** — 면접 답변 재료 확보
   - GeminiService DI 도입 과정 (기술 결정 이유, 트레이드오프)
