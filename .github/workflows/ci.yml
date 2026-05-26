@@ -1,12 +1,22 @@
 name: CI
 
+# ──────────────────────────────────────────────
+#  브랜치별 역할 요약
+#  feature/*  → CI 검증만 (lint + test + build)
+#  develop    → CI 검증 → Railway Staging 자동 배포 (GitHub App)
+#  main       → CI 검증 → Railway Production + Vercel Production 자동 배포 (GitHub App)
+#
+#  실제 배포는 Railway / Vercel GitHub App이 브랜치를 감지해 처리.
+#  이 워크플로는 배포 전 품질 게이트 역할만 담당.
+# ──────────────────────────────────────────────
+
 on:
   push:
-    branches: [main, develop]
+    branches: [main, develop, "feature/**", "fix/**", "hotfix/**"]
   pull_request:
     branches: [main, develop]
 
-# 동일 브랜치 push가 빠르게 연속 들어오면 진행 중인 워크플로 취소 → 비용 절약
+# 동일 브랜치 push가 빠르게 연속 들어오면 진행 중인 워크플로 취소
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -16,7 +26,9 @@ jobs:
     name: Backend — lint · build · test
     runs-on: ubuntu-latest
 
-    # 컨테이너에서 pgvector 가 켜진 Postgres를 띄워 Prisma 마이그레이션 검증
+    # develop / main 에서는 GitHub Environment 레이블을 붙여 배포 상태를 추적
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || github.ref == 'refs/heads/develop' && 'staging' || '' }}
+
     services:
       postgres:
         image: pgvector/pgvector:pg16
@@ -26,7 +38,6 @@ jobs:
           POSTGRES_DB: drivetree
         ports:
           - 5432:5432
-        # health check — Postgres가 준비될 때까지 기다림
         options: >-
           --health-cmd "pg_isready -U drivetree_user -d drivetree"
           --health-interval 5s
@@ -36,7 +47,6 @@ jobs:
     env:
       DATABASE_URL: postgresql://drivetree_user:drivetree_password123!@localhost:5432/drivetree?schema=public
       JWT_SECRET: ci_jwt_secret_for_tests_only_not_for_production
-      # CI에서는 Gemini 호출 안 함 — 로컬 TF-IDF 폴백으로 충분
       GEMINI_API_KEY: ""
       ADMIN_USERNAME: admin
       ADMIN_PASSWORD: ci_admin_password
@@ -65,10 +75,10 @@ jobs:
       - name: Prisma migrate deploy
         run: npx prisma migrate deploy
 
-      - name: Lint (check only, no auto-fix)
+      - name: Lint
         run: npm run lint:check
 
-      - name: Build (compile check)
+      - name: Build
         run: npm run build
 
       - name: Unit tests
@@ -77,6 +87,8 @@ jobs:
   frontend:
     name: Frontend — lint · build
     runs-on: ubuntu-latest
+
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || github.ref == 'refs/heads/develop' && 'staging' || '' }}
 
     env:
       NEXT_PUBLIC_API_URL: http://localhost:4000/api
@@ -97,13 +109,12 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
-        # npm ci fails on optional wasm32 packages whose sub-deps aren't in the
-        # lock file (npm 10.x bug). npm install respects the lock file but skips
-        # platform-incompatible optional packages gracefully.
+        # npm ci fails on optional wasm32 packages (npm 10.x + lock file bug).
+        # npm install skips platform-incompatible optional packages gracefully.
         run: npm install
 
       - name: Lint
         run: npm run lint --if-present
 
-      - name: Build (Next.js production compile)
+      - name: Build
         run: npm run build
