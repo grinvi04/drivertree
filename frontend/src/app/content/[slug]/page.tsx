@@ -1,18 +1,52 @@
-'use client';
-
-import { useState, useEffect, use, useMemo } from 'react';
+import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import DOMPurify from 'isomorphic-dompurify';
-import { api } from '@/lib/api';
 import { ArrowLeft, Calendar, Tag, ChevronRight, BookOpen } from 'lucide-react';
-import type { GuideContent } from '@/types';
+import type { GuideContent, PaginatedResult } from '@/types';
 import { CATEGORIES } from '@/constants/categories';
 
-/**
- * HTML 특수문자 escape — XSS 1차 방어
- * parseInlineMarkdown이 사용자 입력을 정규식으로 변환하기 전에 호출.
- * 이후 markdown 패턴(**, `)이 적용되어 <strong>/<code> 등이 새로 생성됨.
- */
+export const revalidate = 3600;
+export const dynamicParams = true;
+
+const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+
+export async function generateStaticParams(): Promise<{ slug: string }[]> {
+  try {
+    const res = await fetch(`${BASE}/content?page=1&limit=100`);
+    if (!res.ok) return [];
+    const data = (await res.json()) as PaginatedResult<GuideContent>;
+    return data.data.map(({ slug }) => ({ slug }));
+  } catch {
+    return [];
+  }
+}
+
+async function getContent(slug: string): Promise<GuideContent | null> {
+  const res = await fetch(`${BASE}/content/slug/${slug}`, {
+    next: { revalidate: 3600 },
+  });
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error('콘텐츠 로드 실패');
+  return res.json() as Promise<GuideContent>;
+}
+
+async function getRelated(
+  category: string,
+  excludeId: string,
+): Promise<GuideContent[]> {
+  try {
+    const res = await fetch(
+      `${BASE}/content?category=${encodeURIComponent(category)}&page=1&limit=10`,
+      { next: { revalidate: 3600 } },
+    );
+    if (!res.ok) return [];
+    const data = (await res.json()) as PaginatedResult<GuideContent>;
+    return data.data.filter((item) => item.id !== excludeId).slice(0, 3);
+  } catch {
+    return [];
+  }
+}
+
 function escapeHtml(text: string): string {
   return text
     .replace(/&/g, '&amp;')
@@ -22,170 +56,99 @@ function escapeHtml(text: string): string {
     .replace(/'/g, '&#039;');
 }
 
-/**
- * 간단하고 빠른 한국어 마크다운 파서 및 HTML 렌더러 헬퍼 함수
- * 보안: parseInlineMarkdown 내부에서 escapeHtml 1차 처리 + 최종 출력은 호출부에서 DOMPurify로 2차 sanitize.
- */
-function renderMarkdown(md: string) {
+function parseInlineMarkdown(text: string): string {
+  let parsed = escapeHtml(text);
+  parsed = parsed.replace(
+    /\*\*(.*?)\*\*/g,
+    '<strong class="font-extrabold text-white">$1</strong>',
+  );
+  parsed = parsed.replace(
+    /`(.*?)`/g,
+    '<code class="bg-[#1e293b]/70 border border-white/5 text-yellow-accent px-1.5 py-0.5 rounded text-[11px] font-mono">$1</code>',
+  );
+  return parsed;
+}
+
+function renderMarkdown(md: string): string {
   if (!md) return '';
 
   const lines = md.split('\n');
   const htmlResult: string[] = [];
-
   let inList = false;
 
   for (const line of lines) {
-    // 1. 순서 없는 리스트 처리 (- ...)
     if (line.trim().startsWith('- ') || line.trim().startsWith('* ')) {
       if (!inList) {
-        htmlResult.push('<ul class="list-disc list-inside ml-4 space-y-2 mb-4 text-slate-300 font-medium">');
+        htmlResult.push(
+          '<ul class="list-disc list-inside ml-4 space-y-2 mb-4 text-slate-300 font-medium">',
+        );
         inList = true;
       }
       const listContent = line.replace(/^-\s+|^\*\s+/, '');
-      htmlResult.push(`<li class="leading-relaxed text-slate-300">${parseInlineMarkdown(listContent)}</li>`);
+      htmlResult.push(
+        `<li class="leading-relaxed text-slate-300">${parseInlineMarkdown(listContent)}</li>`,
+      );
       continue;
-    } else {
-      if (inList) {
-        htmlResult.push('</ul>');
-        inList = false;
-      }
+    } else if (inList) {
+      htmlResult.push('</ul>');
+      inList = false;
     }
 
-    // 2. 제목 (###, ##, #)
     if (line.startsWith('### ')) {
-      htmlResult.push(`<h4 class="text-sm font-black text-yellow-accent mt-6 mb-3 tracking-tight">${parseInlineMarkdown(line.substring(4))}</h4>`);
+      htmlResult.push(
+        `<h4 class="text-sm font-black text-yellow-accent mt-6 mb-3 tracking-tight">${parseInlineMarkdown(line.substring(4))}</h4>`,
+      );
     } else if (line.startsWith('## ')) {
-      htmlResult.push(`<h3 class="text-base font-extrabold text-white mt-8 mb-4 border-b border-white/[0.05] pb-2 tracking-tight">${parseInlineMarkdown(line.substring(3))}</h3>`);
+      htmlResult.push(
+        `<h3 class="text-base font-extrabold text-white mt-8 mb-4 border-b border-white/[0.05] pb-2 tracking-tight">${parseInlineMarkdown(line.substring(3))}</h3>`,
+      );
     } else if (line.startsWith('# ')) {
-      htmlResult.push(`<h2 class="text-xl font-black text-white mt-10 mb-5 tracking-tight">${parseInlineMarkdown(line.substring(2))}</h2>`);
-    }
-    // 3. 인용구 (> ...)
-    else if (line.startsWith('> ')) {
-      htmlResult.push(`<blockquote class="border-l-4 border-yellow-accent bg-white/[0.02] pl-4 py-3 pr-2.5 rounded-r-xl text-slate-400 font-medium italic my-5 leading-relaxed text-xs">${parseInlineMarkdown(line.substring(2))}</blockquote>`);
-    }
-    // 4. 공백 줄
-    else if (line.trim() === '') {
+      htmlResult.push(
+        `<h2 class="text-xl font-black text-white mt-10 mb-5 tracking-tight">${parseInlineMarkdown(line.substring(2))}</h2>`,
+      );
+    } else if (line.startsWith('> ')) {
+      htmlResult.push(
+        `<blockquote class="border-l-4 border-yellow-accent bg-white/[0.02] pl-4 py-3 pr-2.5 rounded-r-xl text-slate-400 font-medium italic my-5 leading-relaxed text-xs">${parseInlineMarkdown(line.substring(2))}</blockquote>`,
+      );
+    } else if (line.trim() === '') {
       htmlResult.push('<div class="h-4"></div>');
-    }
-    // 5. 일반 문단
-    else {
-      htmlResult.push(`<p class="text-slate-300 leading-relaxed font-medium mb-4 text-xs sm:text-[13px]">${parseInlineMarkdown(line)}</p>`);
+    } else {
+      htmlResult.push(
+        `<p class="text-slate-300 leading-relaxed font-medium mb-4 text-xs sm:text-[13px]">${parseInlineMarkdown(line)}</p>`,
+      );
     }
   }
 
-  if (inList) {
-    htmlResult.push('</ul>');
-  }
-
+  if (inList) htmlResult.push('</ul>');
   return htmlResult.join('');
-}
-
-/**
- * 인라인 볼드(**), 하이라이트(`), 기울임(*) 파싱
- * 1차로 HTML escape → 사용자 입력에 포함된 <script>, onerror= 등은 모두 텍스트로 무력화.
- * 이후 markdown 패턴만 안전한 태그로 치환.
- */
-function parseInlineMarkdown(text: string) {
-  let parsed = escapeHtml(text);
-
-  // 1. 볼드 (**text**)
-  parsed = parsed.replace(/\*\*(.*?)\*\*/g, '<strong class="font-extrabold text-white">$1</strong>');
-
-  // 2. 백틱 코드 하이라이트 (`code`)
-  parsed = parsed.replace(/`(.*?)`/g, '<code class="bg-[#1e293b]/70 border border-white/5 text-yellow-accent px-1.5 py-0.5 rounded text-[11px] font-mono">$1</code>');
-
-  return parsed;
 }
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-export default function ContentDetailPage({ params }: PageProps) {
-  // Promise 언랩
-  const { slug } = use(params);
+export default async function ContentDetailPage({ params }: PageProps) {
+  const { slug } = await params;
 
-  const [post, setPost] = useState<GuideContent | null>(null);
-  const [recommendations, setRecommendations] = useState<GuideContent[]>([]);
-  const [loading, setLoading] = useState(true);
+  const post = await getContent(slug);
+  if (!post) notFound();
 
-  /**
-   * XSS 2차 방어 — escapeHtml(1차)로 escape 됐지만 만약 누락된 패턴이 있어도
-   * DOMPurify가 <script>, on*= 이벤트, javascript:URL, <iframe> 등 모든 위험 요소 제거.
-   * useMemo로 본문 변경 시에만 재계산.
-   */
-  const sanitizedHtml = useMemo(() => {
-    if (!post?.content) return '';
-    const raw = renderMarkdown(post?.content);
-    return DOMPurify.sanitize(raw, {
-      USE_PROFILES: { html: true },
-      FORBID_TAGS: ['style', 'iframe', 'form', 'input', 'button', 'object', 'embed'],
-      FORBID_ATTR: ['style', 'onerror', 'onload', 'onclick'],
-    });
-  }, [post?.content]);
+  const recommendations = await getRelated(post.category, post.id);
 
-  useEffect(() => {
-    // slug가 변경될 때마다 상세 데이터를 다시 로드 (취소 가능 패턴)
-    let cancelled = false;
+  const sanitizedHtml = DOMPurify.sanitize(renderMarkdown(post.content), {
+    USE_PROFILES: { html: true },
+    FORBID_TAGS: ['style', 'iframe', 'form', 'input', 'button', 'object', 'embed'],
+    FORBID_ATTR: ['style', 'onerror', 'onload', 'onclick'],
+  });
 
-    const load = async () => {
-      setLoading(true);
-      try {
-        const data = await api.getContentBySlug(slug);
-        if (cancelled) return;
-        setPost(data);
-
-        const related = await api.getContents(data.category, undefined, 1, 10);
-        if (cancelled) return;
-        const filtered = related.data
-          .filter((item) => item.id !== data.id)
-          .slice(0, 3);
-        setRecommendations(filtered);
-      } catch (err) {
-        console.error('글 상세정보 로드 에러:', err);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    };
-
-    load();
-    return () => {
-      cancelled = true;
-    };
-  }, [slug]);
-
-  if (loading) {
-    return (
-      <div className="w-full flex-grow flex flex-col items-center justify-center py-40 gap-3">
-        <div className="w-8 h-8 rounded-full border-2 border-yellow-accent border-t-transparent animate-spin" />
-        <span className="text-xs text-slate-400 font-semibold">실생활 꿀팁 로드 중...</span>
-      </div>
-    );
-  }
-
-  if (!post) {
-    return (
-      <div className="max-w-md mx-auto my-20 text-center glass-panel p-8 rounded-3xl border border-white/5">
-        <span className="text-3xl block mb-4">⚠️</span>
-        <h3 className="text-base font-bold text-slate-200 mb-2">해당 가이드를 찾을 수 없습니다</h3>
-        <p className="text-xs text-slate-500 mb-6">존재하지 않거나 삭제된 가이드 글입니다.</p>
-        <Link href="/" className="px-5 py-2.5 rounded-xl btn-yellow-glow text-xs font-bold inline-block">
-          홈으로 돌아가기
-        </Link>
-      </div>
-    );
-  }
-
-  const catInfo = CATEGORIES.find(c => c.id === post.category) || CATEGORIES[0];
+  const catInfo = CATEGORIES.find((c) => c.id === post.category) ?? CATEGORIES[0];
   const CatIcon = catInfo.icon;
 
   return (
     <div className="relative w-full flex flex-col min-h-screen bg-[#0B0F19] py-10 overflow-x-hidden">
-      {/* 백그라운드 데코 */}
       <div className="absolute top-0 right-10 w-[500px] h-[500px] rounded-full bg-yellow-accent/4 blur-[130px] pointer-events-none" />
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
-        {/* 상단 뒤로가기 브레드크럼 */}
         <div className="flex items-center justify-between mb-8">
           <Link
             href="/"
@@ -200,7 +163,6 @@ export default function ContentDetailPage({ params }: PageProps) {
           </span>
         </div>
 
-        {/* 글 본문 헤더 */}
         <article className="rounded-3xl glass-panel p-6 sm:p-10 border border-white/[0.06] mb-10 shadow-2xl">
           <div className="flex items-center gap-4 text-[10px] text-slate-500 font-bold mb-4">
             <span className="flex items-center gap-1">
@@ -218,14 +180,12 @@ export default function ContentDetailPage({ params }: PageProps) {
             {post.title}
           </h1>
 
-          {/* 마크다운 렌더링 본문 */}
-          <div 
+          <div
             className="prose prose-invert max-w-none text-slate-300 font-medium"
             dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
           />
         </article>
 
-        {/* 3. 연관 콘텐츠 추천 (F1 기능 완벽 충족) */}
         {recommendations.length > 0 && (
           <div className="mt-12 border-t border-white/[0.05] pt-10">
             <h3 className="text-base font-extrabold text-white mb-6 flex items-center gap-2">

@@ -19,6 +19,7 @@ export interface GuideContent {
   category: string;
   tags: string[];
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface MatchedSource {
