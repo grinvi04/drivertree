@@ -9,19 +9,17 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
 import { CreateContentDto, UpdateContentDto } from './content.dto';
 import { rankContents } from '../common/local-nlp.helper';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GeminiService } from '../common/gemini.service';
+import { RAG_CONFIG } from '../common/constants/rag.config';
 
 @Injectable()
 export class ContentService implements OnModuleInit {
   private readonly logger = new Logger(ContentService.name);
-  private genAI: GoogleGenerativeAI | null = null;
 
-  constructor(private prisma: PrismaService) {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (apiKey) {
-      this.genAI = new GoogleGenerativeAI(apiKey);
-    }
-  }
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly gemini: GeminiService,
+  ) {}
 
   /**
    * 백엔드 실행 시 대표 시드 데이터의 존재 여부를 확인하고,
@@ -233,7 +231,10 @@ export class ContentService implements OnModuleInit {
   /**
    * 텍스트를 의미 있는 청크(Chunk)로 나눕니다. (RAG용)
    */
-  private chunkText(text: string, maxChars = 500): string[] {
+  private chunkText(
+    text: string,
+    maxChars = RAG_CONFIG.MAX_CHUNK_SIZE,
+  ): string[] {
     const sentences = text.split(/(\n+?|\.\s+)/);
     const chunks: string[] = [];
     let currentChunk = '';
@@ -250,26 +251,6 @@ export class ContentService implements OnModuleInit {
       chunks.push(currentChunk.trim());
     }
     return chunks;
-  }
-
-  /**
-   * Gemini API를 통해 텍스트 임베딩 벡터를 구합니다 (768 차원).
-   */
-  private async getEmbedding(text: string): Promise<number[] | null> {
-    if (!this.genAI) return null;
-    try {
-      const model = this.genAI.getGenerativeModel({
-        model: 'text-embedding-004',
-      });
-      const result = await model.embedContent(text);
-      return result.embedding.values;
-    } catch (error) {
-      this.logger.error(
-        'Gemini embedding generation failed',
-        error instanceof Error ? error.stack : String(error),
-      );
-      return null;
-    }
   }
 
   /**
@@ -310,7 +291,7 @@ export class ContentService implements OnModuleInit {
 
     for (let i = 0; i < chunks.length; i++) {
       const chunkText = chunks[i];
-      const vector = await this.getEmbedding(chunkText);
+      const vector = await this.gemini.getEmbedding(chunkText);
 
       if (vector) {
         const embeddingId = crypto.randomUUID();

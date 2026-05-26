@@ -63,10 +63,11 @@ export default function AdminLoginPage() {
           <form onSubmit={handleLogin} className="space-y-5">
             {/* 아이디 */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs text-slate-400 font-bold">관리자 계정 아이디</label>
+              <label htmlFor="admin-username" className="text-xs text-slate-400 font-bold">관리자 계정 아이디</label>
               <div className="relative flex items-center">
                 <User className="absolute left-3.5 w-4 h-4 text-slate-500" />
                 <input
+                  id="admin-username"
                   type="text"
                   placeholder="관리자 아이디"
                   autoComplete="username"
@@ -80,10 +81,11 @@ export default function AdminLoginPage() {
 
             {/* 비밀번호 */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs text-slate-400 font-bold">비밀번호</label>
+              <label htmlFor="admin-password" className="text-xs text-slate-400 font-bold">비밀번호</label>
               <div className="relative flex items-center">
                 <Lock className="absolute left-3.5 w-4 h-4 text-slate-500" />
                 <input
+                  id="admin-password"
                   type="password"
                   placeholder="관리자 비밀번호"
                   autoComplete="current-password"
