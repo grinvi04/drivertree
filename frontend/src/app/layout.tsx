@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import Link from "next/link";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -75,6 +76,7 @@ export default function RootLayout({
 
         {/* 메인 콘텐츠 영역 */}
         <main className="flex-grow flex flex-col">{children}</main>
+        <SpeedInsights />
 
         {/* 프리미엄 푸터 */}
         <footer className="w-full border-t border-white/[0.05] bg-[#070A11] py-8 mt-auto text-xs text-slate-500">
