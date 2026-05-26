@@ -8,7 +8,9 @@ import {
   Delete,
   Query,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import {
   ApiTags,
   ApiOperation,
@@ -40,7 +42,9 @@ export class ContentController {
   }
 
   @Get()
-  @ApiOperation({ summary: '콘텐츠 목록 조회 (페이지네이션)' })
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(60_000)
+  @ApiOperation({ summary: '콘텐츠 목록 조회 (페이지네이션, 캐시 60초)' })
   @ApiResponse({
     status: 200,
     description: 'PaginatedResult<ContentResponseDto>',
