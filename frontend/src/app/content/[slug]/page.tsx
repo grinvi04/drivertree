@@ -135,9 +135,9 @@ export default function ContentDetailPage({ params }: PageProps) {
         if (cancelled) return;
         setPost(data);
 
-        const related = await api.getContents(data.category);
+        const related = await api.getContents(data.category, undefined, 1, 10);
         if (cancelled) return;
-        const filtered = related
+        const filtered = related.data
           .filter((item) => item.id !== data.id)
           .slice(0, 3);
         setRecommendations(filtered);
