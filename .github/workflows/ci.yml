@@ -15,6 +15,7 @@ on:
     branches: [main, develop, "feature/**", "fix/**", "hotfix/**"]
   pull_request:
     branches: [main, develop]
+  workflow_dispatch:
 
 # 동일 브랜치 push가 빠르게 연속 들어오면 진행 중인 워크플로 취소
 concurrency:
