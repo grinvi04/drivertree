@@ -60,9 +60,12 @@ Railway 프로젝트 → **Variables** 탭에서 다음 추가:
 |---|---|---|
 | `DATABASE_URL` | (1.3에서 복사한 Neon 문자열) | 필수 |
 | `JWT_SECRET` | 임의의 긴 문자열 (32자+) | `openssl rand -base64 32` 추천 |
+| `JWT_REFRESH_SECRET` | 임의의 긴 문자열 (32자+, JWT_SECRET과 **다른 값**) | Refresh Token 서명용. 필수 |
 | `GEMINI_API_KEY` | (선택) Google AI Studio 키 | 비워두면 로컬 폴백으로 자동 전환 |
+| `SENTRY_DSN` | (선택) Sentry 프로젝트 DSN | 있으면 5xx 에러 자동 전송 |
 | `ALLOWED_ORIGINS` | (2.3 이후 입력) Vercel 도메인 | 일단 비워두고 Vercel 배포 후 추가 |
 | `NODE_ENV` | `production` |  |
+| `NEST_LOG_LEVEL` | `log,warn,error` | 선택. production 권장값 |
 
 > `PORT`는 Railway가 자동 주입하므로 **입력하지 말 것**.
 

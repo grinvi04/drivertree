@@ -1,137 +1,122 @@
-# 🗒️ DriveTree — 작업 계획 (NEXT_STEPS)
+# DriveTree — 작업 계획 (NEXT_STEPS)
 
-> 새 세션에서 이 프로젝트를 다시 이어받을 때 가장 먼저 읽을 문서.
-> **작업 이력이 아닌 앞으로 할 일의 계획**을 관리한다.
-> Claude/AI Agent에게 "PRD.md + README.md + docs/AI_LOG.md + docs/NEXT_STEPS.md 먼저 읽고 시작해줘" 라고만 해도 5분 안에 따라잡을 수 있도록 정리.
+> 새 세션에서 가장 먼저 읽을 문서. **앞으로 할 일**만 관리한다.
+> "PRD.md + README.md + docs/AI_LOG.md + docs/NEXT_STEPS.md 읽고 시작해줘"
 
 ---
 
-## 0. 현재 상태 스냅샷 (2026-05-26 기준)
+## 0. 현재 상태 스냅샷 (2026-05-27 기준)
 
 | 항목 | 상태 |
 |---|---|
-| 백엔드 MVP | ✅ NestJS 11 + Prisma 7 + pgvector + JWT + Rate Limiting + 챗봇(RAG+폴백) + 계산기 2종 |
+| 백엔드 MVP | ✅ NestJS 11 + Prisma 7 + pgvector + 챗봇(RAG+폴백) + 계산기 2종 |
 | 프론트엔드 MVP | ✅ Next.js 16 + React 19 + Tailwind v4 — 메인/상세/계산기/관리자 |
-| 보안 | ✅ Admin credentials 제거, Rate Limiting, 프롬프트 인젝션 방어, XSS 이중 sanitize, CSP 헤더 |
-| 코드 품질 (v1.3.0) | ✅ GeminiService DI, RAG_CONFIG 상수화, types/index.ts 공유 타입, ApiError, useAsyncData 훅, lint 0 경고 |
-| CI 파이프라인 | ✅ GitHub Actions — lint + build + test (feature/fix/hotfix/develop/main 전체 트리거) |
-| 스테이징 환경 | ✅ Railway Staging (`develop` 브랜치) + Neon staging DB branch + Vercel Preview 환경변수 분리 |
-| 브랜치 보호 | ✅ `main` PR 필수 + CI 통과 필수, `develop` CI 통과 필수 |
+| 인증 | ✅ JWT httpOnly 쿠키 (Access 15분 + Refresh 7일 + DB 해시 검증) |
+| 보안 | ✅ Rate Limiting · 프롬프트 인젝션 방어 · XSS sanitize · CSP 헤더 |
+| API 품질 | ✅ 페이지네이션 + Swagger + 응답 DTO + 시드 분리 |
+| 테스트 | ✅ Jest 유닛 테스트 53개 100% 통과 (AuthService + ContentService) |
+| 관측 | ✅ AllExceptionsFilter (5xx→Sentry) + RequestLoggerMiddleware + 구조화 로깅 |
+| 캐시 | ✅ 콘텐츠 목록 인메모리 60초 캐시 |
+| SEO | ✅ 콘텐츠 상세 SSG + ISR (1시간) + sitemap.xml 자동 생성 |
+| CI/CD | ✅ GitHub Actions (lint + build + test) — 브랜치 보호 + 스테이징/프로덕션 자동 배포 |
 | 프로덕션 배포 | ✅ Railway Production + Vercel Production + Neon Production DB |
-| 관측성 | ✅ AllExceptionsFilter + RequestLoggerMiddleware + NestJS Logger |
+| 스테이징 배포 | ✅ Railway Staging (`develop`) + Vercel Preview + Neon Staging DB |
 
 ---
 
 ## 1. 작업 계획 (우선순위 순)
 
-### P0 — 지금 당장
+### P0 — 즉시 처리
 
-- [ ] **스테이징 배포 확인** — Railway 대시보드에서 staging 서비스 첫 배포 성공 확인
-  - `https://drivertree-staging.up.railway.app/api` → `Hello World!` 응답
-  - Vercel Preview 빌드 URL → 스테이징 백엔드 정상 연결 확인
-  - Neon staging branch 마이그레이션 + 시드 적재 확인
+- [ ] **Vercel `NEXT_PUBLIC_SITE_URL` 설정**
+  - Vercel 대시보드 → Settings → Environment Variables → Production 환경에 추가
+  - Key: `NEXT_PUBLIC_SITE_URL` / Value: `https://drivetree.vercel.app`
+  - sitemap.xml에서 사용 (현재 fallback 값 `https://drivetree.vercel.app`으로 동작 중)
+
+- [ ] **Sentry DSN 설정**
+  - https://sentry.io 에서 Node.js 프로젝트 생성 → DSN 발급
+  - Railway Production + Staging Variables에 `SENTRY_DSN` 추가
+  - 프론트: `@sentry/nextjs` 셋업 (별도 작업)
+  - 코드는 이미 완성됨 (`SENTRY_DSN` env가 있으면 자동 활성화)
 
 ### P1 — 포트폴리오 강화 (이번 주)
 
-- [ ] **공공 API 기능 추가** (Gemini 대체)
-  - 챗봇 RAG/Gemini 연동은 제외 결정 (2026-05-26)
-  - 대신 공공 API를 활용한 실용적인 기능 추가 예정
-  - 후보: 도로교통공단 API (교통사고/면허 데이터), 기상청 API (날씨 기반 운전 안전 알림), 경찰청 공공데이터 (단속 카메라 위치, 도로 공사 정보)
+- [ ] **공공 API 기능 추가**
+  - 후보: 도로교통공단 (교통사고/면허), 기상청 (날씨 기반 운전 안전), 경찰청 (단속 카메라/도로 공사)
   - 구체적인 API 선택은 별도 세션에서 결정
 
-- [ ] **AI_LOG 강화** — 면접 답변 재료 확보
-  - GeminiService DI 도입 과정 (기술 결정 이유, 트레이드오프)
-  - Prisma 7 driver adapter 전환 경험
-  - React 19 Compiler 신규 lint 규칙 대응 (`set-state-in-effect`, `immutability`)
-  - 스테이징 환경 구축 (Railway API GraphQL 직접 호출 방식)
+- [ ] **AI_LOG 면접 재료 강화**
+  - JWT httpOnly 쿠키 전환 결정 이유와 트레이드오프
+  - Sentry + @nestjs/cache-manager 패키지 추가 시 CI 실패 원인 분석 (package.json 스테이지 누락)
+  - CI push 트리거 비활성화 원인 및 workflow_dispatch 임시 해결
 
-### P2 — SEO / 검색 노출 (2~3주 내)
+### P2 — 완성도 향상 (2~3주 내)
 
-- [ ] **`/content/[slug]` SSG/ISR 전환**
-  - 현재: CSR. 목표: `generateStaticParams` + `revalidate: 3600`
-  - 검색 엔진 크롤링 가능, OG 이미지 자동 생성
+- [ ] **GitHub README 스크린샷/아키텍처 다이어그램** — 포트폴리오 첫인상 개선
+  - 메인 페이지, 챗봇 데모, 관리자 대시보드 스크린샷
+  - 아키텍처 다이어그램 (Mermaid 또는 PNG)
 
-- [ ] **sitemap.xml 생성** — `/sitemap.xml` 라우트 → 콘텐츠 slug 동적 생성
-
-- [ ] **GitHub README 스크린샷/다이어그램** — 포트폴리오 첫인상 개선
-
-### P3 — 보안 완성 (배포 안정화 후)
-
-- [ ] **JWT httpOnly 쿠키 마이그레이션**
-  - 현재: `localStorage` 저장 (XSS 발생 시 토큰 탈취 위험)
-  - 목표: `httpOnly + Secure + SameSite=Lax` 쿠키로 전환
-  - 백엔드: 쿠키 발급 엔드포인트, 프론트: `credentials: 'include'` 변경
-
-- [ ] **Sentry 연동**
-  - `@sentry/node` 설치 → `all-exceptions.filter.ts` TODO 위치에 `Sentry.captureException` 추가
-  - `SENTRY_DSN` env 추가 (Railway Variables)
-  - 프론트: `@sentry/nextjs` 별도 셋업
-
-### P4 — 배포 옵션 B (포트폴리오 심화)
-
-- [ ] **AWS 풀스택 구성** — Railway/Vercel/Neon 안정화 후
-  - CloudFront + S3 + Amplify (프론트) 또는 Vercel 유지
-  - ECS Fargate + ALB (백엔드) — Docker 이미지 → ECR → Fargate
-  - RDS PostgreSQL 16 + pgvector 또는 Neon 유지
-  - Route 53 + ACM (도메인/SSL)
+- [ ] **AWS 풀스택 구성** (포트폴리오 심화)
+  - CloudFront + S3 / ECS Fargate + ALB / RDS PostgreSQL + pgvector
+  - Route 53 + ACM · CloudWatch + X-Ray
   - `docs/DEPLOYMENT_AWS.md` 신설
 
----
+### P3 — 보류
 
-## 2. 보류된 항목
-
-- ⏸️ **사용자 가치 검증 (인터뷰)** — `docs/USER_RESEARCH.md` 준비 완료, 재개 시 그대로 사용
-- ⏸️ **Gemini 비용 모니터링** — 일일 호출 횟수 로깅, 임계치 알림
+- ⏸️ **사용자 가치 검증 (인터뷰)** — `docs/USER_RESEARCH.md` 준비 완료, 필요 시 재개
 
 ---
 
-## 3. 배포된 환경 URL
+## 2. 환경 URL
 
 | 환경 | 프론트엔드 | 백엔드 | DB |
 |---|---|---|---|
 | **Local** | `http://localhost:3000` | `http://localhost:4000` | Local PostgreSQL |
-| **Staging** | Vercel Preview URL (develop 푸시 시 자동 생성) | `https://drivertree-staging.up.railway.app` | Neon `staging` branch |
-| **Production** | `https://drivetree.vercel.app` | Railway Production URL | Neon `main` branch |
-
-> Railway/Vercel 실제 도메인은 각 대시보드에서 확인. 토큰 이름은 모두 `drivetree-cli`.
+| **Staging** | Vercel Preview (develop 푸시 시 자동) | `https://drivertree-staging.up.railway.app` | Neon `staging` branch |
+| **Production** | `https://drivetree.vercel.app` | `https://drivertree-production.up.railway.app` | Neon `main` branch |
 
 ---
 
-## 4. 알려진 트러블슈팅 메모
+## 3. 알려진 트러블슈팅 메모
 
-### Prisma 7 (현재 7.8.0) — 매우 중요
-- `@prisma/adapter-pg` + `pg` + `previewFeatures = ["driverAdapters"]` 구성 사용 중.
-- `schema.prisma`의 datasource `url`은 `prisma.config.ts`에서만 관리. 의존성 변경 후 반드시 `npx prisma generate`.
+### Prisma 7 (7.8.0)
+- `@prisma/adapter-pg` + `pg` + `previewFeatures = ["driverAdapters"]` 사용.
+- 의존성 변경 후 반드시 `npx prisma generate`.
+
+### npm 10.x + wasm32 optional 패키지 lock 버그
+- 백엔드·프론트엔드 CI 모두 `npm install` 사용 (not `npm ci`). CI workflow 변경 금지.
+
+### 백엔드 prettier 미실행 → CI lint 실패
+- 백엔드 소스 수정 후 `cd backend && npm run format` 없이 push 시 CI 실패.
+
+### CI push 트리거 간헐적 비활성화
+- develop 브랜치 push 이벤트가 GitHub에 도달해도 Actions가 실행되지 않는 현상 발생.
+- 원인 미상 (GitHub 일시적 문제 추정). `workflow_dispatch`로 수동 트리거 가능.
+- `gh api repos/grinvi04/drivertree/actions/workflows/282795235/dispatches -X POST -f ref=develop`
 
 ### React 19 Compiler 신규 lint 규칙
 - `react-hooks/set-state-in-effect`: effect body에서 동기 setState 금지 → async 함수 안으로 이동.
-- `react-hooks/immutability`: effect deps로 전달되는 함수는 `useCallback`으로 안정화 필수.
-- `react-hooks/preserve-manual-memoization`: `useCallback/useMemo`는 참조하는 `useEffect`보다 **먼저** 선언.
-- `eslint.config.mjs`에서 warning으로 완화 처리하지 않은 규칙은 CI 실패.
+- `useMemo` deps와 본문에서 optional chaining 일치 필수.
 
-### 백엔드 prettier 미실행 → CI lint 실패
-- 백엔드 소스 수정 후 `cd backend && npm run format` 없이 push하면 CI `lint:check` 80+ 에러. **항상 format 선행.**
-
-### npm 10.x + wasm32 optional 패키지 lock 버그
-- 프론트 CI는 `npm install` 사용 (not `npm ci`). CI workflow 변경 금지.
-
-### 한국어 정규식 사이 단어 허용
-- `\s*` 대신 `.*?` (lazy wildcard) 사용. 수식어가 끼면 `\s*`로 미매칭.
+### 한국어 정규식
+- `\s*` 대신 `.*?` (lazy wildcard). 수식어가 끼면 `\s*`로 미매칭.
 
 ### Railway API 직접 호출
-- CLI(`RAILWAY_TOKEN` env) 인증 실패 시 GraphQL API 직접 사용: `https://backboard.railway.app/graphql/v2`, `Authorization: Bearer <token>`.
-- `me` 쿼리는 실패할 수 있음. `projects` 쿼리는 동작.
+- GraphQL endpoint: `https://backboard.railway.app/graphql/v2`
+- `Authorization: Bearer <RAILWAY_TOKEN>`
+- `me` 쿼리는 실패할 수 있음. `projects` 최상위 쿼리는 동작.
 
 ---
 
-## 5. 새 세션 시작 시 입력 템플릿
+## 4. 새 세션 시작 시 입력 템플릿
 
 ```
 DriveTree 프로젝트 이어서 작업.
 먼저 PRD.md, README.md, docs/AI_LOG.md, docs/NEXT_STEPS.md를 읽고 현재 상태 파악해줘.
 
 오늘 작업 목표: [여기에 구체적으로]
-  예) "Gemini API Key 채우고 RAG 품질 검증 + AI_LOG 스크린샷 추가"
-  예) "/content/[slug] SSG 전환 + sitemap.xml 추가"
-  예) "JWT httpOnly 쿠키 마이그레이션"
+  예) "공공 API (도로교통공단) 연동 기능 추가"
+  예) "GitHub README 스크린샷 + 아키텍처 다이어그램 추가"
+  예) "Sentry DSN 설정 + @sentry/nextjs 프론트 셋업"
+  예) "AWS 풀스택 구성 (ECS Fargate + RDS)"
 ```

@@ -329,7 +329,8 @@ CLAUDE.md 참고. 요약:
 
 ## 5. 테스트
 
-- 서비스 메서드는 유닛 테스트 필수 (NestJS `Test.createTestingModule`).
-- 비즈니스 로직이 있는 React 커스텀 훅은 `@testing-library/react-hooks` 테스트.
-- API 통합 테스트는 실제 DB 사용 (mock 금지 — 이미 정책 확정).
-- 테스트 커버리지 목표: 서비스 레이어 70% 이상.
+CLAUDE.md의 테스트 규칙 섹션이 최신 기준. 요약:
+- 서비스 메서드 유닛 테스트 필수 (`PrismaService`, `JwtService` 등 외부 의존성 jest.fn() mock).
+- **실제 DB 연결 금지** (유닛 테스트). `$transaction` 포함 전부 mock.
+- 새 파일 추가 시 `*.spec.ts` 동반 필수 — CI 품질 게이트.
+- 모든 테스트 100% 통과 상태 유지. failing 테스트가 있으면 커밋하지 않는다.
