@@ -22,11 +22,8 @@ export default function AdminLoginPage() {
 
     try {
       const res = await api.login(username, password);
-      // 토큰 및 세션 정보 저장
-      localStorage.setItem('drivetree_token', res.accessToken);
+      // httpOnly 쿠키는 브라우저가 자동 저장. username만 로컬에 보관.
       localStorage.setItem('drivetree_user', res.username);
-      
-      // 대시보드로 이동
       router.push('/admin/dashboard');
     } catch (err) {
       const message = err instanceof Error ? err.message : '로그인에 실패했습니다. 자격 증명을 확인해 주세요.';

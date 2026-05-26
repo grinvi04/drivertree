@@ -10,7 +10,7 @@ import { JwtStrategy } from './jwt.strategy';
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'drivetree_super_secret_jwt_key_9876!',
-      signOptions: { expiresIn: '24h' },
+      signOptions: { expiresIn: '15m' },
     }),
   ],
   controllers: [AuthController],

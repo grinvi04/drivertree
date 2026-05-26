@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { Logger, LogLevel, ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from './common/all-exceptions.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import cookieParser from 'cookie-parser';
 
 /**
  * CORS origin callback 시그니처 — express의 cors 라이브러리 콜백 형태.
@@ -33,6 +34,8 @@ async function bootstrap(): Promise<void> {
 
   // 글로벌 API 경로 프리픽스 설정 (/api/...)
   app.setGlobalPrefix('api');
+
+  app.use(cookieParser());
 
   // 모든 예외를 한 곳에서 처리 — 구조화 로깅 + 일관된 JSON 에러 응답
   app.useGlobalFilters(new AllExceptionsFilter());
