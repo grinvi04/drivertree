@@ -1,41 +1,22 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
-import { 
-  FileText, 
-  MessageSquare, 
-  Plus, 
-  Edit, 
-  Trash2, 
-  LogOut, 
+import {
+  FileText,
+  MessageSquare,
+  Plus,
+  Edit,
+  Trash2,
+  LogOut,
   AlertTriangle,
   ThumbsUp,
   ThumbsDown,
   ChevronRight,
-  BookOpen
+  BookOpen,
 } from 'lucide-react';
-
-interface GuideContent {
-  id: string;
-  title: string;
-  slug: string;
-  content: string;
-  category: string;
-  tags: string[];
-  createdAt: string;
-}
-
-interface ChatLog {
-  id: string;
-  sessionKey: string;
-  userMessage: string;
-  botResponse: string;
-  matchedSources: { id: string; title: string; slug: string }[] | null;
-  feedback: 'like' | 'dislike' | 'none';
-  createdAt: string;
-}
+import type { GuideContent, ChatLog } from '@/types';
 
 export default function AdminDashboardPage() {
   const router = useRouter();
@@ -61,43 +42,44 @@ export default function AdminDashboardPage() {
   const [formError, setFormError] = useState('');
   const [formSaving, setFormSaving] = useState(false);
 
-  // 인증 가드 + 초기 데이터 로딩 (마운트 1회만)
-  useEffect(() => {
-    const token = localStorage.getItem('drivetree_token');
-    const user = localStorage.getItem('drivetree_user');
-    if (!token || !user) {
-      router.push('/admin/login');
-      return;
-    }
-    setAdminUser(user);
-    fetchContents();
-    fetchChatLogs();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const fetchContents = async () => {
+  const fetchContents = useCallback(async () => {
     setContentsLoading(true);
     try {
-      const data = (await api.getContents()) as GuideContent[];
+      const data = await api.getContents();
       setContents(data);
     } catch (err) {
       console.error('가이드 리스트 조회 실패:', err);
     } finally {
       setContentsLoading(false);
     }
-  };
+  }, []);
 
-  const fetchChatLogs = async () => {
+  const fetchChatLogs = useCallback(async () => {
     setLogsLoading(true);
     try {
-      const data = (await api.getChatLogs()) as ChatLog[];
+      const data = await api.getChatLogs();
       setChatLogs(data);
     } catch (err) {
       console.error('챗봇 모니터링 로그 조회 실패:', err);
     } finally {
       setLogsLoading(false);
     }
-  };
+  }, []);
+
+  // 인증 가드 + 초기 데이터 로딩 (마운트 1회만)
+  useEffect(() => {
+    const init = async () => {
+      const token = localStorage.getItem('drivetree_token');
+      const user = localStorage.getItem('drivetree_user');
+      if (!token || !user) {
+        router.push('/admin/login');
+        return;
+      }
+      setAdminUser(user);
+      await Promise.all([fetchContents(), fetchChatLogs()]);
+    };
+    void init();
+  }, [router, fetchContents, fetchChatLogs]);
 
   // 로그아웃
   const handleLogout = () => {
