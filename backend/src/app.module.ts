@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { ContentModule } from './content/content.module';
 import { ChatModule } from './chat/chat.module';
 import { CalculatorModule } from './calculator/calculator.module';
+import { CarModule } from './car/car.module';
 import { RequestLoggerMiddleware } from './common/request-logger.middleware';
 
 @Module({
@@ -24,6 +25,7 @@ import { RequestLoggerMiddleware } from './common/request-logger.middleware';
     ContentModule,
     ChatModule,
     CalculatorModule,
+    CarModule,
   ],
   controllers: [AppController],
   providers: [
