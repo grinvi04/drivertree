@@ -82,7 +82,7 @@ export default function Home() {
         <p className="max-w-2xl mx-auto text-sm sm:text-base text-slate-400 font-medium mb-10 leading-relaxed">
           유튜브 브이로그나 두꺼운 공식 교본 말고, 도로 위에서 당황스럽게 헷갈릴 때{' '}
           <br className="hidden sm:inline" />
-          즉시 꺼내볼 수 있는 맞춤 실생활 가이드와 다정한 RAG 챗봇을 만나보세요.
+          즉시 꺼내볼 수 있는 맞춤 실생활 가이드와 다정한 AI 챗봇을 만나보세요.
         </p>
 
         {/* 검색바 */}

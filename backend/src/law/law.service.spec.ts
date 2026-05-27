@@ -37,7 +37,7 @@ describe('LawService', () => {
       process.env.LAW_API_KEY = 'test-key';
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => ({
+        json: () => ({
           LawSearch: {
             totalCnt: '2',
             law: [
@@ -73,7 +73,7 @@ describe('LawService', () => {
       process.env.LAW_API_KEY = 'test-key';
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => ({
+        json: () => ({
           LawSearch: {
             totalCnt: '1',
             law: {
@@ -96,7 +96,7 @@ describe('LawService', () => {
       process.env.LAW_API_KEY = 'test-key';
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => ({
+        json: () => ({
           LawSearch: { totalCnt: '0' },
         }),
       });
@@ -126,7 +126,7 @@ describe('LawService', () => {
       process.env.LAW_API_KEY = 'test-key';
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ LawSearch: { totalCnt: '0' } }),
+        json: () => ({ LawSearch: { totalCnt: '0' } }),
       });
 
       const result = await service.search({ query: '도로교통법' });
@@ -138,7 +138,7 @@ describe('LawService', () => {
       process.env.LAW_API_KEY = 'test-key';
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ LawSearch: { totalCnt: '0' } }),
+        json: () => ({ LawSearch: { totalCnt: '0' } }),
       });
 
       const result = await service.search({ query: '도로교통법', limit: 99 });
@@ -149,7 +149,7 @@ describe('LawService', () => {
       process.env.LAW_API_KEY = 'test-key';
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => ({
+        json: () => ({
           LawSearch: {
             totalCnt: '1',
             law: { 법령ID: '1', 법령명한글: '도로교통법' },

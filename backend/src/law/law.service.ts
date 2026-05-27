@@ -47,7 +47,7 @@ export class LawService {
       const json = (await res.json()) as {
         LawSearch?: {
           totalCnt?: string;
-          law?: unknown[] | unknown;
+          law?: unknown;
         };
       };
 
