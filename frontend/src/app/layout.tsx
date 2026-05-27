@@ -12,11 +12,11 @@ const outfit = Outfit({
 
 export const metadata: Metadata = {
   title: "DriveTree | 초보운전자의 든든한 길잡이",
-  description: "면허 학원도, 유튜브도 알려주지 않는, 초보운전자가 진짜 막막한 도로 위 모든 순간을 위한 맞춤형 비주얼 가이드 & RAG AI 챗봇",
+  description: "면허 학원도, 유튜브도 알려주지 않는, 초보운전자가 진짜 막막한 도로 위 모든 순간을 위한 맞춤형 비주얼 가이드 & AI 챗봇",
   keywords: ["초보운전", "운전면허", "비보호 좌회전", "접촉사고", "차량유지비", "범칙금 계산기"],
   openGraph: {
     title: "DriveTree | 초보운전자의 든든한 길잡이",
-    description: "진짜 막막한 도로 위 상황을 해결해주는 RAG AI 챗봇과 실전 가이드",
+    description: "진짜 막막한 도로 위 상황을 해결해주는 AI 챗봇과 실전 가이드",
     type: "website",
   }
 };
@@ -92,7 +92,7 @@ export default function RootLayout({
             <div className="flex flex-col items-center md:items-start gap-1">
               <div className="flex items-center gap-1.5 font-bold text-slate-300">
                 <span>🌳 DriveTree</span>
-                <span className="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded">v1.0 (MVP)</span>
+                <span className="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded">v1.1</span>
               </div>
               <p className="text-slate-500 text-center md:text-left mt-1">
                 면허 시험 준비부터 접촉사고 대처까지, 초보자가 도로 위에서 느끼는 막막함을 해소합니다.
