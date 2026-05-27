@@ -39,16 +39,22 @@
   - 프론트: `@sentry/nextjs` 셋업 (별도 작업)
   - 코드는 이미 완성됨 (`SENTRY_DSN` env가 있으면 자동 활성화)
 
-### P1 — 포트폴리오 강화 (이번 주)
+### P1 — 공공 API 연동 (진행 중)
 
-- [ ] **공공 API 기능 추가**
-  - 후보: 도로교통공단 (교통사고/면허), 기상청 (날씨 기반 운전 안전), 경찰청 (단속 카메라/도로 공사)
-  - 구체적인 API 선택은 별도 세션에서 결정
+- [x] **Phase 1: 내 차 관리** (`feature/public-api-car` → develop 머지 완료, 2026-05-27)
+  - 국토교통부 자동차 리콜 API → `GET /api/car/recall`
+  - 교통안전공단 정기검사 기한 API → `GET /api/car/inspection`
+  - 프론트: `/my-car` 페이지 (리콜 / 정기검사 탭 UI)
+  - **API 키 발급 필요**: `MOLIT_API_KEY`, `TS_API_KEY` (data.go.kr)
+  - 계획 문서: `docs/PUBLIC_API_PLAN.md`
 
-- [ ] **AI_LOG 면접 재료 강화**
-  - JWT httpOnly 쿠키 전환 결정 이유와 트레이드오프
-  - Sentry + @nestjs/cache-manager 패키지 추가 시 CI 실패 원인 분석 (package.json 스테이지 누락)
-  - CI push 트리거 비활성화 원인 및 workflow_dispatch 임시 해결
+- [ ] **Phase 2: 법령 검색** (`feature/public-api-law`)
+  - 법제처 국가법령정보 API → `GET /api/law/search`
+  - **API 키 발급 필요**: `LAW_API_KEY` (law.go.kr)
+
+- [ ] **Phase 3: 사고 다발지점** (`feature/public-api-safety`)
+  - 도로교통공단 TAAS API → `GET /api/safety/hotspots`
+  - **API 키 발급 필요**: `TAAS_API_KEY`
 
 ### P2 — 완성도 향상 (2~3주 내)
 
