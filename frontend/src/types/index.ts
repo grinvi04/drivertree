@@ -95,28 +95,20 @@ export interface ChatLog {
   createdAt: string;
 }
 
-export interface RecallItem {
-  model: string;
-  maker: string;
-  recallDate: string;
-  defect: string;
-  remedy: string;
-  contact?: string;
+export interface LawItem {
+  id: string;
+  name: string;
+  type?: string;
+  ministry?: string;
+  effectiveDate?: string;
+  url: string;
 }
 
-export interface RecallResult {
-  items: RecallItem[];
+export interface LawSearchResult {
+  items: LawItem[];
   total: number;
   page: number;
   limit: number;
-}
-
-export interface InspectionResult {
-  plate: string;
-  expiryDate?: string;
-  inspectionType?: string;
-  isExpired: boolean;
-  daysUntilExpiry?: number;
   message?: string;
 }
 

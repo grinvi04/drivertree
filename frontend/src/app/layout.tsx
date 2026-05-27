@@ -56,8 +56,8 @@ export default function RootLayout({
               <Link href="/calculators" className="hover:text-yellow-accent transition-colors">
                 범칙금 · 유지비 계산기
               </Link>
-              <Link href="/my-car" className="hover:text-yellow-accent transition-colors">
-                내 차 관리
+              <Link href="/law" className="hover:text-yellow-accent transition-colors">
+                법령 검색
               </Link>
               <Link href="/admin/login" className="text-slate-500 hover:text-slate-300 text-[11px] border border-slate-700/60 px-2.5 py-1 rounded-md transition-colors">
                 관리자 백오피스
@@ -71,8 +71,8 @@ export default function RootLayout({
               <Link href="/calculators" className="text-xs bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg border border-white/10 text-slate-300 transition-colors">
                 계산기
               </Link>
-              <Link href="/my-car" className="text-xs bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg border border-white/10 text-slate-300 transition-colors">
-                내 차
+              <Link href="/law" className="text-xs bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg border border-white/10 text-slate-300 transition-colors">
+                법령
               </Link>
               <Link href="/admin/login" className="text-[10px] text-slate-500 hover:text-slate-300 border border-slate-800 px-2 py-1 rounded">
                 관리자
