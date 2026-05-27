@@ -95,6 +95,31 @@ export interface ChatLog {
   createdAt: string;
 }
 
+export interface RecallItem {
+  model: string;
+  maker: string;
+  recallDate: string;
+  defect: string;
+  remedy: string;
+  contact?: string;
+}
+
+export interface RecallResult {
+  items: RecallItem[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface InspectionResult {
+  plate: string;
+  expiryDate?: string;
+  inspectionType?: string;
+  isExpired: boolean;
+  daysUntilExpiry?: number;
+  message?: string;
+}
+
 export interface ContentFormData {
   title: string;
   slug: string;

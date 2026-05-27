@@ -9,6 +9,8 @@ import type {
   AdminContent,
   ChatLog,
   PaginatedResult,
+  RecallResult,
+  InspectionResult,
 } from '@/types';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
@@ -179,6 +181,24 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(data),
     }),
+
+  // Car
+  getRecalls: (params: {
+    model?: string;
+    maker?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<RecallResult> => {
+    const p = new URLSearchParams();
+    if (params.model) p.append('model', params.model);
+    if (params.maker) p.append('maker', params.maker);
+    if (params.page) p.append('page', String(params.page));
+    if (params.limit) p.append('limit', String(params.limit));
+    return apiRequest<RecallResult>(`/car/recall?${p.toString()}`);
+  },
+
+  getInspection: (plate: string): Promise<InspectionResult> =>
+    apiRequest<InspectionResult>(`/car/inspection?plate=${encodeURIComponent(plate)}`),
 };
 
 // 타입 re-export (하위 호환)
