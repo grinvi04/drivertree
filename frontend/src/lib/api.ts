@@ -189,9 +189,20 @@ export const api = {
   },
 
   // Safety
-  getHotspots: (siDo: string, guGun?: string, page = 1, limit = 15): Promise<HotspotResult> => {
-    const params = new URLSearchParams({ siDo, page: String(page), limit: String(limit) });
-    if (guGun) params.append('guGun', guGun);
+  getHotspots: (
+    siDo: string,
+    guGun: string,
+    searchYearCd = '2023',
+    page = 1,
+    limit = 20,
+  ): Promise<HotspotResult> => {
+    const params = new URLSearchParams({
+      siDo,
+      guGun,
+      searchYearCd,
+      page: String(page),
+      limit: String(limit),
+    });
     return apiRequest<HotspotResult>(`/safety/hotspots?${params.toString()}`);
   },
 
