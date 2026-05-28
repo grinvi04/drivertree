@@ -2,7 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { HotspotQueryDto } from './dto/hotspot-query.dto';
 import { HotspotResultDto, HotspotItemDto } from './dto/hotspot-result.dto';
 
-const TAAS_URL = 'https://openapi.taas.koroad.or.kr/api/rest/tmHighAccident';
+const TAAS_URL =
+  'https://opendata.koroad.or.kr/api/selectAcdntRiskAreaDataSet.do';
 
 @Injectable()
 export class SafetyService {
@@ -21,15 +22,16 @@ export class SafetyService {
         page,
         limit,
         message:
-          'API 키가 설정되지 않아 사고다발지점 조회가 불가합니다. openapi.taas.koroad.or.kr에서 API 키를 발급받아 TAAS_API_KEY 환경변수에 설정하세요.',
+          'API 키가 설정되지 않아 사고다발지점 조회가 불가합니다. taas.koroad.or.kr 오픈API에서 authKey를 발급받아 TAAS_API_KEY 환경변수에 설정하세요.',
       };
     }
 
     const params = new URLSearchParams({
-      apiKey,
+      authKey: apiKey,
       siDo: query.siDo,
       pageNo: String(page),
       numOfRows: String(limit),
+      type: 'json',
     });
     if (query.guGun) params.set('guGun', query.guGun);
 
