@@ -112,6 +112,27 @@ export interface LawSearchResult {
   message?: string;
 }
 
+export interface HotspotItem {
+  spotNm: string;
+  siDo: string;
+  guGun: string;
+  dong?: string;
+  spotType?: string;
+  accCnt: number;
+  dthCnt: number;
+  injCnt: number;
+  startYear?: string;
+  endYear?: string;
+}
+
+export interface HotspotResult {
+  items: HotspotItem[];
+  total: number;
+  page: number;
+  limit: number;
+  message?: string;
+}
+
 export interface ContentFormData {
   title: string;
   slug: string;
