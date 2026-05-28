@@ -9,8 +9,6 @@ import type {
   AdminContent,
   ChatLog,
   PaginatedResult,
-  LawSearchResult,
-  HotspotResult,
 } from '@/types';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
@@ -182,29 +180,6 @@ export const api = {
       body: JSON.stringify(data),
     }),
 
-  // Law
-  searchLaw: (query: string, page = 1, limit = 10): Promise<LawSearchResult> => {
-    const params = new URLSearchParams({ query, page: String(page), limit: String(limit) });
-    return apiRequest<LawSearchResult>(`/law/search?${params.toString()}`);
-  },
-
-  // Safety
-  getHotspots: (
-    siDo: string,
-    guGun: string,
-    searchYearCd = '2023',
-    page = 1,
-    limit = 20,
-  ): Promise<HotspotResult> => {
-    const params = new URLSearchParams({
-      siDo,
-      guGun,
-      searchYearCd,
-      page: String(page),
-      limit: String(limit),
-    });
-    return apiRequest<HotspotResult>(`/safety/hotspots?${params.toString()}`);
-  },
 
 };
 
