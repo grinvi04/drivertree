@@ -113,16 +113,16 @@ export interface LawSearchResult {
 }
 
 export interface HotspotItem {
-  spotNm: string;
-  siDo: string;
-  guGun: string;
-  dong?: string;
-  spotType?: string;
-  accCnt: number;
-  dthCnt: number;
-  injCnt: number;
-  startYear?: string;
-  endYear?: string;
+  id: string;
+  name: string;
+  totalAccCnt: number;
+  deathCnt: number;
+  seriousInjuryCnt: number;
+  slightInjuryCnt: number;
+  woundCnt: number;
+  centerX: number;
+  centerY: number;
+  causes: string[];
 }
 
 export interface HotspotResult {
