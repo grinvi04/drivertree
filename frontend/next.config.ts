@@ -46,6 +46,13 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // lucide-react 1.x는 배럴 파일에 tree-shaking 미작동 — 개별 아이콘 파일로 리라이트
+  modularizeImports: {
+    "lucide-react": {
+      transform: "lucide-react/dist/esm/icons/{{kebabCase member}}",
+      preventFullImport: true,
+    },
+  },
   async headers() {
     return [
       {
