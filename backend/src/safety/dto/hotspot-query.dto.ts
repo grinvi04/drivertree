@@ -3,15 +3,26 @@ import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class HotspotQueryDto {
-  @ApiProperty({ description: '시도명', example: '서울특별시' })
+  @ApiProperty({ description: '시도 법정코드 (예: 11=서울)', example: '11' })
   @IsNotEmpty()
   @IsString()
   siDo!: string;
 
-  @ApiPropertyOptional({ description: '구군명', example: '강남구' })
+  @ApiProperty({
+    description: '구군 법정코드 (예: 680=강남구)',
+    example: '680',
+  })
+  @IsNotEmpty()
+  @IsString()
+  guGun!: string;
+
+  @ApiPropertyOptional({
+    description: '검색 연도 (기본: 2023)',
+    default: '2023',
+  })
   @IsOptional()
   @IsString()
-  guGun?: string;
+  searchYearCd?: string;
 
   @ApiPropertyOptional({ description: '페이지 번호', default: 1 })
   @IsOptional()
