@@ -95,43 +95,6 @@ export interface ChatLog {
   createdAt: string;
 }
 
-export interface LawItem {
-  id: string;
-  name: string;
-  type?: string;
-  ministry?: string;
-  effectiveDate?: string;
-  url: string;
-}
-
-export interface LawSearchResult {
-  items: LawItem[];
-  total: number;
-  page: number;
-  limit: number;
-  message?: string;
-}
-
-export interface HotspotItem {
-  id: string;
-  name: string;
-  totalAccCnt: number;
-  deathCnt: number;
-  seriousInjuryCnt: number;
-  slightInjuryCnt: number;
-  woundCnt: number;
-  centerX: number;
-  centerY: number;
-  causes: string[];
-}
-
-export interface HotspotResult {
-  items: HotspotItem[];
-  total: number;
-  page: number;
-  limit: number;
-  message?: string;
-}
 
 export interface ContentFormData {
   title: string;
