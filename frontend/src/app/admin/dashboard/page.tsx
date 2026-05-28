@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import {
@@ -46,31 +46,7 @@ export default function AdminDashboardPage() {
   const [formError, setFormError] = useState('');
   const [formSaving, setFormSaving] = useState(false);
 
-  const fetchContents = useCallback(async () => {
-    setContentsLoading(true);
-    try {
-      const result = await api.getContents(undefined, undefined, contentsPage, 10);
-      setContents(result.data);
-      setContentsMeta({ totalPages: result.meta.totalPages, total: result.meta.total });
-    } catch (err) {
-      console.error('가이드 리스트 조회 실패:', err);
-    } finally {
-      setContentsLoading(false);
-    }
-  }, [contentsPage]);
-
-  const fetchChatLogs = useCallback(async () => {
-    setLogsLoading(true);
-    try {
-      const result = await api.getChatLogs(logsPage, 20);
-      setChatLogs(result.data);
-      setLogsMeta({ totalPages: result.meta.totalPages, total: result.meta.total });
-    } catch (err) {
-      console.error('챗봇 모니터링 로그 조회 실패:', err);
-    } finally {
-      setLogsLoading(false);
-    }
-  }, [logsPage]);
+  const [contentsRefreshKey, setContentsRefreshKey] = useState(0);
 
   // 인증 가드 — httpOnly 쿠키 검증 (마운트 1회)
   useEffect(() => {
@@ -85,9 +61,43 @@ export default function AdminDashboardPage() {
       });
   }, [router]);
 
-  // 페이지 변경 시 콘텐츠 재조회
-  useEffect(() => { void fetchContents(); }, [fetchContents]);
-  useEffect(() => { void fetchChatLogs(); }, [fetchChatLogs]);
+  // 페이지 또는 refreshKey 변경 시 콘텐츠 재조회
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      setContentsLoading(true);
+      try {
+        const result = await api.getContents(undefined, undefined, contentsPage, 10);
+        if (!cancelled) {
+          setContents(result.data);
+          setContentsMeta({ totalPages: result.meta.totalPages, total: result.meta.total });
+        }
+      } catch { /* ignore */ } finally {
+        if (!cancelled) setContentsLoading(false);
+      }
+    };
+    void load();
+    return () => { cancelled = true; };
+  }, [contentsPage, contentsRefreshKey]);
+
+  // 페이지 변경 시 챗 로그 재조회
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      setLogsLoading(true);
+      try {
+        const result = await api.getChatLogs(logsPage, 20);
+        if (!cancelled) {
+          setChatLogs(result.data);
+          setLogsMeta({ totalPages: result.meta.totalPages, total: result.meta.total });
+        }
+      } catch { /* ignore */ } finally {
+        if (!cancelled) setLogsLoading(false);
+      }
+    };
+    void load();
+    return () => { cancelled = true; };
+  }, [logsPage]);
 
   // 로그아웃 — 서버에서 쿠키 삭제 + refresh token 무효화
   const handleLogout = async () => {
@@ -153,7 +163,7 @@ export default function AdminDashboardPage() {
         await api.createContent(postData);
       }
       setIsModalOpen(false);
-      fetchContents();
+      setContentsRefreshKey((k) => k + 1);
     } catch (err) {
       const message = err instanceof Error ? err.message : '가이드 저장 중 에러가 발생했습니다.';
       setFormError(message);
@@ -167,9 +177,8 @@ export default function AdminDashboardPage() {
     if (!confirm('정말로 이 가이드 콘텐츠를 영구 삭제하시겠습니까?\nRAG 임베딩 정보도 자동으로 함께 제거됩니다.')) return;
     try {
       await api.deleteContent(id);
-      fetchContents();
-    } catch (err) {
-      console.error('콘텐츠 삭제 실패:', err);
+      setContentsRefreshKey((k) => k + 1);
+    } catch {
       alert('삭제에 실패했습니다.');
     }
   };

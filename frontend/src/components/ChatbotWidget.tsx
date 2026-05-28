@@ -114,7 +114,7 @@ export default function ChatbotWidget() {
                     className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"
                     aria-hidden="true"
                   />
-                  실시간 RAG 어댑터 활성화
+                  AI 답변 준비 완료
                 </div>
               </div>
             </div>

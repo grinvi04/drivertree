@@ -12,11 +12,11 @@ const outfit = Outfit({
 
 export const metadata: Metadata = {
   title: "DriveTree | 초보운전자의 든든한 길잡이",
-  description: "면허 학원도, 유튜브도 알려주지 않는, 초보운전자가 진짜 막막한 도로 위 모든 순간을 위한 맞춤형 비주얼 가이드 & RAG AI 챗봇",
+  description: "면허 학원도, 유튜브도 알려주지 않는, 초보운전자가 진짜 막막한 도로 위 모든 순간을 위한 맞춤형 비주얼 가이드 & AI 챗봇",
   keywords: ["초보운전", "운전면허", "비보호 좌회전", "접촉사고", "차량유지비", "범칙금 계산기"],
   openGraph: {
     title: "DriveTree | 초보운전자의 든든한 길잡이",
-    description: "진짜 막막한 도로 위 상황을 해결해주는 RAG AI 챗봇과 실전 가이드",
+    description: "진짜 막막한 도로 위 상황을 해결해주는 AI 챗봇과 실전 가이드",
     type: "website",
   }
 };
@@ -56,6 +56,12 @@ export default function RootLayout({
               <Link href="/calculators" className="hover:text-yellow-accent transition-colors">
                 범칙금 · 유지비 계산기
               </Link>
+              <Link href="/law" className="hover:text-yellow-accent transition-colors">
+                법령 검색
+              </Link>
+              <Link href="/safety" className="hover:text-yellow-accent transition-colors">
+                사고 다발지점
+              </Link>
               <Link href="/admin/login" className="text-slate-500 hover:text-slate-300 text-[11px] border border-slate-700/60 px-2.5 py-1 rounded-md transition-colors">
                 관리자 백오피스
               </Link>
@@ -67,6 +73,12 @@ export default function RootLayout({
               </Link>
               <Link href="/calculators" className="text-xs bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg border border-white/10 text-slate-300 transition-colors">
                 계산기
+              </Link>
+              <Link href="/law" className="text-xs bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg border border-white/10 text-slate-300 transition-colors">
+                법령
+              </Link>
+              <Link href="/safety" className="text-xs bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg border border-white/10 text-slate-300 transition-colors">
+                안전
               </Link>
               <Link href="/admin/login" className="text-[10px] text-slate-500 hover:text-slate-300 border border-slate-800 px-2 py-1 rounded">
                 관리자
@@ -86,7 +98,7 @@ export default function RootLayout({
             <div className="flex flex-col items-center md:items-start gap-1">
               <div className="flex items-center gap-1.5 font-bold text-slate-300">
                 <span>🌳 DriveTree</span>
-                <span className="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded">v1.0 (MVP)</span>
+                <span className="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded">v1.1</span>
               </div>
               <p className="text-slate-500 text-center md:text-left mt-1">
                 면허 시험 준비부터 접촉사고 대처까지, 초보자가 도로 위에서 느끼는 막막함을 해소합니다.

@@ -423,7 +423,7 @@ export default function CalculatorsPage() {
               </div>
 
               <button
-                onClick={calculateMaintenance}
+                onClick={() => { void calculateMaintenance(); }}
                 disabled={calcLoading}
                 aria-busy={calcLoading}
                 className="w-full h-11 rounded-xl btn-yellow-glow text-xs font-bold mt-4 disabled:opacity-60"
