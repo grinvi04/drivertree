@@ -96,14 +96,11 @@ export class ContentService implements OnModuleInit {
       if (vector) {
         const embeddingId = crypto.randomUUID();
         const vectorStr = `[${vector.join(',')}]`;
-        await this.prisma.$executeRawUnsafe(
-          `INSERT INTO "ContentEmbedding" (id, "contentId", "chunkIndex", "textContent", embedding, "createdAt")
-           VALUES ($1, $2, $3, $4, $5::vector, NOW())`,
-          embeddingId,
-          contentId,
-          i,
-          chunkText,
-          vectorStr,
+        await this.prisma.$executeRaw(
+          Prisma.sql`
+            INSERT INTO "ContentEmbedding" (id, "contentId", "chunkIndex", "textContent", embedding, "createdAt")
+            VALUES (${embeddingId}, ${contentId}, ${i}, ${chunkText}, ${vectorStr}::vector, NOW())
+          `,
         );
       } else {
         await this.prisma.contentEmbedding.create({
