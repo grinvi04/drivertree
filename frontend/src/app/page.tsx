@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import Link from 'next/link';
-import { HelpCircle, Search, ChevronRight } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { api } from '@/lib/api';
 import { CATEGORIES } from '@/constants/categories';
 import { useAsyncData } from '@/hooks/useAsyncData';
@@ -15,7 +15,6 @@ export default function Home() {
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [submittedQuery, setSubmittedQuery] = useState('');
-
   const [currentPage, setCurrentPage] = useState(1);
 
   const fetchContents = useCallback(
@@ -50,244 +49,355 @@ export default function Home() {
     setCurrentPage(1);
   };
 
-  const handlePopularSearch = (term: string) => {
-    setSearchQuery(term);
-    setSubmittedQuery(term);
-  };
-
   return (
-    <div className="relative w-full flex flex-col min-h-screen bg-[#0B0F19] overflow-x-hidden">
-      {/* 배경 장식 */}
-      <div
-        className="absolute top-0 left-1/4 w-[500px] h-[500px] rounded-full bg-yellow-accent/5 blur-[120px] pointer-events-none"
-        aria-hidden="true"
-      />
-      <div
-        className="absolute top-[800px] right-1/4 w-[400px] h-[400px] rounded-full bg-yellow-accent/3 blur-[100px] pointer-events-none"
-        aria-hidden="true"
-      />
+    <>
+      {/* ── Hero Section — Pure White ───────────────────────────────── */}
+      <section
+        className="w-full text-center px-5 pt-20 pb-16"
+        style={{ background: "var(--canvas)" }}
+      >
+        <div className="max-w-[680px] mx-auto">
+          <p
+            className="text-[17px] font-semibold mb-5"
+            style={{ color: "var(--primary)", letterSpacing: "-0.374px" }}
+          >
+            초보운전자 가이드 &amp; AI 챗봇
+          </p>
 
-      {/* 히어로 */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-10 text-center relative z-10">
-        <div
-          className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-accent/10 border border-yellow-accent/20 text-yellow-accent text-xs font-bold tracking-wide uppercase mb-6 animate-pulse"
-          aria-hidden="true"
-        >
-          🔰 면허 학원도 알려주지 않는 실전 팁
+          <h1
+            className="font-semibold mb-5"
+            style={{
+              fontSize: "clamp(34px, 5vw, 56px)",
+              lineHeight: 1.07,
+              letterSpacing: "-0.28px",
+              color: "var(--ink)",
+            }}
+          >
+            도로 위 막막한 순간,<br />
+            DriveTree가 함께합니다
+          </h1>
+
+          <p
+            className="mb-10"
+            style={{
+              fontSize: "17px",
+              fontWeight: 400,
+              lineHeight: 1.47,
+              letterSpacing: "-0.374px",
+              color: "var(--ink-muted-80)",
+            }}
+          >
+            비보호 좌회전, 접촉사고, 범칙금까지 — 면허 학원도<br className="hidden sm:inline" />
+            알려주지 않는 실전 노하우를 한곳에서 확인하세요.
+          </p>
+
+          <div className="flex items-center justify-center gap-3 flex-wrap">
+            <a href="#guides" className="btn-primary">가이드 살펴보기</a>
+            <Link href="/calculators" className="btn-ghost">계산기 바로가기</Link>
+          </div>
         </div>
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6">
-          초보운전자가 <br className="sm:hidden" />
-          진짜 <span className="text-yellow-gradient">막막한 순간</span>의 등대
-        </h1>
-        <p className="max-w-2xl mx-auto text-sm sm:text-base text-slate-400 font-medium mb-10 leading-relaxed">
-          유튜브 브이로그나 두꺼운 공식 교본 말고, 도로 위에서 당황스럽게 헷갈릴 때{' '}
-          <br className="hidden sm:inline" />
-          즉시 꺼내볼 수 있는 맞춤 실생활 가이드와 다정한 AI 챗봇을 만나보세요.
-        </p>
+      </section>
 
-        {/* 검색바 */}
-        <form onSubmit={handleSearchSubmit} className="max-w-xl mx-auto relative mb-6">
-          <div className="relative flex items-center">
-            <Search className="absolute left-4 w-5 h-5 text-slate-500" aria-hidden="true" />
-            <label htmlFor="guide-search" className="sr-only">
-              가이드 검색
-            </label>
+      {/* ── Search Section — Parchment ──────────────────────────────── */}
+      <section
+        id="guides"
+        className="w-full px-5 pt-12 pb-4"
+        style={{ background: "var(--canvas-parchment)" }}
+      >
+        <div className="max-w-[680px] mx-auto">
+          <form onSubmit={handleSearchSubmit} className="relative">
+            <Search
+              className="absolute left-4 top-1/2 -translate-y-1/2 w-[18px] h-[18px]"
+              style={{ color: "var(--ink-muted-48)" }}
+              aria-hidden="true"
+            />
+            <label htmlFor="guide-search" className="sr-only">가이드 검색</label>
             <input
               id="guide-search"
               type="text"
-              placeholder="비보호 좌회전, 주차 요령, 접촉사고 대처 방법..."
+              placeholder="비보호 좌회전, 주차, 접촉사고 대처..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-14 pl-12 pr-28 rounded-2xl bg-white/[0.03] border border-white/[0.08] focus:border-yellow-accent focus:bg-white/[0.05] focus:outline-none text-slate-200 text-sm font-semibold transition-all shadow-lg"
+              className="w-full h-11 pl-11 pr-28 text-[17px] focus:outline-none"
+              style={{
+                background: "var(--canvas)",
+                border: "1px solid var(--hairline)",
+                borderRadius: "9999px",
+                color: "var(--ink)",
+                letterSpacing: "-0.374px",
+              }}
             />
             <button
               type="submit"
               aria-label="가이드 검색하기"
-              className="absolute right-2 px-5 py-2.5 rounded-xl btn-yellow-glow text-xs font-bold"
+              className="absolute right-1.5 top-1/2 -translate-y-1/2 btn-primary"
+              style={{ fontSize: "14px", padding: "8px 16px" }}
             >
               검색하기
             </button>
-          </div>
-        </form>
+          </form>
 
-        <div className="text-xs text-slate-500 flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
-          <span>인기 검색어:</span>
-          {POPULAR_SEARCHES.map((term, idx) => (
-            <span key={term} className="contents">
-              {idx > 0 && <span className="text-slate-800" aria-hidden="true">•</span>}
-              <button
-                onClick={() => handlePopularSearch(term)}
-                aria-label={`${term} 검색하기`}
-                className="hover:text-yellow-accent underline"
-              >
-                {term}
-              </button>
-            </span>
-          ))}
-        </div>
-      </section>
-
-      {/* 카테고리 탭 */}
-      <section
-        aria-label="가이드 카테고리"
-        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full relative z-10"
-      >
-        <div className="flex overflow-x-auto pb-4 gap-3 scrollbar-none snap-x justify-start lg:justify-center">
-          {CATEGORIES.map((cat) => {
-            const Icon = cat.icon;
-            const isActive = activeCategory === cat.id;
-            return (
-              <button
-                key={cat.id}
-                onClick={() => handleCategoryChange(cat.id)}
-                aria-pressed={isActive}
-                aria-label={`${cat.name} 카테고리 선택`}
-                className={`snap-start flex items-center gap-2.5 px-[18px] py-3.5 rounded-2xl shrink-0 border text-left cursor-pointer transition-all duration-300 ${
-                  isActive
-                    ? 'bg-yellow-accent/15 border-yellow-accent text-white shadow-[0_0_15px_rgba(252,211,77,0.1)]'
-                    : 'bg-white/[0.02] border-white/[0.05] text-slate-400 hover:border-slate-800 hover:text-slate-200'
-                }`}
-              >
-                <div
-                  className={`p-2 rounded-xl transition-colors duration-300 ${
-                    isActive ? 'bg-yellow-accent text-[#0B0F19]' : 'bg-white/[0.04] text-slate-300'
-                  }`}
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-3 px-1">
+            <span className="text-[12px]" style={{ color: "var(--ink-muted-48)" }}>인기:</span>
+            {POPULAR_SEARCHES.map((term, idx) => (
+              <span key={term} className="contents">
+                {idx > 0 && <span className="text-[12px]" style={{ color: "var(--hairline)" }}>·</span>}
+                <button
+                  onClick={() => { setSearchQuery(term); setSubmittedQuery(term); }}
+                  aria-label={`${term} 검색하기`}
+                  className="text-[12px] hover:underline"
+                  style={{ color: "var(--primary)" }}
                 >
-                  <Icon className="w-4 h-4" aria-hidden="true" />
-                </div>
-                <div>
-                  <span className="block text-xs font-bold leading-tight">{cat.name}</span>
-                  <span className="block text-[10px] text-slate-500 leading-none mt-0.5">
-                    {cat.desc}
-                  </span>
-                </div>
-              </button>
-            );
-          })}
+                  {term}
+                </button>
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Category chips */}
+        <div className="max-w-[980px] mx-auto mt-8">
+          <div
+            role="group"
+            aria-label="가이드 카테고리"
+            className="flex overflow-x-auto gap-2 pb-2 scrollbar-none justify-start lg:justify-center"
+          >
+            {CATEGORIES.map((cat) => {
+              const isActive = activeCategory === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => handleCategoryChange(cat.id)}
+                  aria-pressed={isActive}
+                  aria-label={`${cat.name} 카테고리 선택`}
+                  className="shrink-0 px-4 py-2 text-[14px] font-medium transition-all"
+                  style={{
+                    borderRadius: "9999px",
+                    border: `1px solid ${isActive ? "var(--primary)" : "var(--hairline)"}`,
+                    background: isActive ? "var(--primary)" : "var(--canvas)",
+                    color: isActive ? "#ffffff" : "var(--ink-muted-80)",
+                    letterSpacing: "-0.224px",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {cat.name}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </section>
 
-      {/* 가이드 그리드 */}
+      {/* ── Content Grid — Parchment (continued) ───────────────────── */}
       <section
+        className="w-full px-5 pt-6 pb-20 flex-grow"
+        style={{ background: "var(--canvas-parchment)" }}
         aria-label="가이드 목록"
-        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-grow relative z-10"
       >
-        {isLoading ? (
-          <div className="w-full py-20 flex flex-col items-center justify-center gap-3">
-            <div
-              className="w-8 h-8 rounded-full border-2 border-yellow-accent border-t-transparent animate-spin"
-              aria-hidden="true"
-            />
-            <span className="text-xs text-slate-400 font-semibold">도로 위 지도 로딩 중...</span>
-          </div>
-        ) : contents.length === 0 ? (
-          <div className="w-full py-20 rounded-3xl glass-panel text-center flex flex-col items-center justify-center border border-white/[0.05]">
-            <HelpCircle className="w-12 h-12 text-slate-600 mb-4" aria-hidden="true" />
-            <p className="text-base font-bold text-slate-300 mb-1">
-              일치하는 가이드를 찾지 못했어요
-            </p>
-            <p className="text-xs text-slate-500 max-w-sm mb-6">
-              검색어나 카테고리를 바꿔보시거나, 우측 하단의 AI 챗봇에게 자연어로 질문해보세요!
-            </p>
-            <button
-              onClick={() => { setSearchQuery(''); handleCategoryChange('all'); }}
-              className="px-4 py-2 rounded-xl bg-white/[0.05] border border-white/10 hover:bg-white/10 text-xs font-bold text-slate-300 transition-colors"
-            >
-              전체 가이드 보기
-            </button>
-          </div>
-        ) : (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {contents.map((post) => {
-                const catInfo = CATEGORIES.find((c) => c.id === post.category) ?? CATEGORIES[0];
-                const CatIcon = catInfo.icon;
-                return (
-                  <article
-                    key={post.id}
-                    className="rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:border-yellow-accent/40 p-5 flex flex-col justify-between group hover:-translate-y-1 transition-all duration-300 hover:shadow-[0_10px_30px_rgba(252,211,77,0.03)]"
-                  >
-                    <div>
-                      <div className="flex items-center gap-2 mb-3.5">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/[0.04] text-[10px] font-bold text-slate-300">
-                          <CatIcon className="w-3 h-3 text-yellow-accent" aria-hidden="true" />
-                          {catInfo.name}
-                        </span>
-                        <span className="text-[10px] text-slate-500">
-                          {new Date(post.createdAt).toLocaleDateString('ko-KR')}
-                        </span>
-                      </div>
-                      <h2 className="text-base font-bold text-slate-100 group-hover:text-yellow-accent transition-colors duration-300 line-clamp-2 mb-2 leading-snug">
-                        {post.title}
-                      </h2>
-                      <p className="text-xs text-slate-400 leading-relaxed line-clamp-3 mb-4 font-medium">
-                        {post.content.replace(/[#*`_-]/g, '').trim()}
-                      </p>
-                    </div>
-                    <div>
-                      <div className="flex flex-wrap gap-1.5 mb-4" aria-label="태그">
-                        {post.tags.map((tag) => (
-                          <span
-                            key={tag}
-                            className="text-[10px] font-semibold text-slate-500 bg-[#121824] px-2 py-0.5 rounded border border-white/[0.02]"
-                          >
-                            #{tag}
-                          </span>
-                        ))}
-                      </div>
-                      <Link
-                        href={`/content/${post.slug}`}
-                        className="w-full flex items-center justify-center gap-1.5 h-[42px] rounded-xl bg-white/[0.03] border border-white/[0.06] group-hover:bg-yellow-accent group-hover:text-[#0B0F19] text-xs font-bold text-slate-300 group-hover:border-transparent transition-all duration-300"
-                      >
-                        실전 노하우 읽기
-                        <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
-                      </Link>
-                    </div>
-                  </article>
-                );
-              })}
+        <div className="max-w-[980px] mx-auto">
+          {isLoading ? (
+            <div className="py-24 flex flex-col items-center gap-3">
+              <div
+                className="w-7 h-7 rounded-full border-2 border-t-transparent animate-spin"
+                style={{ borderColor: "var(--primary)", borderTopColor: "transparent" }}
+                aria-hidden="true"
+              />
+              <span className="text-[14px]" style={{ color: "var(--ink-muted-48)" }}>로딩 중...</span>
             </div>
+          ) : contents.length === 0 ? (
+            <div
+              className="py-24 rounded-[18px] text-center flex flex-col items-center border"
+              style={{ background: "var(--canvas)", borderColor: "var(--hairline)" }}
+            >
+              <p className="text-[17px] font-semibold mb-2" style={{ color: "var(--ink)", letterSpacing: "-0.374px" }}>
+                일치하는 가이드가 없습니다
+              </p>
+              <p className="text-[14px] mb-6" style={{ color: "var(--ink-muted-48)", letterSpacing: "-0.224px" }}>
+                검색어나 카테고리를 바꿔보거나, AI 챗봇에 질문해보세요.
+              </p>
+              <button
+                onClick={() => { setSearchQuery(''); handleCategoryChange('all'); }}
+                className="btn-primary"
+                style={{ fontSize: "14px", padding: "8px 20px" }}
+              >
+                전체 가이드 보기
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {contents.map((post) => {
+                  const catInfo = CATEGORIES.find((c) => c.id === post.category) ?? CATEGORIES[0];
+                  return (
+                    <article
+                      key={post.id}
+                      className="utility-card flex flex-col justify-between transition-shadow hover:shadow-sm"
+                    >
+                      <div>
+                        {/* Category + date */}
+                        <div className="flex items-center justify-between mb-3">
+                          <span
+                            className="text-[12px] font-semibold px-2.5 py-1 rounded-full"
+                            style={{
+                              background: "var(--canvas-parchment)",
+                              color: "var(--ink-muted-80)",
+                              letterSpacing: "-0.12px",
+                            }}
+                          >
+                            {catInfo.name}
+                          </span>
+                          <span className="text-[12px]" style={{ color: "var(--ink-muted-48)" }}>
+                            {new Date(post.createdAt).toLocaleDateString('ko-KR')}
+                          </span>
+                        </div>
 
-            {/* 페이지네이션 */}
-            {meta.totalPages > 1 && (
-              <nav aria-label="가이드 목록 페이지 이동" className="flex items-center justify-center gap-2 mt-10">
-                <button
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                  disabled={currentPage === 1}
-                  aria-label="이전 페이지"
-                  className="px-3 py-2 rounded-xl bg-white/[0.03] border border-white/[0.06] text-xs font-bold text-slate-400 hover:text-slate-200 hover:border-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                >
-                  ←
-                </button>
-                {Array.from({ length: meta.totalPages }, (_, i) => i + 1).map((p) => (
+                        {/* Title */}
+                        <h2
+                          className="font-semibold mb-2 line-clamp-2 leading-snug"
+                          style={{
+                            fontSize: "17px",
+                            color: "var(--ink)",
+                            letterSpacing: "-0.374px",
+                          }}
+                        >
+                          {post.title}
+                        </h2>
+
+                        {/* Excerpt */}
+                        <p
+                          className="line-clamp-3 mb-4"
+                          style={{
+                            fontSize: "14px",
+                            lineHeight: 1.43,
+                            color: "var(--ink-muted-80)",
+                            letterSpacing: "-0.224px",
+                          }}
+                        >
+                          {post.content.replace(/[#*`_\-]/g, '').trim()}
+                        </p>
+                      </div>
+
+                      {/* Tags + CTA */}
+                      <div>
+                        <div className="flex flex-wrap gap-1.5 mb-4" aria-label="태그">
+                          {post.tags.slice(0, 3).map((tag) => (
+                            <span
+                              key={tag}
+                              className="text-[12px] px-2 py-0.5"
+                              style={{
+                                background: "var(--canvas-parchment)",
+                                color: "var(--ink-muted-48)",
+                                borderRadius: "4px",
+                                letterSpacing: "-0.12px",
+                              }}
+                            >
+                              #{tag}
+                            </span>
+                          ))}
+                        </div>
+                        <Link
+                          href={`/content/${post.slug}`}
+                          className="text-[17px] font-medium hover:underline"
+                          style={{ color: "var(--primary)", letterSpacing: "-0.374px" }}
+                        >
+                          자세히 보기
+                        </Link>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+
+              {/* Pagination */}
+              {meta.totalPages > 1 && (
+                <nav aria-label="가이드 목록 페이지 이동" className="flex items-center justify-center gap-2 mt-12">
                   <button
-                    key={p}
-                    onClick={() => setCurrentPage(p)}
-                    aria-current={p === currentPage ? 'page' : undefined}
-                    className={`w-9 h-9 rounded-xl text-xs font-bold transition-all ${
-                      p === currentPage
-                        ? 'bg-yellow-accent text-[#0B0F19]'
-                        : 'bg-white/[0.03] border border-white/[0.06] text-slate-400 hover:text-slate-200 hover:border-slate-600'
-                    }`}
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    aria-label="이전 페이지"
+                    className="px-4 py-2 text-[14px] transition-colors disabled:opacity-30"
+                    style={{
+                      background: "var(--canvas)",
+                      border: "1px solid var(--hairline)",
+                      borderRadius: "8px",
+                      color: "var(--ink-muted-80)",
+                    }}
                   >
-                    {p}
+                    ←
                   </button>
-                ))}
-                <button
-                  onClick={() => setCurrentPage((p) => Math.min(meta.totalPages, p + 1))}
-                  disabled={currentPage === meta.totalPages}
-                  aria-label="다음 페이지"
-                  className="px-3 py-2 rounded-xl bg-white/[0.03] border border-white/[0.06] text-xs font-bold text-slate-400 hover:text-slate-200 hover:border-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                >
-                  →
-                </button>
-              </nav>
-            )}
-          </>
-        )}
+                  {Array.from({ length: meta.totalPages }, (_, i) => i + 1).map((p) => (
+                    <button
+                      key={p}
+                      onClick={() => setCurrentPage(p)}
+                      aria-current={p === currentPage ? 'page' : undefined}
+                      className="w-9 h-9 text-[14px] font-medium transition-colors"
+                      style={{
+                        background: p === currentPage ? "var(--primary)" : "var(--canvas)",
+                        border: `1px solid ${p === currentPage ? "var(--primary)" : "var(--hairline)"}`,
+                        borderRadius: "8px",
+                        color: p === currentPage ? "#fff" : "var(--ink-muted-80)",
+                      }}
+                    >
+                      {p}
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => setCurrentPage((p) => Math.min(meta.totalPages, p + 1))}
+                    disabled={currentPage === meta.totalPages}
+                    aria-label="다음 페이지"
+                    className="px-4 py-2 text-[14px] transition-colors disabled:opacity-30"
+                    style={{
+                      background: "var(--canvas)",
+                      border: "1px solid var(--hairline)",
+                      borderRadius: "8px",
+                      color: "var(--ink-muted-80)",
+                    }}
+                  >
+                    →
+                  </button>
+                </nav>
+              )}
+            </>
+          )}
+        </div>
+      </section>
+
+      {/* ── AI Chatbot CTA — Dark Tile ──────────────────────────────── */}
+      <section
+        className="w-full text-center px-5 py-20 tile-dark"
+      >
+        <div className="max-w-[580px] mx-auto">
+          <p
+            className="text-[17px] font-semibold mb-4"
+            style={{ color: "var(--primary-on-dark)", letterSpacing: "-0.374px" }}
+          >
+            AI 챗봇
+          </p>
+          <h2
+            className="font-semibold mb-5 text-white"
+            style={{ fontSize: "clamp(28px, 4vw, 40px)", lineHeight: 1.10, letterSpacing: "-0.01em" }}
+          >
+            가이드에 없는 궁금증도<br />자연어로 바로 해결
+          </h2>
+          <p
+            className="mb-8"
+            style={{
+              fontSize: "17px",
+              lineHeight: 1.47,
+              letterSpacing: "-0.374px",
+              color: "var(--body-muted)",
+            }}
+          >
+            TF-IDF 기반 로컬 NLP 엔진이 6개 가이드 DB를<br className="hidden sm:inline" />
+            탐색해 가장 관련 높은 답변을 제공합니다.
+          </p>
+          <p className="text-[14px]" style={{ color: "var(--ink-muted-48)" }}>
+            오른쪽 하단 💬 버튼을 눌러 대화를 시작하세요
+          </p>
+        </div>
       </section>
 
       <ChatbotWidget />
-    </div>
+    </>
   );
 }

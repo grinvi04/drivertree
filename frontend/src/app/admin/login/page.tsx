@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
-import { Lock, User, AlertCircle, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
 export default function AdminLoginPage() {
@@ -16,106 +15,145 @@ export default function AdminLoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!username || !password) return;
-
     setLoading(true);
     setError('');
-
     try {
       const res = await api.login(username, password);
-      // httpOnly 쿠키는 브라우저가 자동 저장. username만 로컬에 보관.
       localStorage.setItem('drivetree_user', res.username);
       router.push('/admin/dashboard');
     } catch (err) {
-      const message = err instanceof Error ? err.message : '로그인에 실패했습니다. 자격 증명을 확인해 주세요.';
-      setError(message);
+      setError(err instanceof Error ? err.message : '로그인에 실패했습니다.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="relative w-full flex flex-col min-h-screen bg-[#0B0F19] items-center justify-center py-20 overflow-x-hidden">
-      {/* 옐로우 글로우 데코 */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-yellow-accent/5 blur-[120px] pointer-events-none" />
-
-      <div className="max-w-md w-full px-4 relative z-10">
-        <Link 
-          href="/" 
-          className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-yellow-accent font-semibold transition-colors mb-6"
+    <div
+      className="w-full min-h-screen flex items-center justify-center py-20 px-5"
+      style={{ background: "var(--canvas-parchment)" }}
+    >
+      <div className="w-full max-w-[400px]">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1 text-[14px] mb-8 hover:underline"
+          style={{ color: "var(--primary)", letterSpacing: "-0.224px" }}
         >
-          <ArrowLeft className="w-4 h-4" />
-          가이드 홈으로 가기
+          ← DriveTree 홈으로
         </Link>
 
-        {/* 로그인 카드 */}
-        <div className="rounded-3xl glass-panel p-8 border border-white/[0.06] shadow-2xl">
+        {/* Card */}
+        <div className="utility-card shadow-sm">
+          {/* Header */}
           <div className="text-center mb-8">
-            <span className="inline-block text-3xl mb-2">🌳🔒</span>
-            <h2 className="text-xl font-black text-white">DriveTree 백오피스</h2>
-            <p className="text-[10px] text-slate-500 font-bold mt-1 uppercase tracking-wider">
-              가이드 콘텐츠 및 챗봇 모니터링 관리자
+            <span className="text-3xl" aria-hidden="true">🌳</span>
+            <h1
+              className="font-semibold mt-2 mb-1"
+              style={{ fontSize: "21px", color: "var(--ink)", letterSpacing: "0" }}
+            >
+              DriveTree 백오피스
+            </h1>
+            <p
+              className="text-[14px]"
+              style={{ color: "var(--ink-muted-48)", letterSpacing: "-0.224px" }}
+            >
+              관리자 계정으로 로그인하세요
             </p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-5">
-            {/* 아이디 */}
+          <form onSubmit={handleLogin} className="space-y-4">
+            {/* Username */}
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="admin-username" className="text-xs text-slate-400 font-bold">관리자 계정 아이디</label>
-              <div className="relative flex items-center">
-                <User className="absolute left-3.5 w-4 h-4 text-slate-500" />
-                <input
-                  id="admin-username"
-                  type="text"
-                  placeholder="관리자 아이디"
-                  autoComplete="username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="w-full h-[46px] pl-[42px] pr-4 rounded-xl bg-white/[0.02] border border-white/[0.08] focus:border-yellow-accent text-xs font-semibold text-slate-200 focus:outline-none"
-                  required
-                />
-              </div>
+              <label
+                htmlFor="admin-username"
+                className="text-[14px] font-semibold"
+                style={{ color: "var(--ink)", letterSpacing: "-0.224px" }}
+              >
+                관리자 계정 아이디
+              </label>
+              <input
+                id="admin-username"
+                type="text"
+                placeholder="관리자 아이디"
+                autoComplete="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                className="h-11 px-4 text-[17px] focus:outline-none transition-colors"
+                style={{
+                  background: "var(--canvas)",
+                  border: "1px solid var(--hairline)",
+                  borderRadius: "8px",
+                  color: "var(--ink)",
+                  letterSpacing: "-0.374px",
+                }}
+                onFocus={(e) => { e.currentTarget.style.borderColor = "var(--primary-focus)"; }}
+                onBlur={(e) => { e.currentTarget.style.borderColor = "var(--hairline)"; }}
+              />
             </div>
 
-            {/* 비밀번호 */}
+            {/* Password */}
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="admin-password" className="text-xs text-slate-400 font-bold">비밀번호</label>
-              <div className="relative flex items-center">
-                <Lock className="absolute left-3.5 w-4 h-4 text-slate-500" />
-                <input
-                  id="admin-password"
-                  type="password"
-                  placeholder="관리자 비밀번호"
-                  autoComplete="current-password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full h-[46px] pl-[42px] pr-4 rounded-xl bg-white/[0.02] border border-white/[0.08] focus:border-yellow-accent text-xs font-semibold text-slate-200 focus:outline-none"
-                  required
-                />
-              </div>
+              <label
+                htmlFor="admin-password"
+                className="text-[14px] font-semibold"
+                style={{ color: "var(--ink)", letterSpacing: "-0.224px" }}
+              >
+                비밀번호
+              </label>
+              <input
+                id="admin-password"
+                type="password"
+                placeholder="관리자 비밀번호"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="h-11 px-4 text-[17px] focus:outline-none transition-colors"
+                style={{
+                  background: "var(--canvas)",
+                  border: "1px solid var(--hairline)",
+                  borderRadius: "8px",
+                  color: "var(--ink)",
+                  letterSpacing: "-0.374px",
+                }}
+                onFocus={(e) => { e.currentTarget.style.borderColor = "var(--primary-focus)"; }}
+                onBlur={(e) => { e.currentTarget.style.borderColor = "var(--hairline)"; }}
+              />
             </div>
 
-            {/* 에러 노출 */}
+            {/* Error */}
             {error && (
-              <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-[10px] font-bold text-red-400 flex items-start gap-2 leading-relaxed">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                <span>{error}</span>
-              </div>
+              <p
+                className="text-[14px] px-4 py-3 rounded-lg"
+                style={{
+                  background: "#fff2f2",
+                  color: "#c00",
+                  border: "1px solid #fcc",
+                  letterSpacing: "-0.224px",
+                }}
+              >
+                {error}
+              </p>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full h-[46px] rounded-xl btn-yellow-glow text-xs font-bold mt-4"
+              className="btn-primary w-full mt-2 disabled:opacity-60"
+              style={{ height: "44px" }}
             >
-              {loading ? '인증 토큰 발급 중...' : '백오피스 입장하기'}
+              {loading ? '로그인 중...' : '백오피스 입장하기'}
             </button>
           </form>
-        </div>
 
-        {/* 관리자 안내 — 자격증명 노출 없음 */}
-        <div className="mt-6 text-center text-[10px] text-slate-600 font-medium leading-relaxed">
-          관리자 계정은 서버 환경변수 <code className="text-slate-400">ADMIN_USERNAME</code> · <code className="text-slate-400">ADMIN_PASSWORD</code> 로 관리되며,
-          <br />초기 시드 이후 비밀번호 변경은 운영자에게 문의하세요.
+          <p
+            className="mt-6 text-center text-[12px]"
+            style={{ color: "var(--ink-muted-48)", letterSpacing: "-0.12px" }}
+          >
+            관리자 계정은 <code className="text-[11px]">ADMIN_USERNAME</code> ·{' '}
+            <code className="text-[11px]">ADMIN_PASSWORD</code> 환경변수로 관리됩니다
+          </p>
         </div>
       </div>
     </div>
