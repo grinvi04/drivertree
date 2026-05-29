@@ -39,22 +39,14 @@
   - 프론트: `@sentry/nextjs` 셋업 (별도 작업)
   - 코드는 이미 완성됨 (`SENTRY_DSN` env가 있으면 자동 활성화)
 
-### P1 — 공공 API 연동 (진행 중)
+### P1 — 공공 API 연동 ~~(진행 중)~~ → ❌ 전면 취소 (2026-05-29)
 
-- [x] **Phase 1: 내 차 관리** (`feature/public-api-car` → develop 머지 완료, 2026-05-27)
-  - 국토교통부 자동차 리콜 API → `GET /api/car/recall`
-  - 교통안전공단 정기검사 기한 API → `GET /api/car/inspection`
-  - 프론트: `/my-car` 페이지 (리콜 / 정기검사 탭 UI)
-  - **API 키 발급 필요**: `MOLIT_API_KEY`, `TS_API_KEY` (data.go.kr)
-  - 계획 문서: `docs/PUBLIC_API_PLAN.md`
+> Railway 해외 서버(싱가포르)에서 한국 공공 API WAF 차단 확인. Railway 한국 리전 미지원.
+> 관련 모듈(law, safety, car) 및 프론트 페이지 전부 제거 완료. `docs/PUBLIC_API_PLAN.md` 참고.
 
-- [ ] **Phase 2: 법령 검색** (`feature/public-api-law`)
-  - 법제처 국가법령정보 API → `GET /api/law/search`
-  - **API 키 발급 필요**: `LAW_API_KEY` (law.go.kr)
-
-- [ ] **Phase 3: 사고 다발지점** (`feature/public-api-safety`)
-  - 도로교통공단 TAAS API → `GET /api/safety/hotspots`
-  - **API 키 발급 필요**: `TAAS_API_KEY`
+- [x] ~~Phase 1: 내 차 관리~~ — 제거됨
+- [x] ~~Phase 2: 법령 검색~~ — 제거됨
+- [x] ~~Phase 3: 사고 다발지점~~ — 제거됨
 
 ### P2 — 완성도 향상 (2~3주 내)
 
