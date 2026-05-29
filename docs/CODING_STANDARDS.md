@@ -313,8 +313,18 @@ export class ApiError extends Error {
 
 ### 3.8 마크다운 렌더링
 
-- `dangerouslySetInnerHTML` 사용 금지.
-- 마크다운은 `react-markdown` + `remark-gfm` 사용.
+- 외부 HTML 렌더링 시 반드시 `isomorphic-dompurify`로 sanitize 후 `dangerouslySetInnerHTML` 사용.
+- `react-markdown`은 미설치. 커스텀 스타일이 필요한 경우 DOMPurify 패턴 유지.
+
+```typescript
+import DOMPurify from 'isomorphic-dompurify';
+const clean = DOMPurify.sanitize(html, {
+  USE_PROFILES: { html: true },
+  FORBID_TAGS: ['script', 'iframe', 'form'],
+  FORBID_ATTR: ['onerror', 'onload', 'onclick'],
+});
+<div dangerouslySetInnerHTML={{ __html: clean }} />
+```
 
 ---
 
