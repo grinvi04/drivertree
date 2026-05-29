@@ -16,7 +16,7 @@ test.describe('관리자 로그인 페이지', () => {
 
   test('홈으로 가기 링크가 "/" 경로를 가진다', async ({ page }) => {
     await page.goto('/admin/login');
-    await expect(page.getByRole('link', { name: '가이드 홈으로 가기' })).toHaveAttribute('href', '/');
+    await expect(page.getByRole('link', { name: '← DriveTree 홈으로' })).toHaveAttribute('href', '/');
   });
 
   test('빈 폼 제출 — HTML required 검증으로 제출이 막힌다', async ({ page }) => {
