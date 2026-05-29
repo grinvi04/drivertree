@@ -20,7 +20,7 @@ UI/프론트엔드 작업을 시작하기 전에 **반드시** 아래 두 파일
 | 커맨드 | 역할 | 병렬 에이전트 |
 |---|---|---|
 | `/feature-add <name> "<설명>"` | 피처 개발 | 백엔드(NestJS scaffold) + 프론트엔드(Next.js scaffold) |
-| `/release-check` | 배포 전 게이트 | 백엔드 품질 + 프론트엔드 품질 + 보안 검토 |
+| `/release-check` | 배포 전 게이트 | 백엔드 품질 + 프론트엔드 품질 + 보안 검토 + README 최신화 (전부 ✅ 시) |
 | `/content-add "<주제>" <category>` | 가이드 콘텐츠 추가 | 본문 작성 + SEO 메타데이터 생성 |
 | `/design-qa` | 디자인 QA | Apple 토큰 준수 검토 + WCAG 접근성 검토 |
 
