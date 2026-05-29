@@ -56,15 +56,18 @@ function escapeHtml(text: string): string {
     .replace(/'/g, '&#039;');
 }
 
+const BODY_STYLE = 'font-size:17px;line-height:1.75;letter-spacing:-0.3px;color:#1d1d1f;';
+const BODY_P = `${BODY_STYLE}margin:0 0 20px;`;
+
 function parseInlineMarkdown(text: string): string {
   let parsed = escapeHtml(text);
   parsed = parsed.replace(
     /\*\*(.*?)\*\*/g,
-    '<strong style="font-weight:600;color:#1d1d1f">$1</strong>',
+    '<strong style="font-weight:700;color:#1d1d1f">$1</strong>',
   );
   parsed = parsed.replace(
     /`(.*?)`/g,
-    '<code style="background:#f5f5f7;border:1px solid #e0e0e0;color:#1d1d1f;padding:2px 6px;border-radius:4px;font-size:13px;font-family:monospace">$1</code>',
+    '<code style="background:#f0f0f2;border:1px solid #d8d8dc;color:#1d1d1f;padding:2px 6px;border-radius:4px;font-size:14px;font-family:ui-monospace,monospace">$1</code>',
   );
   return parsed;
 }
@@ -74,50 +77,71 @@ function renderMarkdown(md: string): string {
 
   const lines = md.split('\n');
   const htmlResult: string[] = [];
-  let inList = false;
+  let inUl = false;
+  let inOl = false;
+  let olIndex = 0;
+
+  const closeList = () => {
+    if (inUl) { htmlResult.push('</ul>'); inUl = false; }
+    if (inOl) { htmlResult.push('</ol>'); inOl = false; olIndex = 0; }
+  };
 
   for (const line of lines) {
-    if (line.trim().startsWith('- ') || line.trim().startsWith('* ')) {
-      if (!inList) {
-        htmlResult.push('<ul style="margin:0 0 16px 20px;padding:0;list-style:disc">');
-        inList = true;
+    const ulMatch = /^[\s]*[-*]\s+(.*)$/.exec(line);
+    const olMatch = /^[\s]*\d+\.\s+(.*)$/.exec(line);
+
+    if (ulMatch) {
+      if (inOl) closeList();
+      if (!inUl) {
+        htmlResult.push('<ul style="margin:0 0 20px 24px;padding:0;list-style:disc">');
+        inUl = true;
       }
-      const listContent = line.replace(/^-\s+|^\*\s+/, '');
       htmlResult.push(
-        `<li style="font-size:17px;line-height:1.47;letter-spacing:-0.374px;color:#333333;margin-bottom:6px">${parseInlineMarkdown(listContent)}</li>`,
+        `<li style="${BODY_STYLE}margin-bottom:10px">${parseInlineMarkdown(ulMatch[1])}</li>`,
       );
       continue;
-    } else if (inList) {
-      htmlResult.push('</ul>');
-      inList = false;
     }
+
+    if (olMatch) {
+      if (inUl) closeList();
+      if (!inOl) {
+        htmlResult.push('<ol style="margin:0 0 20px 24px;padding:0;list-style:decimal">');
+        inOl = true;
+        olIndex = 0;
+      }
+      olIndex++;
+      htmlResult.push(
+        `<li style="${BODY_STYLE}margin-bottom:10px">${parseInlineMarkdown(olMatch[1])}</li>`,
+      );
+      continue;
+    }
+
+    closeList();
 
     if (line.startsWith('### ')) {
       htmlResult.push(
-        `<h4 style="font-size:17px;font-weight:600;color:#0066cc;margin:24px 0 12px;letter-spacing:-0.374px">${parseInlineMarkdown(line.substring(4))}</h4>`,
+        `<h4 style="font-size:17px;font-weight:700;color:#1d1d1f;margin:32px 0 12px;letter-spacing:-0.374px">${parseInlineMarkdown(line.substring(4))}</h4>`,
       );
     } else if (line.startsWith('## ')) {
       htmlResult.push(
-        `<h3 style="font-size:21px;font-weight:600;color:#1d1d1f;margin:32px 0 16px;letter-spacing:0;border-bottom:1px solid #e0e0e0;padding-bottom:8px">${parseInlineMarkdown(line.substring(3))}</h3>`,
+        `<h3 style="font-size:22px;font-weight:700;color:#1d1d1f;margin:40px 0 16px;letter-spacing:-0.01em;border-bottom:2px solid #f0f0f2;padding-bottom:10px">${parseInlineMarkdown(line.substring(3))}</h3>`,
       );
     } else if (line.startsWith('# ')) {
       htmlResult.push(
-        `<h2 style="font-size:28px;font-weight:600;color:#1d1d1f;margin:40px 0 20px;letter-spacing:-0.01em">${parseInlineMarkdown(line.substring(2))}</h2>`,
+        `<h2 style="font-size:28px;font-weight:700;color:#1d1d1f;margin:48px 0 20px;letter-spacing:-0.01em">${parseInlineMarkdown(line.substring(2))}</h2>`,
       );
     } else if (line.startsWith('> ')) {
       htmlResult.push(
-        `<blockquote style="border-left:3px solid #0066cc;background:#f5f5f7;padding:12px 16px;margin:20px 0;border-radius:0 8px 8px 0;font-size:17px;line-height:1.47;color:#333333;letter-spacing:-0.374px">${parseInlineMarkdown(line.substring(2))}</blockquote>`,
+        `<blockquote style="border-left:4px solid #0066cc;background:#f5f8ff;padding:14px 18px;margin:24px 0;border-radius:0 10px 10px 0;${BODY_STYLE}margin-bottom:20px">${parseInlineMarkdown(line.substring(2))}</blockquote>`,
       );
     } else if (line.trim() === '') {
-      htmlResult.push('<div style="height:12px"></div>');
+      /* empty lines between blocks — no spacer div, rely on element margins */
     } else {
-      htmlResult.push(
-        `<p style="font-size:17px;line-height:1.47;letter-spacing:-0.374px;color:#333333;margin-bottom:16px">${parseInlineMarkdown(line)}</p>`,
-      );
+      htmlResult.push(`<p style="${BODY_P}">${parseInlineMarkdown(line)}</p>`);
     }
   }
 
-  if (inList) htmlResult.push('</ul>');
+  closeList();
   return htmlResult.join('');
 }
 
@@ -135,8 +159,9 @@ export default async function ContentDetailPage({ params }: PageProps) {
 
   const sanitizedHtml = DOMPurify.sanitize(renderMarkdown(post.content), {
     USE_PROFILES: { html: true },
-    FORBID_TAGS: ['style', 'iframe', 'form', 'input', 'button', 'object', 'embed'],
-    FORBID_ATTR: ['style', 'onerror', 'onload', 'onclick'],
+    ADD_ATTR: ['style'],
+    FORBID_TAGS: ['script', 'style', 'iframe', 'form', 'input', 'object', 'embed'],
+    FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'onmouseout', 'onfocus', 'onblur'],
   });
 
   const catInfo = CATEGORIES.find((c) => c.id === post.category) ?? CATEGORIES[0];
@@ -201,7 +226,10 @@ export default async function ContentDetailPage({ params }: PageProps) {
           <hr style={{ borderColor: "var(--hairline)", marginBottom: "32px" }} />
 
           {/* Body */}
-          <div dangerouslySetInnerHTML={{ __html: sanitizedHtml }} />
+          <div
+            dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
+            style={{ fontFamily: "Inter, -apple-system, sans-serif", wordBreak: "keep-all", overflowWrap: "break-word" }}
+          />
         </article>
 
         {/* Related */}
