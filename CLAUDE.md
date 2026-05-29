@@ -1,5 +1,18 @@
 # DriveTree — Claude Code 작업 규칙
 
+## 디자인 레퍼런스
+
+UI/프론트엔드 작업을 시작하기 전에 **반드시** 아래 두 파일을 읽을 것.
+
+| 파일 | 목적 |
+|---|---|
+| [`DESIGN.md`](./DESIGN.md) | Apple 디자인 시스템 원본 스펙 — 색상 토큰, 타이포그래피, 컴포넌트 정의, Do's/Don'ts |
+| [`DESIGN_IMPL.md`](./DESIGN_IMPL.md) | DriveTree 구현 노트 — CSS 변수 매핑, 유틸리티 클래스, 페이지 섹션 구조, 체크리스트 |
+
+> **읽는 순서**: DESIGN.md(의도) → DESIGN_IMPL.md(구현) → 작업 시작
+
+---
+
 ## Git Flow
 
 이 프로젝트는 **git flow**를 사용한다. 아래 규칙을 반드시 지킬 것.
