@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/grinvi04/drivertree/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/grinvi04/drivertree/actions/workflows/ci.yml)
 [![Tests](https://img.shields.io/badge/tests-53%20passed-brightgreen)](https://github.com/grinvi04/drivertree/actions)
-[![Live](https://img.shields.io/badge/live-drivetree.vercel.app-blue)](https://drivetree.vercel.app)
+[![Live](https://img.shields.io/badge/live-drivertree.vercel.app-blue)](https://drivertree.vercel.app)
 
 > **"면허 학원도, 유튜브도, 공식 사이트도 알려주지 않는, 초보운전자가 진짜 막막한 순간들을 정리한 가이드"**
 
