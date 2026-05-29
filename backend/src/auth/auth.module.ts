@@ -9,7 +9,11 @@ import { JwtStrategy } from './jwt.strategy';
   imports: [
     PassportModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET || 'drivetree_super_secret_jwt_key_9876!',
+      secret: (() => {
+        const s = process.env.JWT_SECRET;
+        if (!s) throw new Error('JWT_SECRET environment variable must be set.');
+        return s;
+      })(),
       signOptions: { expiresIn: '15m' },
     }),
   ],
