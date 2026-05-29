@@ -71,17 +71,17 @@ export class ChatService {
     const vectorStr = `[${vector.join(',')}]`;
 
     // pgvector 코사인 거리 연산 (<=>) 을 사용해 거리 기준 오름차순(유사도 기준 내림차순)으로 조회
-    const rawChunks = await this.prisma.$queryRawUnsafe<SemanticChunk[]>(
-      `SELECT CE.id, CE."contentId", CE."chunkIndex", CE."textContent",
-              (CE.embedding <=> $1::vector) as distance,
-              C.title as "contentTitle", C.slug as "contentSlug"
-       FROM "ContentEmbedding" CE
-       JOIN "Content" C ON CE."contentId" = C.id
-       WHERE CE.embedding IS NOT NULL
-       ORDER BY distance ASC
-       LIMIT $2`,
-      vectorStr,
-      limit,
+    const rawChunks = await this.prisma.$queryRaw<SemanticChunk[]>(
+      Prisma.sql`
+        SELECT CE.id, CE."contentId", CE."chunkIndex", CE."textContent",
+               (CE.embedding <=> ${vectorStr}::vector) as distance,
+               C.title as "contentTitle", C.slug as "contentSlug"
+        FROM "ContentEmbedding" CE
+        JOIN "Content" C ON CE."contentId" = C.id
+        WHERE CE.embedding IS NOT NULL
+        ORDER BY distance ASC
+        LIMIT ${limit}
+      `,
     );
 
     return rawChunks.filter(

@@ -52,11 +52,16 @@ async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T
     headers.set('Content-Type', 'application/json');
   }
 
-  const response = await fetch(`${BASE_URL}${path}`, {
-    ...options,
-    headers,
-    credentials: 'include',
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${BASE_URL}${path}`, {
+      ...options,
+      headers,
+      credentials: 'include',
+    });
+  } catch {
+    throw new ApiError(0, '서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.');
+  }
 
   // 401 — 액세스 토큰 만료 시 refresh 후 1회 재시도
   if (response.status === 401 && !path.startsWith('/auth/')) {
@@ -74,11 +79,16 @@ async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T
     }
 
     // 원래 요청 재시도
-    const retryResponse = await fetch(`${BASE_URL}${path}`, {
-      ...options,
-      headers,
-      credentials: 'include',
-    });
+    let retryResponse: Response;
+    try {
+      retryResponse = await fetch(`${BASE_URL}${path}`, {
+        ...options,
+        headers,
+        credentials: 'include',
+      });
+    } catch {
+      throw new ApiError(0, '서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.');
+    }
     if (!retryResponse.ok) {
       let message = '요청 처리 중 오류가 발생했습니다.';
       try {
