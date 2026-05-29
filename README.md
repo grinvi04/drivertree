@@ -38,6 +38,16 @@ NestJS + Next.js + PostgreSQL 풀스택 서비스. 자세한 기획은 [`PRD.md`
 
 ---
 
+## 📝 최근 변경사항
+
+- **fix(auth)**: 하드코딩된 시크릿 제거 — ADMIN_PASSWORD·JWT_SECRET 환경변수 필수화
+- **fix(ci)**: JWT_REFRESH_SECRET 누락으로 auth 테스트 실패 수정
+- **fix(security)**: P1 보안 취약점 3종 수정
+- **fix(콘텐츠)**: 마크다운 테이블 및 GFM callout 렌더링 추가
+- **feat(frontend)**: Apple 디자인 시스템 전면 적용
+
+---
+
 ## 🏗️ 아키텍처
 
 ```
@@ -76,7 +86,9 @@ NestJS + Next.js + PostgreSQL 풀스택 서비스. 자세한 기획은 [`PRD.md`
 ```
 DriveTree/
 ├─ PRD.md                기획서
-├─ CLAUDE.md             Claude Code 작업 규칙 (git flow · 커밋 메시지 · 테스트)
+├─ CLAUDE.md             Claude Code 작업 규칙 (git flow · 커밋 메시지)
+├─ backend/CLAUDE.md     NestJS · Prisma · Jest 패턴 및 제약 규칙
+├─ frontend/CLAUDE.md    Next.js · React · Tailwind v4 패턴 및 제약 규칙
 ├─ docker-compose.yml    로컬 PostgreSQL + pgvector
 ├─ backend/              NestJS API (포트 4000)
 │  ├─ prisma/            schema.prisma + migrations
@@ -158,9 +170,9 @@ Swagger UI: `http://localhost:4000/api/docs`
 | 인증 | JWT httpOnly Cookie (XSS 토큰 탈취 방지) |
 | Refresh Token | 7일 만료 + DB 해시 검증 (탈취 시 서버측 무효화 가능) |
 | Rate Limiting | `/chat/ask` 분당 10회 / 시간당 60회 (ThrottlerModule) |
-| 프롬프트 인젝션 | 한국어 패턴 감지 (`common/prompt-injection.guard.ts`) |
-| XSS | DOMPurify 이중 sanitize (저장 시 + 렌더링 시) |
-| CSP | NestJS Helmet — `Content-Security-Policy` 헤더 |
+| 프롬프트 인젝션 | 한국어 패턴 감지 (`chat/chat.service.ts`) |
+| XSS | DOMPurify sanitize (`isomorphic-dompurify`) |
+| CSP | Next.js 보안 헤더 (`next.config.ts`) — CSP · X-Frame-Options · X-Content-Type-Options |
 
 ---
 
@@ -173,6 +185,7 @@ Swagger UI: `http://localhost:4000/api/docs`
 | `DATABASE_URL` | PostgreSQL 연결 문자열 |
 | `JWT_SECRET` | Access Token 서명 비밀키 |
 | `JWT_REFRESH_SECRET` | Refresh Token 서명 비밀키 (JWT_SECRET과 다른 값) |
+| `ADMIN_PASSWORD` | 관리자 계정 비밀번호 — **필수** (미설정 시 서버 기동 불가) |
 
 ### 백엔드 선택
 
