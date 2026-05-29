@@ -48,6 +48,7 @@ jobs:
     env:
       DATABASE_URL: postgresql://drivetree_user:drivetree_password123!@localhost:5432/drivetree?schema=public
       JWT_SECRET: ci_jwt_secret_for_tests_only_not_for_production
+      JWT_REFRESH_SECRET: ci_jwt_refresh_secret_for_tests_only_not_for_production
       GEMINI_API_KEY: ""
       ADMIN_USERNAME: admin
       ADMIN_PASSWORD: ci_admin_password
