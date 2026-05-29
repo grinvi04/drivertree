@@ -48,9 +48,9 @@ test.describe('홈 페이지', () => {
     await expect(page.getByRole('textbox', { name: '가이드 검색' })).toHaveValue('비보호 좌회전');
   });
 
-  test('가이드 카드의 "실전 노하우 읽기" 링크가 올바른 경로를 가진다', async ({ page }) => {
+  test('가이드 카드의 "자세히 보기" 링크가 올바른 경로를 가진다', async ({ page }) => {
     await page.goto('/');
-    const link = page.getByRole('link', { name: '실전 노하우 읽기' }).first();
+    const link = page.getByRole('link', { name: '자세히 보기' }).first();
     await expect(link).toHaveAttribute('href', `/content/${MOCK_CONTENTS[0].slug}`);
   });
 
