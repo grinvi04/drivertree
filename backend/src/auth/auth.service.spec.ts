@@ -41,6 +41,14 @@ describe('AuthService', () => {
   let prisma: ReturnType<typeof makePrismaStub>;
   let jwtService: ReturnType<typeof makeJwtStub>;
 
+  beforeAll(() => {
+    process.env.JWT_REFRESH_SECRET = 'test_refresh_secret';
+  });
+
+  afterAll(() => {
+    delete process.env.JWT_REFRESH_SECRET;
+  });
+
   beforeEach(async () => {
     prisma = makePrismaStub();
     jwtService = makeJwtStub();
