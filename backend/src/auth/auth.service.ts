@@ -21,16 +21,12 @@ export class AuthService implements OnModuleInit {
 
   async onModuleInit() {
     const username = process.env.ADMIN_USERNAME?.trim() || 'admin';
-    const envPassword = process.env.ADMIN_PASSWORD?.trim();
+    const password = process.env.ADMIN_PASSWORD?.trim();
 
-    if (!envPassword && process.env.NODE_ENV === 'production') {
-      throw new Error(
-        'ADMIN_PASSWORD environment variable must be set in production.',
-      );
+    if (!password) {
+      throw new Error('ADMIN_PASSWORD environment variable must be set.');
     }
 
-    const defaultPassword = 'drivetreeadmin123!';
-    const password = envPassword || defaultPassword;
     const passwordHash = await bcrypt.hash(password, 10);
 
     const existing = await this.prisma.admin.findUnique({
@@ -42,37 +38,24 @@ export class AuthService implements OnModuleInit {
         data: { username, passwordHash },
       });
       this.logger.log(`[Seed] Admin account created: username="${username}"`);
-      if (envPassword) {
-        this.logger.log(
-          '[Seed] Password sourced from ADMIN_PASSWORD env (value hidden).',
-        );
-      } else {
-        if (process.env.NODE_ENV !== 'production') {
-          this.logger.warn(
-            `[Seed] Using DEV DEFAULT password: ${defaultPassword}`,
-          );
-        }
-        this.logger.warn(
-          '[Seed] ADMIN_PASSWORD env is NOT set — set it before production deploy!',
-        );
-      }
+      this.logger.log(
+        '[Seed] Password sourced from ADMIN_PASSWORD env (value hidden).',
+      );
       return;
     }
 
-    if (envPassword) {
-      const sameAsExisting = await bcrypt.compare(
-        password,
-        existing.passwordHash,
+    const sameAsExisting = await bcrypt.compare(
+      password,
+      existing.passwordHash,
+    );
+    if (!sameAsExisting) {
+      await this.prisma.admin.update({
+        where: { id: existing.id },
+        data: { passwordHash },
+      });
+      this.logger.log(
+        `[Seed] Admin password rotated for username="${username}" via ADMIN_PASSWORD env.`,
       );
-      if (!sameAsExisting) {
-        await this.prisma.admin.update({
-          where: { id: existing.id },
-          data: { passwordHash },
-        });
-        this.logger.log(
-          `[Seed] Admin password rotated for username="${username}" via ADMIN_PASSWORD env.`,
-        );
-      }
     }
   }
 

@@ -43,10 +43,12 @@ describe('AuthService', () => {
 
   beforeAll(() => {
     process.env.JWT_REFRESH_SECRET = 'test_refresh_secret';
+    process.env.ADMIN_PASSWORD = 'test_admin_password';
   });
 
   afterAll(() => {
     delete process.env.JWT_REFRESH_SECRET;
+    delete process.env.ADMIN_PASSWORD;
   });
 
   beforeEach(async () => {
