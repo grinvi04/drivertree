@@ -22,6 +22,13 @@ export class AuthService implements OnModuleInit {
   async onModuleInit() {
     const username = process.env.ADMIN_USERNAME?.trim() || 'admin';
     const envPassword = process.env.ADMIN_PASSWORD?.trim();
+
+    if (!envPassword && process.env.NODE_ENV === 'production') {
+      throw new Error(
+        'ADMIN_PASSWORD environment variable must be set in production.',
+      );
+    }
+
     const defaultPassword = 'drivetreeadmin123!';
     const password = envPassword || defaultPassword;
     const passwordHash = await bcrypt.hash(password, 10);
@@ -69,6 +76,16 @@ export class AuthService implements OnModuleInit {
     }
   }
 
+  private get refreshSecret(): string {
+    const secret = process.env.JWT_REFRESH_SECRET;
+    if (!secret) {
+      throw new Error(
+        'JWT_REFRESH_SECRET environment variable is required. Set it in the .env file.',
+      );
+    }
+    return secret;
+  }
+
   async login(
     dto: LoginDto,
   ): Promise<{ username: string; accessToken: string; refreshToken: string }> {
@@ -95,9 +112,7 @@ export class AuthService implements OnModuleInit {
 
     const accessToken = this.jwtService.sign(payload);
     const refreshToken = this.jwtService.sign(payload, {
-      secret:
-        process.env.JWT_REFRESH_SECRET ||
-        'drivetree_refresh_secret_7d_not_for_prod!',
+      secret: this.refreshSecret,
       expiresIn: '7d',
     });
 
@@ -116,9 +131,7 @@ export class AuthService implements OnModuleInit {
     let payload: JwtPayload;
     try {
       payload = this.jwtService.verify<JwtPayload>(refreshToken, {
-        secret:
-          process.env.JWT_REFRESH_SECRET ||
-          'drivetree_refresh_secret_7d_not_for_prod!',
+        secret: this.refreshSecret,
       });
     } catch {
       throw new UnauthorizedException(

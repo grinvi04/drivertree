@@ -18,6 +18,12 @@ export interface AuthUser {
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor() {
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      throw new Error(
+        'JWT_SECRET environment variable is required. Set it in the .env file.',
+      );
+    }
     super({
       // httpOnly 쿠키 우선, 없으면 Bearer 헤더 (Swagger/CLI 호환)
       jwtFromRequest: ExtractJwt.fromExtractors([
@@ -28,8 +34,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         ExtractJwt.fromAuthHeaderAsBearerToken(),
       ]),
       ignoreExpiration: false,
-      secretOrKey:
-        process.env.JWT_SECRET || 'drivetree_super_secret_jwt_key_9876!',
+      secretOrKey: jwtSecret,
     });
   }
 
