@@ -1,4 +1,4 @@
-.PHONY: help dev dev-be dev-fe test lint format build db-up db-down db-seed quality
+.PHONY: help dev dev-be dev-fe test lint format build db-up db-down db-seed quality e2e
 
 help:
 	@echo "DriveTree 개발 명령어"
@@ -13,7 +13,8 @@ help:
 	@echo "  make db-up      PostgreSQL + pgvector 컨테이너 기동"
 	@echo "  make db-down    컨테이너 중지"
 	@echo "  make db-seed    DB 마이그레이션 + Prisma 클라이언트 재생성"
-	@echo "  make quality    커밋 전 품질 체크 (format + lint + test + build)"
+	@echo "  make e2e        프론트엔드 Playwright e2e 테스트"
+	@echo "  make quality    커밋 전 품질 체크 (format + lint + test + build + e2e)"
 
 dev-be:
 	cd backend && npm run start:dev
@@ -42,6 +43,9 @@ db-down:
 db-seed:
 	cd backend && npx prisma migrate deploy && npx prisma generate
 
+e2e:
+	cd frontend && npm run test:e2e
+
 quality:
 	@echo "=== 1/4 백엔드 포맷 ==="
 	cd backend && npm run format
@@ -51,5 +55,7 @@ quality:
 	cd backend && npm test
 	@echo "=== 4/4 프론트엔드 빌드 ==="
 	cd frontend && npm run build
+	@echo "=== 5/5 Playwright e2e 테스트 ==="
+	cd frontend && npm run test:e2e
 	@echo ""
 	@echo "모든 품질 체크 통과"
