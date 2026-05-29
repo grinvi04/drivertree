@@ -105,16 +105,152 @@ docs(claude): 커밋 메시지 한국어 규칙 추가
 
 ---
 
-## 백엔드 코드 수정 시
+## 커밋 전 필수 체크리스트
 
 ```bash
-cd backend && npm run format   # 커밋 전 필수 — prettier 미실행 시 CI lint 실패
+# 백엔드 수정 시
+cd backend && npm run format   # prettier — CI lint 실패 방지
+cd backend && npm run lint:check
+cd backend && npm test         # 100% 통과 확인
+
+# 프론트엔드 수정 시
+cd frontend && npm run build   # 빌드 에러 없는지 확인
 ```
 
 ## 백엔드/프론트엔드 CI install
 
 `.github/workflows/ci.yml`에서 백엔드·프론트 모두 `npm install` 사용 (not `npm ci`).
 npm 10.x + wasm32/emnapi optional 패키지 lock 파일 버그 우회용이므로 변경하지 말 것.
+
+---
+
+## NestJS 모듈 추가 패턴
+
+새 NestJS 모듈(`feature-name`)을 추가할 때 **반드시** 이 패턴을 따른다.
+
+### 생성 파일 목록
+
+```
+backend/src/feature-name/
+  feature-name.module.ts      ← @Module 선언
+  feature-name.controller.ts  ← HTTP 라우팅, @ApiTags, @ApiOperation
+  feature-name.service.ts     ← 비즈니스 로직, private readonly logger
+  feature-name.dto.ts         ← CreateDto, UpdateDto, ResponseDto (class-validator)
+  feature-name.service.spec.ts ← 서비스 유닛 테스트
+```
+
+### 체크리스트
+
+1. `feature-name.module.ts` — `CommonModule` import (PrismaService, GeminiService 등 공유 의존성)
+2. `feature-name.service.ts` — `private readonly logger = new Logger(FeatureNameService.name)` 필수
+3. `feature-name.dto.ts` — 모든 필드에 `@ApiProperty` + `class-validator` 데코레이터
+4. `backend/src/app.module.ts` — `imports` 배열에 새 모듈 등록
+5. `feature-name.service.spec.ts` — 서비스 생성 즉시 스펙 파일 작성 (CLAUDE.md 테스트 규칙 준수)
+
+### 예외 처리 패턴
+
+```typescript
+// 없는 리소스
+throw new NotFoundException('리소스를 찾을 수 없습니다.');
+// 중복
+throw new ConflictException('이미 존재합니다.');
+// 권한 없음
+throw new UnauthorizedException('권한이 없습니다.');
+// 잘못된 입력
+throw new BadRequestException('입력값이 올바르지 않습니다.');
+```
+
+---
+
+## 프론트엔드 코드 규칙
+
+### 페이지 파일 구조
+
+```typescript
+// frontend/src/app/[feature]/page.tsx 기본 구조
+'use client'; // CSR이 필요한 경우만
+
+import { useState, useEffect } from 'react';
+import { api } from '@/lib/api';
+import type { TypeName } from '@/types';
+
+export default function FeaturePage() {
+  // 1. state 선언
+  // 2. useEffect / 데이터 패칭
+  // 3. 핸들러 함수
+  // 4. return JSX
+}
+```
+
+### 컴포넌트 규칙
+
+- **`'use client'`는 필요할 때만** — SSG 가능한 컴포넌트는 서버 컴포넌트로 유지
+- **Tailwind 클래스만 사용** — `style=` prop 사용 금지 (인라인 스타일 금지)
+- **아이콘은 lucide-react named import** — `import { IconName } from 'lucide-react'`
+- **API 호출은 `@/lib/api` 통해서만** — 직접 `fetch` 호출 금지
+- **타입은 `@/types/index.ts`에서 관리** — 컴포넌트 파일에 인터페이스 정의 금지
+
+### 에러 처리 패턴
+
+```typescript
+const [error, setError] = useState<string | null>(null);
+
+try {
+  const result = await api.someMethod();
+} catch (e) {
+  setError(e instanceof Error ? e.message : '오류가 발생했습니다.');
+}
+```
+
+### 새 API 함수 추가 시
+
+1. `frontend/src/lib/api.ts` — `api` 객체에 메서드 추가
+2. `frontend/src/types/index.ts` — 응답 타입 인터페이스 추가
+3. 환경변수 없음 — `BASE_URL`은 `NEXT_PUBLIC_API_URL`로 이미 관리됨
+
+---
+
+## 환경변수 관리
+
+새 환경변수를 추가할 때 **모든 위치**를 동시에 수정한다.
+
+### 백엔드 환경변수 추가 체크리스트
+
+| 파일 | 액션 |
+|---|---|
+| `backend/.env` | 실제 값 추가 (gitignore됨) |
+| `backend/.env.example` | placeholder 값으로 추가 |
+| `backend/src/...` | 사용 코드에서 `process.env.VAR_NAME` 참조 |
+| Railway Dashboard | Staging + Production 양쪽에 env var 추가 |
+
+### 프론트엔드 환경변수 추가 체크리스트
+
+| 파일 | 액션 |
+|---|---|
+| `frontend/.env.local` | 실제 값 추가 (gitignore됨) |
+| `frontend/.env.local.example` | placeholder 값으로 추가 |
+| Vercel Dashboard | `NEXT_PUBLIC_` prefix면 모든 환경, 아니면 서버 전용 |
+
+> **주의**: `NEXT_PUBLIC_` prefix 없는 프론트 env var는 클라이언트에 노출되지 않음.
+
+---
+
+## Prisma 스키마 변경 워크플로우
+
+```bash
+# 1. schema.prisma 수정
+
+# 2. 개발 환경 마이그레이션 생성 + 적용
+cd backend && npx prisma migrate dev --name 설명적인_마이그레이션명
+
+# 3. Prisma 클라이언트 재생성 (자동이지만 명시적으로)
+cd backend && npx prisma generate
+
+# 4. 타입스크립트 오류 확인 후 커밋
+cd backend && npm run lint:check
+```
+
+> Railway 운영 DB는 배포 시 `npx prisma migrate deploy`가 자동 실행됨 (`package.json` start script 확인).
 
 ---
 
