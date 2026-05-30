@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/grinvi04/drivertree/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/grinvi04/drivertree/actions/workflows/ci.yml)
 [![Tests](https://img.shields.io/badge/tests-53%20passed-brightgreen)](https://github.com/grinvi04/drivertree/actions)
-[![Live](https://img.shields.io/badge/live-drivetree.vercel.app-blue)](https://drivetree.vercel.app)
+[![Live](https://img.shields.io/badge/live-drivertree.vercel.app-blue)](https://drivertree.vercel.app)
 
 > **"면허 학원도, 유튜브도, 공식 사이트도 알려주지 않는, 초보운전자가 진짜 막막한 순간들을 정리한 가이드"**
 
@@ -43,8 +43,8 @@ NestJS + Next.js + PostgreSQL 풀스택 서비스. 자세한 기획은 [`PRD.md`
 - **fix(auth)**: 하드코딩된 시크릿 제거 — ADMIN_PASSWORD·JWT_SECRET 환경변수 필수화
 - **fix(ci)**: JWT_REFRESH_SECRET 누락으로 auth 테스트 실패 수정
 - **fix(security)**: P1 보안 취약점 3종 수정
-- **fix(콘텐츠)**: 마크다운 테이블 및 GFM callout 렌더링 추가
 - **feat(frontend)**: Apple 디자인 시스템 전면 적용
+- **perf(frontend)**: modularizeImports로 lucide-react 번들 최적화
 
 ---
 
