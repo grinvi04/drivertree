@@ -18,24 +18,26 @@ async function capture() {
 
   // 2. 챗봇 데모
   await page.goto(BASE_URL, { waitUntil: 'networkidle' });
-  await page.waitForTimeout(2000);
   await page.click('button[aria-label="AI 챗봇 열기"]');
   await page.waitForSelector('#chat-input', { state: 'visible' });
   await page.fill('#chat-input', '비보호좌회전 언제 할 수 있어?');
   await page.keyboard.press('Enter');
-  await page.waitForTimeout(4000);
+  await page.waitForSelector('button[aria-label="도움됐어요"]', { state: 'visible', timeout: 10000 });
   await page.screenshot({ path: `${OUT_DIR}/02-chatbot.png`, fullPage: false });
   console.log('✅ 02-chatbot.png');
 
   // 3. 관리자 대시보드
-  await page.goto(`${BASE_URL}/admin/login`, { waitUntil: 'networkidle' });
-  await page.waitForTimeout(1000);
-  await page.fill('#admin-username', 'admin');
-  await page.fill('#admin-password', process.env.ADMIN_PASSWORD || '');
-  await page.keyboard.press('Enter');
-  await page.waitForTimeout(3000);
-  await page.screenshot({ path: `${OUT_DIR}/03-admin.png`, fullPage: false });
-  console.log('✅ 03-admin.png');
+  if (!process.env.ADMIN_PASSWORD) {
+    console.warn('⚠️ ADMIN_PASSWORD 환경변수가 설정되지 않아 관리자 대시보드 스크린샷 캡처를 건너뜁니다.');
+  } else {
+    await page.goto(`${BASE_URL}/admin/login`, { waitUntil: 'networkidle' });
+    await page.fill('#admin-username', 'admin');
+    await page.fill('#admin-password', process.env.ADMIN_PASSWORD);
+    await page.keyboard.press('Enter');
+    await page.waitForURL(`${BASE_URL}/admin/dashboard`, { waitUntil: 'networkidle' });
+    await page.screenshot({ path: `${OUT_DIR}/03-admin.png`, fullPage: false });
+    console.log('✅ 03-admin.png');
+  }
 
   await browser.close();
   console.log('\n완료. docs/screenshots/ 확인');
