@@ -27,9 +27,6 @@ jobs:
     name: Backend — lint · build · test
     runs-on: ubuntu-latest
 
-    # develop / main 에서는 GitHub Environment 레이블을 붙여 배포 상태를 추적
-    environment: ${{ github.ref == 'refs/heads/main' && 'production' || github.ref == 'refs/heads/develop' && 'staging' || '' }}
-
     services:
       postgres:
         image: pgvector/pgvector:pg16
@@ -91,8 +88,6 @@ jobs:
   frontend:
     name: Frontend — lint · build · e2e
     runs-on: ubuntu-latest
-
-    environment: ${{ github.ref == 'refs/heads/main' && 'production' || github.ref == 'refs/heads/develop' && 'staging' || '' }}
 
     env:
       NEXT_PUBLIC_API_URL: http://localhost:4000/api
