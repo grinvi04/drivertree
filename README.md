@@ -48,35 +48,43 @@ NestJS + Next.js + PostgreSQL 풀스택 서비스. 자세한 기획은 [`PRD.md`
 
 ---
 
+## 📸 스크린샷
+
+| 메인 페이지 | AI 챗봇 | 관리자 대시보드 |
+|---|---|---|
+| ![메인 페이지](docs/screenshots/01-main.png) | ![AI 챗봇](docs/screenshots/02-chatbot.png) | ![관리자 대시보드](docs/screenshots/03-admin.png) |
+
+---
+
 ## 🏗️ 아키텍처
 
-```
-사용자 브라우저
-      │
-      ▼
-┌─────────────────────────────────┐
-│  Vercel (Next.js 16)            │
-│  SSG 가이드 + CSR 챗봇/계산기    │
-└───────────────┬─────────────────┘
-                │ HTTPS  (httpOnly Cookie)
-                ▼
-┌─────────────────────────────────┐
-│  Railway (NestJS 11, 포트 4000) │
-│  ┌──────────────────────────┐   │
-│  │ ThrottlerGuard (Rate Limit)│  │
-│  │ JWT Guard (httpOnly Cookie)│  │
-│  │ AllExceptionsFilter (Sentry)│ │
-│  └──────────────────────────┘   │
-│  auth · content · chat          │
-│  calculator                     │
-└───────────────┬─────────────────┘
-                │
-                ▼
-┌─────────────────────────────────┐
-│  Neon PostgreSQL (pgvector)     │
-│  content · chat_log             │
-│  refresh_token · penalty_rule   │
-└─────────────────────────────────┘
+```mermaid
+graph TD
+    User(["👤 사용자 브라우저"])
+
+    subgraph Vercel["▲ Vercel"]
+        FE["Next.js 16\nSSG 가이드 · ISR 1h revalidate\nCSR 챗봇 · 계산기 · 관리자"]
+    end
+
+    subgraph Railway["🚂 Railway"]
+        Guard["ThrottlerGuard · JWT Guard\nAllExceptionsFilter"]
+        BE["NestJS 11\nauth · content · chat · calculator"]
+        Guard --> BE
+    end
+
+    subgraph Neon["🐘 Neon PostgreSQL + pgvector"]
+        DB["content · chat_log\nrefresh_token · penalty_rule"]
+    end
+
+    subgraph CI["⚙️ GitHub Actions"]
+        CICD["lint → build → test\n브랜치 보호 · 자동 배포"]
+    end
+
+    User -->|"HTTPS"| FE
+    FE -->|"HTTPS · httpOnly Cookie\nAccess 15분 + Refresh 7일"| Guard
+    BE -->|"SQL + pgvector"| DB
+    CICD -->|"main push"| Railway
+    CICD -->|"main push"| Vercel
 ```
 
 ---
