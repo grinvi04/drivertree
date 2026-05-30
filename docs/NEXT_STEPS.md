@@ -28,16 +28,7 @@
 
 ### P0 — 즉시 처리
 
-- [ ] **Vercel `NEXT_PUBLIC_SITE_URL` 설정**
-  - Vercel 대시보드 → Settings → Environment Variables → Production 환경에 추가
-  - Key: `NEXT_PUBLIC_SITE_URL` / Value: `https://drivetree.vercel.app`
-  - sitemap.xml에서 사용 (현재 fallback 값 `https://drivetree.vercel.app`으로 동작 중)
-
-- [ ] **Sentry DSN 설정**
-  - https://sentry.io 에서 Node.js 프로젝트 생성 → DSN 발급
-  - Railway Production + Staging Variables에 `SENTRY_DSN` 추가
-  - 프론트: `@sentry/nextjs` 셋업 (별도 작업)
-  - 코드는 이미 완성됨 (`SENTRY_DSN` env가 있으면 자동 활성화)
+- [x] **Vercel `NEXT_PUBLIC_SITE_URL` 설정** — 완료 (2026-05-27)
 
 ### P1 — 공공 API 연동 ~~(진행 중)~~ → ❌ 전면 취소 (2026-05-29)
 
@@ -62,6 +53,7 @@
 ### P3 — 보류
 
 - ⏸️ **사용자 가치 검증** — 실사용 데이터(Vercel Analytics) 기반으로 검토
+- ⏸️ **Sentry 에러 모니터링** — 실사용자 생기면 그때 검토 (코드는 이미 완성, `SENTRY_DSN` env만 넣으면 활성화)
 
 ---
 

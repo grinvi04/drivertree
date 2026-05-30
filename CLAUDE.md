@@ -26,6 +26,30 @@ UI 작업 전 반드시 읽을 것:
 
 ---
 
+## 커맨드 강제 사용 규칙
+
+**`backend/src/` 또는 `frontend/src/` 파일을 수정·생성할 때는 반드시 아래 커맨드를 먼저 실행한다. 직접 편집 금지.**
+
+| 상황 | 커맨드 |
+|---|---|
+| 운영 중 긴급 버그 (main 기준) | `/hotfix <name> "<증상>"` |
+| 새 기능 추가 (develop 기준) | `/feature-add <name> "<설명>"` |
+| 기존 기능 변경 (develop 기준) | `/feature-modify <name> "<설명>"` |
+| 콘텐츠 추가 | `/content-add "<주제>" <category>` |
+| 릴리즈 전 검증 | `/release-check` |
+| 릴리즈 실행 | `/release <version>` |
+
+**예외** (슬래시 커맨드 없이 직접 편집 허용 — 단, Git Flow 브랜치 규칙은 동일 적용):
+- `.claude/`, `CLAUDE.md`, `README.md` 등 설정·문서
+- `package.json`, `docker-compose.yml` 등 인프라 설정
+- `backend/prisma/` 스키마 (`prisma migrate dev` 워크플로우 사용)
+
+**커밋은 파일 종류와 무관하게 항상 feature/fix/hotfix/release 브랜치에서 할 것.**
+
+**커맨드를 건너뛰고 싶으면 멈추고 사용자에게 먼저 물어볼 것.**
+
+---
+
 ## 멀티에이전트 슬래시 커맨드
 
 | 커맨드 | 병렬 에이전트 |

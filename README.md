@@ -40,43 +40,51 @@ NestJS + Next.js + PostgreSQL 풀스택 서비스. 자세한 기획은 [`PRD.md`
 
 ## 📝 최근 변경사항
 
+- **fix(readme)**: Vercel URL 오타 수정 — drivetree → drivertree
 - **fix(auth)**: 하드코딩된 시크릿 제거 — ADMIN_PASSWORD·JWT_SECRET 환경변수 필수화
 - **fix(ci)**: JWT_REFRESH_SECRET 누락으로 auth 테스트 실패 수정
 - **fix(security)**: P1 보안 취약점 3종 수정
-- **feat(frontend)**: Apple 디자인 시스템 전면 적용
-- **perf(frontend)**: modularizeImports로 lucide-react 번들 최적화
+- **fix(콘텐츠)**: 마크다운 테이블 및 GFM callout 렌더링 추가
+
+---
+
+## 📸 스크린샷
+
+| 메인 페이지 | AI 챗봇 | 관리자 대시보드 |
+|---|---|---|
+| ![메인 페이지](docs/screenshots/01-main.png) | ![AI 챗봇](docs/screenshots/02-chatbot.png) | ![관리자 대시보드](docs/screenshots/03-admin.png) |
 
 ---
 
 ## 🏗️ 아키텍처
 
-```
-사용자 브라우저
-      │
-      ▼
-┌─────────────────────────────────┐
-│  Vercel (Next.js 16)            │
-│  SSG 가이드 + CSR 챗봇/계산기    │
-└───────────────┬─────────────────┘
-                │ HTTPS  (httpOnly Cookie)
-                ▼
-┌─────────────────────────────────┐
-│  Railway (NestJS 11, 포트 4000) │
-│  ┌──────────────────────────┐   │
-│  │ ThrottlerGuard (Rate Limit)│  │
-│  │ JWT Guard (httpOnly Cookie)│  │
-│  │ AllExceptionsFilter (Sentry)│ │
-│  └──────────────────────────┘   │
-│  auth · content · chat          │
-│  calculator                     │
-└───────────────┬─────────────────┘
-                │
-                ▼
-┌─────────────────────────────────┐
-│  Neon PostgreSQL (pgvector)     │
-│  content · chat_log             │
-│  refresh_token · penalty_rule   │
-└─────────────────────────────────┘
+```mermaid
+graph TD
+    User(["👤 사용자 브라우저"])
+
+    subgraph Vercel["▲ Vercel"]
+        FE["Next.js 16\nSSG 가이드 · ISR 1h revalidate\nCSR 챗봇 · 계산기 · 관리자"]
+    end
+
+    subgraph Railway["🚂 Railway"]
+        Guard["ThrottlerGuard · JWT Guard\nAllExceptionsFilter"]
+        BE["NestJS 11\nauth · content · chat · calculator"]
+        Guard --> BE
+    end
+
+    subgraph Neon["🐘 Neon PostgreSQL + pgvector"]
+        DB["content · chat_log\nrefresh_token · penalty_rule"]
+    end
+
+    subgraph CI["⚙️ GitHub Actions"]
+        CICD["lint → build → test\n브랜치 보호 · 자동 배포"]
+    end
+
+    User -->|"HTTPS"| FE
+    FE -->|"HTTPS · httpOnly Cookie\nAccess 15분 + Refresh 7일"| Guard
+    BE -->|"SQL + pgvector"| DB
+    CICD -->|"main push"| Railway
+    CICD -->|"main push"| Vercel
 ```
 
 ---
