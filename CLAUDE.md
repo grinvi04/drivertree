@@ -28,36 +28,49 @@ UI 작업 전 반드시 읽을 것:
 
 ## 커맨드 강제 사용 규칙
 
-**`backend/src/` 또는 `frontend/src/` 파일을 수정·생성할 때는 반드시 아래 커맨드를 먼저 실행한다. 직접 편집 금지.**
+> **모든 작업 시작 전**: 어떤 슬래시 커맨드를 사용할지 먼저 선언하고 사용자 확인을 받을 것. 파일 종류·작업 크기와 무관하게 예외 없음.
+
+**파일 수정·생성·삭제 및 git 작업 전에 반드시 아래 커맨드를 먼저 실행한다.**
 
 | 상황 | 커맨드 |
 |---|---|
 | 운영 중 긴급 버그 (main 기준) | `/hotfix <name> "<증상>"` |
 | 새 기능 추가 (develop 기준) | `/feature-add <name> "<설명>"` |
 | 기존 기능 변경 (develop 기준) | `/feature-modify <name> "<설명>"` |
+| feature 브랜치 → develop 머지 | `/feature-merge` |
 | 콘텐츠 추가 | `/content-add "<주제>" <category>` |
 | 릴리즈 전 검증 | `/release-check` |
 | 릴리즈 실행 | `/release <version>` |
+| `.claude/`·인프라 파일 변경 | `/feature-modify <name> "<설명>"` |
+| 작업 계획 수립 | `/work-plan "<설명>"` |
 
-**예외** (슬래시 커맨드 없이 직접 편집 허용 — 단, Git Flow 브랜치 규칙은 동일 적용):
-- `.claude/`, `CLAUDE.md`, `README.md` 등 설정·문서
-- `package.json`, `docker-compose.yml` 등 인프라 설정
+**예외 (파일 편집에만 해당 — git 작업은 예외 없이 커맨드 필수)**:
+- `.claude/`, `CLAUDE.md`, `README.md`, `package.json`, `docker-compose.yml` 등은 슬래시 커맨드 없이 **파일 편집만** 허용
 - `backend/prisma/` 스키마 (`prisma migrate dev` 워크플로우 사용)
+- 단, 브랜치 생성·커밋·머지는 반드시 위 커맨드를 통할 것. 직접 git 명령 금지.
 
 **커밋은 파일 종류와 무관하게 항상 feature/fix/hotfix/release 브랜치에서 할 것.**
 
-**커맨드를 건너뛰고 싶으면 멈추고 사용자에게 먼저 물어볼 것.**
+**커맨드가 없거나 불명확하면 멈추고 사용자에게 먼저 물어볼 것. 임의로 판단하지 말 것.**
 
 ---
 
-## 멀티에이전트 슬래시 커맨드
+## 슬래시 커맨드 목록
 
-| 커맨드 | 병렬 에이전트 |
-|---|---|
-| `/feature-add <name> "<설명>"` | 백엔드 + 프론트엔드 |
-| `/release-check` | 백엔드·프론트 품질 + 보안 + README |
-| `/content-add "<주제>" <category>` | 본문 + SEO |
-| `/design-qa` | Apple 토큰 준수 + WCAG 접근성 |
+슬래시 커맨드: `/work-plan`, `/feature-add`, `/feature-modify`, `/feature-merge`, `/hotfix`, `/content-add`, `/design-qa`, `/release-check`, `/release`, `/init`
+
+| 커맨드 | 용도 | 병렬 에이전트 |
+|---|---|---|
+| `/work-plan "<설명>"` | 작업 계획 수립 | — |
+| `/feature-add <name> "<설명>"` | 새 기능 추가 | 백엔드 + 프론트엔드 |
+| `/feature-modify <name> "<설명>"` | 기존 기능 변경 | 백엔드 + 프론트엔드 |
+| `/feature-merge` | feature → develop 머지 | — |
+| `/hotfix <name> "<증상>"` | 긴급 버그 수정 | — |
+| `/content-add "<주제>" <category>` | 콘텐츠 추가 | 본문 + SEO |
+| `/design-qa` | 디자인 검증 | Apple 토큰 준수 + WCAG |
+| `/release-check` | 릴리즈 전 검증 | 백엔드·프론트 품질 + 보안 + README |
+| `/release <version>` | 릴리즈 실행 | — |
+| `/init` | 프로젝트 초기화·현황 파악 | — |
 
 ---
 
