@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import sanitizeHtml from 'sanitize-html';
 import { ArrowLeft, Calendar, Tag, ChevronRight, BookOpen } from 'lucide-react';
 import type { GuideContent, PaginatedResult } from '@/types';
 import { CATEGORIES } from '@/constants/categories';
@@ -212,7 +213,10 @@ export default async function ContentDetailPage({ params }: PageProps) {
 
   const recommendations = await getRelated(post.category, post.id);
 
-  const sanitizedHtml = renderMarkdown(post.content);
+  const sanitizedHtml = sanitizeHtml(renderMarkdown(post.content), {
+    allowedTags: sanitizeHtml.defaults.allowedTags.concat(['h2', 'h3', 'h4', 'del']),
+    allowedAttributes: { '*': ['style'] },
+  });
 
   const catInfo = CATEGORIES.find((c) => c.id === post.category) ?? CATEGORIES[0];
   const CatIcon = catInfo.icon;
