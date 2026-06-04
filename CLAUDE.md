@@ -78,12 +78,15 @@ UI 작업 전 반드시 읽을 것:
 
 | 브랜치 | 직접 커밋 |
 |---|---|
-| `main`, `develop` | ❌ 금지 |
+| `main`, `develop` | ❌ **절대 금지 — 배포 크래시, 긴급 버그 등 어떤 상황도 예외 없음** |
 | `feature/*`, `fix/*`, `hotfix/*`, `release/*` | ✅ |
 
-**기능 개발**: `develop → feature/xxx → develop (--no-ff)`  
-**긴급 수정**: `main → hotfix/xxx → main (tag) + develop (--no-ff)` ← develop 누락 금지  
-**릴리즈**: `develop → release/vX.X.X → main (tag) + develop (--no-ff)`
+**기능 개발**: `develop → feature/xxx → PR → develop`
+**긴급 수정**: `develop → fix/xxx → PR → develop` (배포 중 버그, 마이그레이션 누락 등 포함)
+**운영 핫픽스**: `main → hotfix/xxx → PR → main (tag) + develop`
+**릴리즈**: `develop → release/vX.X.X → PR → main (tag) + develop`
+
+> ⛔ "빠르게 해야 한다", "작은 수정이다", "긴급하다" — 모두 브랜치를 건너뛸 이유가 되지 않는다.
 
 ---
 
