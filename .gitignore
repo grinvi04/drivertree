@@ -41,3 +41,6 @@ yarn-error.log*
 .claude/
 CLAUDE.local.md
 .vercel
+
+# Claude Code / Harness
+CLAUDE.md
