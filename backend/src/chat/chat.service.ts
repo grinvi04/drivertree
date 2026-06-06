@@ -175,15 +175,7 @@ ${message}`;
       },
     });
 
-    const res = new ChatResponseDto();
-    res.id = log.id;
-    res.sessionKey = log.sessionKey;
-    res.userMessage = log.userMessage;
-    res.botResponse = log.botResponse;
-    res.matchedSources = log.matchedSources;
-    res.feedback = log.feedback;
-    res.createdAt = log.createdAt;
-    return res;
+    return new ChatResponseDto(log);
   }
 
   /**
@@ -249,15 +241,7 @@ ${message}`;
       },
     });
 
-    const res = new ChatResponseDto();
-    res.id = log.id;
-    res.sessionKey = log.sessionKey;
-    res.userMessage = log.userMessage;
-    res.botResponse = log.botResponse;
-    res.matchedSources = log.matchedSources;
-    res.feedback = log.feedback;
-    res.createdAt = log.createdAt;
-    return res;
+    return new ChatResponseDto(log);
   }
 
   /**

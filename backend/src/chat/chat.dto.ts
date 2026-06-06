@@ -40,4 +40,8 @@ export class ChatResponseDto {
   matchedSources: unknown;
   feedback: string;
   createdAt: Date;
+
+  constructor(partial: Partial<ChatResponseDto>) {
+    Object.assign(this, partial);
+  }
 }
