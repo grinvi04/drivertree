@@ -123,4 +123,4 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 2. **Git Flow**: `main`, `develop` 직접 커밋 절대 금지. 반드시 feature/fix/hotfix/release 브랜치 → PR 경유.
 3. **커맨드 우회 금지**: 커맨드 파일의 Phase 순서·서브에이전트·검증 게이트를 정확히 따른다. Bash 직접 우회 금지.
 4. **`npm install` 사용** (not `npm ci`) — npm 10.x + wasm32 lock 파일 버그.
-5. **커밋 전 검사**: 백엔드 `npm run format && npm run lint:check && npm test`, 프론트 `npm run build`.
+5. **커밋 전 검사**: 백엔드 `cd backend && npm run format && npm run lint:check && npm test`, 프론트 `cd frontend && npm run build`.
