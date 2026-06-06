@@ -30,8 +30,9 @@ describe('AppController (e2e)', () => {
       .get('/api')
       .expect(200)
       .expect((res) => {
-        expect(res.body.status).toBe('ok');
-        expect(res.body.service).toBe('drivetree-backend');
+        const body = res.body as { status: string; service: string };
+        expect(body.status).toBe('ok');
+        expect(body.service).toBe('drivetree-backend');
       });
   });
 
@@ -40,12 +41,14 @@ describe('AppController (e2e)', () => {
       .get('/api/health')
       .expect(200)
       .expect((res) => {
-        expect(res.body.status).toBe('ok');
-        expect(typeof res.body.uptime).toBe('number');
-        expect(typeof res.body.timestamp).toBe('string');
-        expect(new Date(res.body.timestamp).toISOString()).toBe(
-          res.body.timestamp,
-        );
+        const body = res.body as {
+          status: string;
+          uptime: number;
+          timestamp: string;
+        };
+        expect(body.status).toBe('ok');
+        expect(typeof body.uptime).toBe('number');
+        expect(new Date(body.timestamp).toISOString()).toBe(body.timestamp);
       });
   });
 });
