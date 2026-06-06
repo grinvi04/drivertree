@@ -31,3 +31,13 @@ export class FeedbackChatDto {
 }
 
 export class ChatLogQueryDto extends PaginationQueryDto {}
+
+export class ChatResponseDto {
+  id: string;
+  sessionKey: string;
+  userMessage: string;
+  botResponse: string;
+  matchedSources: unknown;
+  feedback: string;
+  createdAt: Date;
+}

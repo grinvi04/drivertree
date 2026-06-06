@@ -2,28 +2,50 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
-import { AppModule } from './../src/app.module';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { AppController } from './../src/app.controller';
+import { AppService } from './../src/app.service';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication<App>;
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [ThrottlerModule.forRoot([])],
+      controllers: [AppController],
+      providers: [AppService],
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.setGlobalPrefix('api');
     await app.init();
-  });
-
-  it('/ (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
   });
 
   afterEach(async () => {
     await app.close();
+  });
+
+  it('GET /api → 200, status ok, service drivetree-backend', () => {
+    return request(app.getHttpServer())
+      .get('/api')
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.status).toBe('ok');
+        expect(res.body.service).toBe('drivetree-backend');
+      });
+  });
+
+  it('GET /api/health → 200, status ok, uptime(number), timestamp(ISO string)', () => {
+    return request(app.getHttpServer())
+      .get('/api/health')
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.status).toBe('ok');
+        expect(typeof res.body.uptime).toBe('number');
+        expect(typeof res.body.timestamp).toBe('string');
+        expect(new Date(res.body.timestamp).toISOString()).toBe(
+          res.body.timestamp,
+        );
+      });
   });
 });
