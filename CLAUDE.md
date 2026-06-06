@@ -6,14 +6,6 @@
 
 ---
 
-## 코딩 전 원칙
-
-1. **가정하지 말고 물어라** — 해석이 여러 가지면 조용히 고르지 말고 제시한다
-2. **최소 코드** — 요청한 것만. 200줄이 50줄로 가능하면 다시 쓴다
-3. **외과적 수정** — 내 변경이 만든 orphan만 정리. 기존 코드 손대지 않는다
-4. **성공 기준 먼저** — 멀티스텝 작업은 `[단계] → 검증: [방법]` 형식으로 계획 제시
-
----
 
 ## 디자인 레퍼런스
 
@@ -120,3 +112,15 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 - 백엔드 수정 후 커밋 전: `cd backend && npm run format && npm run lint:check && npm test`
 - 프론트 수정 후 커밋 전: `cd frontend && npm run build`
 - **PostToolUse hook이 저장 시 자동 검사** — 실패하면 수정 후 재시도
+
+---
+
+## Compact Instructions
+
+컨텍스트 압축 후에도 반드시 유지해야 할 핵심 규칙:
+
+1. **슬래시 커맨드 강제**: 파일 수정·git 작업 전 반드시 해당 커맨드 선언 후 사용자 확인. 예외 없음.
+2. **Git Flow**: `main`, `develop` 직접 커밋 절대 금지. 반드시 feature/fix/hotfix/release 브랜치 → PR 경유.
+3. **커맨드 우회 금지**: 커맨드 파일의 Phase 순서·서브에이전트·검증 게이트를 정확히 따른다. Bash 직접 우회 금지.
+4. **`npm install` 사용** (not `npm ci`) — npm 10.x + wasm32 lock 파일 버그.
+5. **커밋 전 검사**: 백엔드 `npm run format && npm run lint:check && npm test`, 프론트 `npm run build`.
