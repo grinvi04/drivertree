@@ -40,11 +40,11 @@ NestJS + Next.js + PostgreSQL 풀스택 서비스. 자세한 기획은 [`PRD.md`
 
 ## 📝 최근 변경사항
 
-- **fix(readme)**: Vercel URL 오타 수정 — drivetree → drivertree
-- **fix(auth)**: 하드코딩된 시크릿 제거 — ADMIN_PASSWORD·JWT_SECRET 환경변수 필수화
-- **fix(ci)**: JWT_REFRESH_SECRET 누락으로 auth 테스트 실패 수정
-- **fix(security)**: P1 보안 취약점 3종 수정
-- **fix(콘텐츠)**: 마크다운 테이블 및 GFM callout 렌더링 추가
+- **fix(test)**: e2e 스펙 any 타입 캐스팅 — ESLint no-unsafe-member-access 수정
+- **feat(chat)**: P2/P3 품질 개선 — e2e 테스트 보강 및 ResponseDto 매핑
+- **fix**: Gemini 리뷰 반영 — 커밋 전 검사 cd 경로 추가
+- **fix(harness)**: 커맨드 테이블에 fix/* 긴급 수정 항목 추가
+- **fix(harness)**: git flow 규칙 강화 — 긴급상황 예외 없음 명시
 
 ---
 

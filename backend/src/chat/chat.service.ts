@@ -1,7 +1,12 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
-import { AskChatDto, FeedbackChatDto, ChatLogQueryDto } from './chat.dto';
+import {
+  AskChatDto,
+  FeedbackChatDto,
+  ChatLogQueryDto,
+  ChatResponseDto,
+} from './chat.dto';
 import { GeminiService } from '../common/gemini.service';
 import { RAG_CONFIG } from '../common/constants/rag.config';
 import { rankContents } from '../common/local-nlp.helper';
@@ -92,7 +97,7 @@ export class ChatService {
   /**
    * 챗봇 자연어 질의에 대해 답변을 생성하고 출처를 매칭합니다.
    */
-  async ask(dto: AskChatDto) {
+  async ask(dto: AskChatDto): Promise<ChatResponseDto> {
     const { message, sessionKey } = dto;
     let botResponse = '';
     let matchedSources: MatchedSource[] = [];
@@ -170,13 +175,16 @@ ${message}`;
       },
     });
 
-    return log;
+    return new ChatResponseDto(log);
   }
 
   /**
    * API Key가 없거나 LLM 장애 발생 시 가동하는 로컬 NLP 폴백 RAG 엔진
    */
-  private async localNlpFallback(message: string, sessionKey: string) {
+  private async localNlpFallback(
+    message: string,
+    sessionKey: string,
+  ): Promise<ChatResponseDto> {
     const allContents = await this.prisma.content.findMany({
       select: { id: true, title: true, content: true, slug: true },
     });
@@ -233,7 +241,7 @@ ${message}`;
       },
     });
 
-    return log;
+    return new ChatResponseDto(log);
   }
 
   /**
