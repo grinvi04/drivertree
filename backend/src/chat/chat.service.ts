@@ -29,7 +29,7 @@ interface SemanticChunk {
 /**
  * 챗봇 답변에 첨부되는 출처 카드 — id/title/slug 만 노출.
  */
-interface MatchedSource {
+export interface MatchedSource {
   id: string;
   title: string;
   slug: string;
@@ -187,6 +187,7 @@ ${message}`;
   ): Promise<ChatResponseDto> {
     const allContents = await this.prisma.content.findMany({
       select: { id: true, title: true, content: true, slug: true },
+      take: 100,
     });
 
     const ranked = rankContents(message, allContents, 2);

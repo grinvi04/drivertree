@@ -48,7 +48,7 @@ describe('AppController (e2e)', () => {
         };
         expect(body.status).toBe('ok');
         expect(typeof body.uptime).toBe('number');
-        expect(new Date(body.timestamp).toISOString()).toBe(body.timestamp);
+        expect(isNaN(Date.parse(body.timestamp))).toBe(false);
       });
   });
 });

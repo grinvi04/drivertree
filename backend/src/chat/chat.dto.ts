@@ -7,6 +7,7 @@ import {
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { PaginationQueryDto } from '../common/dto/pagination.dto';
+import { MatchedSource } from './chat.service';
 
 export class AskChatDto {
   @ApiProperty({ example: '비보호 좌회전은 어떻게 하나요?', maxLength: 200 })
@@ -37,7 +38,7 @@ export class ChatResponseDto {
   sessionKey: string;
   userMessage: string;
   botResponse: string;
-  matchedSources: unknown;
+  matchedSources: MatchedSource[] | null;
   feedback: string;
   createdAt: Date;
 
