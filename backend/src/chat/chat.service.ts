@@ -6,6 +6,7 @@ import {
   FeedbackChatDto,
   ChatLogQueryDto,
   ChatResponseDto,
+  MatchedSource,
 } from './chat.dto';
 import { GeminiService } from '../common/gemini.service';
 import { RAG_CONFIG } from '../common/constants/rag.config';
@@ -24,15 +25,6 @@ interface SemanticChunk {
   distance: number;
   contentTitle: string;
   contentSlug: string;
-}
-
-/**
- * 챗봇 답변에 첨부되는 출처 카드 — id/title/slug 만 노출.
- */
-interface MatchedSource {
-  id: string;
-  title: string;
-  slug: string;
 }
 
 @Injectable()
@@ -175,7 +167,10 @@ ${message}`;
       },
     });
 
-    return new ChatResponseDto(log);
+    return new ChatResponseDto({
+      ...log,
+      matchedSources: log.matchedSources as MatchedSource[] | null,
+    });
   }
 
   /**
@@ -187,6 +182,8 @@ ${message}`;
   ): Promise<ChatResponseDto> {
     const allContents = await this.prisma.content.findMany({
       select: { id: true, title: true, content: true, slug: true },
+      orderBy: { createdAt: 'desc' },
+      take: 100, // TODO: 인메모리 랭킹 성능 문제를 해결하기 위해 추후 DB 검색(Full-text/Vector) 도입 검토
     });
 
     const ranked = rankContents(message, allContents, 2);
@@ -241,7 +238,10 @@ ${message}`;
       },
     });
 
-    return new ChatResponseDto(log);
+    return new ChatResponseDto({
+      ...log,
+      matchedSources: log.matchedSources as MatchedSource[] | null,
+    });
   }
 
   /**

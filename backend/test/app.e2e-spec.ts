@@ -48,7 +48,9 @@ describe('AppController (e2e)', () => {
         };
         expect(body.status).toBe('ok');
         expect(typeof body.uptime).toBe('number');
-        expect(new Date(body.timestamp).toISOString()).toBe(body.timestamp);
+        expect(body.timestamp).toMatch(
+          /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/,
+        );
       });
   });
 });

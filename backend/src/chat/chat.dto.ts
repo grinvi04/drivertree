@@ -8,6 +8,15 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import { PaginationQueryDto } from '../common/dto/pagination.dto';
 
+/**
+ * 챗봇 답변에 첨부되는 출처 카드 — id/title/slug 만 노출.
+ */
+export interface MatchedSource {
+  id: string;
+  title: string;
+  slug: string;
+}
+
 export class AskChatDto {
   @ApiProperty({ example: '비보호 좌회전은 어떻게 하나요?', maxLength: 200 })
   @IsString()
@@ -37,7 +46,7 @@ export class ChatResponseDto {
   sessionKey: string;
   userMessage: string;
   botResponse: string;
-  matchedSources: unknown;
+  matchedSources: MatchedSource[] | null;
   feedback: string;
   createdAt: Date;
 
