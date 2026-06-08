@@ -110,7 +110,7 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 
 ## CI 주의사항
 
-- **`npm install` 사용** (not `npm ci`) — npm 10.x + wasm32 optional 패키지 lock 파일 버그
+- **`npm ci` 사용** — 2026-06-09 클린 재생성 fix 이후 표준. `npm install`은 incremental drift를 마스킹함
 - 백엔드 수정 후 커밋 전: `cd backend && npm run format && npm run lint:check && npm test`
 - 프론트 수정 후 커밋 전: `cd frontend && npm run build`
 - **PostToolUse hook이 저장 시 자동 검사** — 실패하면 수정 후 재시도
@@ -124,5 +124,5 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 1. **슬래시 커맨드 강제**: 파일 수정·git 작업 전 반드시 해당 커맨드 선언 후 사용자 확인. 예외 없음.
 2. **Git Flow**: `main`, `develop` 직접 커밋 절대 금지. 반드시 feature/fix/hotfix/release 브랜치 → PR 경유.
 3. **커맨드 우회 금지**: 커맨드 파일의 Phase 순서·서브에이전트·검증 게이트를 정확히 따른다. Bash 직접 우회 금지.
-4. **`npm install` 사용** (not `npm ci`) — npm 10.x + wasm32 lock 파일 버그.
+4. **`npm ci` 사용** — 2026-06-09 fix 이후 표준. `npm install` 사용 금지.
 5. **커밋 전 검사**: 백엔드 `cd backend && npm run format && npm run lint:check && npm test`, 프론트 `cd frontend && npm run build`.
