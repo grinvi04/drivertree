@@ -35,7 +35,7 @@ UI 작업 전 반드시 읽을 것:
 | 릴리즈 전 검증 | `/release-check` |
 | 릴리즈 실행 | `/release <version>` |
 | 추적되는 인프라 파일 변경 (`package.json`, `docker-compose.yml` 등) | `/feature-modify <name> "<설명>"` |
-| `.claude/` 커맨드·훅 변경 | 슬래시 커맨드·PR 불필요 (gitignore) — harness 원본(`~/project/harness`) 수정 후 직접 동기화 |
+| `.claude/` 커맨드·훅 변경 | 슬래시 커맨드·PR 불필요 (gitignore) — harness 원본(로컬 체크아웃, 예: `~/project/harness`) 수정 후 직접 동기화 |
 | 작업 계획 수립 | `/work-plan "<설명>"` |
 
 **예외 (파일 편집에만 해당 — git 작업은 예외 없이 커맨드 필수)**:
