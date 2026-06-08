@@ -6,6 +6,7 @@ import {
   FeedbackChatDto,
   ChatLogQueryDto,
   ChatResponseDto,
+  MatchedSource,
 } from './chat.dto';
 import { GeminiService } from '../common/gemini.service';
 import { RAG_CONFIG } from '../common/constants/rag.config';
@@ -24,15 +25,6 @@ interface SemanticChunk {
   distance: number;
   contentTitle: string;
   contentSlug: string;
-}
-
-/**
- * 챗봇 답변에 첨부되는 출처 카드 — id/title/slug 만 노출.
- */
-export interface MatchedSource {
-  id: string;
-  title: string;
-  slug: string;
 }
 
 @Injectable()
@@ -190,6 +182,7 @@ ${message}`;
   ): Promise<ChatResponseDto> {
     const allContents = await this.prisma.content.findMany({
       select: { id: true, title: true, content: true, slug: true },
+      orderBy: { createdAt: 'desc' },
       take: 100,
     });
 
