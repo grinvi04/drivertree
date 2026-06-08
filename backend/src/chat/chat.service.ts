@@ -183,7 +183,7 @@ ${message}`;
     const allContents = await this.prisma.content.findMany({
       select: { id: true, title: true, content: true, slug: true },
       orderBy: { createdAt: 'desc' },
-      take: 100,
+      take: 100, // TODO: 인메모리 랭킹 성능 문제를 해결하기 위해 추후 DB 검색(Full-text/Vector) 도입 검토
     });
 
     const ranked = rankContents(message, allContents, 2);
