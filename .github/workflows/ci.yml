@@ -66,9 +66,9 @@ jobs:
           cache-dependency-path: backend/package-lock.json
 
       - name: Install dependencies
-        # npm ci fails on optional wasm32/emnapi packages (npm 10.x + lock file bug).
-        # npm install skips platform-incompatible optional packages gracefully.
-        run: npm install
+        # lock 동기화를 강제해 drift를 PR 단계에서 차단 (Railway Nixpacks도 npm ci → 일관성).
+        # 과거 npm 10.x wasm32 optional 버그로 npm install 우회를 썼으나 lock 재생성으로 해소됨(node 22).
+        run: npm ci
 
       - name: Prisma generate
         run: npx prisma generate
@@ -108,9 +108,9 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
-        # npm ci fails on optional wasm32 packages (npm 10.x + lock file bug).
-        # npm install skips platform-incompatible optional packages gracefully.
-        run: npm install
+        # lock 동기화를 강제해 drift를 PR 단계에서 차단 (Railway Nixpacks도 npm ci → 일관성).
+        # 과거 npm 10.x wasm32 optional 버그로 npm install 우회를 썼으나 lock 재생성으로 해소됨(node 22).
+        run: npm ci
 
       - name: Lint
         run: npm run lint --if-present
