@@ -40,11 +40,9 @@ NestJS + Next.js + PostgreSQL 풀스택 서비스. 자세한 기획은 [`PRD.md`
 
 ## 📝 최근 변경사항
 
-- **fix(test)**: e2e 스펙 any 타입 캐스팅 — ESLint no-unsafe-member-access 수정
-- **feat(chat)**: P2/P3 품질 개선 — e2e 테스트 보강 및 ResponseDto 매핑
-- **fix**: Gemini 리뷰 반영 — 커밋 전 검사 cd 경로 추가
-- **fix(harness)**: 커맨드 테이블에 fix/* 긴급 수정 항목 추가
-- **fix(harness)**: git flow 규칙 강화 — 긴급상황 예외 없음 명시
+- **fix(chat)**: Gemini 2차 리뷰 반영 — 순환참조 해소·정렬·정규식 검증
+- **fix(chat)**: ChatResponseDto 생성 시 Prisma JsonValue → MatchedSource[] 캐스팅
+- **fix(chat)**: Gemini 코드 리뷰 반영 — 타입 명시, 쿼리 제한, e2e 검증 개선
 
 ---
 
