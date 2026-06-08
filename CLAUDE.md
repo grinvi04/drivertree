@@ -35,13 +35,13 @@ UI 작업 전 반드시 읽을 것:
 | 릴리즈 전 검증 | `/release-check` |
 | 릴리즈 실행 | `/release <version>` |
 | 추적되는 인프라 파일 변경 (`package.json`, `docker-compose.yml` 등) | `/feature-modify <name> "<설명>"` |
-| `.claude/` 커맨드·훅 변경 | 슬래시 커맨드·PR 불필요 (gitignore) — harness 원본(로컬 체크아웃, 예: `~/project/harness`) 수정 후 직접 동기화 |
+| `.claude/` 커맨드·훅 변경 | 슬래시 커맨드·PR 불필요 (`.gitignore`로 Git 추적 제외) — harness 원본(로컬 체크아웃, 예: `~/project/harness`) 수정 후 직접 동기화 |
 | 작업 계획 수립 | `/work-plan "<설명>"` |
 
 **예외 (파일 편집에만 해당 — git 작업은 예외 없이 커맨드 필수)**:
 - `CLAUDE.md`, `README.md`, `package.json`, `docker-compose.yml` 등 **추적 파일**은 슬래시 커맨드 없이 편집하되, 커밋·PR은 아래 git 규칙을 따른다
 - `backend/prisma/` 스키마 (`prisma migrate dev` 워크플로우 사용)
-- `.claude/`는 gitignore(버전 관리 외)이므로 git 작업 자체가 없다 → 직접 편집이 곧 반영. 커맨드/훅 변경은 harness 원본 수정 후 동기화
+- `.claude/`는 `.gitignore`에 의해 Git 추적에서 제외되므로 git 작업 자체가 없다 → 직접 편집이 곧 반영. 커맨드/훅 변경은 harness 원본 수정 후 동기화
 - 단, **추적 파일**의 브랜치 생성·커밋·머지는 반드시 위 커맨드를 통할 것. 직접 git 명령 금지.
 
 **커밋은 파일 종류와 무관하게 항상 feature/fix/hotfix/release 브랜치에서 할 것.**
