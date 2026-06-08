@@ -175,7 +175,10 @@ ${message}`;
       },
     });
 
-    return new ChatResponseDto(log);
+    return new ChatResponseDto({
+      ...log,
+      matchedSources: log.matchedSources as MatchedSource[] | null,
+    });
   }
 
   /**
@@ -242,7 +245,10 @@ ${message}`;
       },
     });
 
-    return new ChatResponseDto(log);
+    return new ChatResponseDto({
+      ...log,
+      matchedSources: log.matchedSources as MatchedSource[] | null,
+    });
   }
 
   /**
