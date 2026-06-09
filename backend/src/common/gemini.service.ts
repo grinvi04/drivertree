@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI, EmbedContentRequest } from '@google/generative-ai';
 import { RAG_CONFIG } from './constants/rag.config';
 
 @Injectable()
@@ -22,7 +22,13 @@ export class GeminiService {
       const model = this.genAI.getGenerativeModel({
         model: RAG_CONFIG.EMBEDDING_MODEL,
       });
-      const result = await model.embedContent(text);
+      // gemini-embedding-001 기본 차원은 3072 → DB vector(768)에 맞춰 명시.
+      // outputDimensionality는 SDK 0.24.1 타입에 누락돼 있으나 API는 지원하므로 교차 타입으로 보강.
+      const request: EmbedContentRequest & { outputDimensionality: number } = {
+        content: { role: 'user', parts: [{ text }] },
+        outputDimensionality: RAG_CONFIG.EMBEDDING_DIMENSION,
+      };
+      const result = await model.embedContent(request);
       return result.embedding.values;
     } catch (error) {
       this.logger.error(
