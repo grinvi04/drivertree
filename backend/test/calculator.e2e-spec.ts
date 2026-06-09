@@ -8,7 +8,8 @@ import { CalculatorService } from './../src/calculator/calculator.service';
 describe('CalculatorController (e2e)', () => {
   let app: INestApplication<App>;
 
-  beforeEach(async () => {
+  // CalculatorController/Service는 상태가 없어 앱 인스턴스를 테스트 간 공유 가능 → 1회만 초기화
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       controllers: [CalculatorController],
       providers: [CalculatorService],
@@ -19,7 +20,7 @@ describe('CalculatorController (e2e)', () => {
     await app.init();
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await app.close();
   });
 
