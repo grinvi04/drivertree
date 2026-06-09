@@ -1,7 +1,7 @@
 # 🌳 DriveTree — 초보운전자 가이드
 
 [![CI](https://github.com/grinvi04/drivertree/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/grinvi04/drivertree/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-53%20passed-brightgreen)](https://github.com/grinvi04/drivertree/actions)
+[![Tests](https://img.shields.io/badge/tests-57%20passed-brightgreen)](https://github.com/grinvi04/drivertree/actions)
 [![Live](https://img.shields.io/badge/live-drivertree.vercel.app-blue)](https://drivertree.vercel.app)
 
 > **"면허 학원도, 유튜브도, 공식 사이트도 알려주지 않는, 초보운전자가 진짜 막막한 순간들을 정리한 가이드"**
@@ -32,7 +32,7 @@ NestJS + Next.js + PostgreSQL 풀스택 서비스. 자세한 기획은 [`PRD.md`
 | 챗봇 | TF-IDF + 코사인 유사도 기반 로컬 NLP (pgvector 벡터 검색 연동) |
 | 캐시 | `@nestjs/cache-manager` — 콘텐츠 목록 60초 인메모리 캐시 |
 | 관측 | 구조화 로깅 + AllExceptionsFilter (5xx → Sentry) + RequestLoggerMiddleware |
-| 테스트 | Jest 유닛 테스트 53개 (5개 스위트) · 100% 통과 |
+| 테스트 | Jest 유닛 테스트 57개 (6개 스위트) · 100% 통과 |
 | CI/CD | GitHub Actions (lint + build + test) → Railway Staging (`develop`) / Production (`main`) + Vercel |
 | 인프라 | Docker Compose (로컬) / Neon PostgreSQL · Railway · Vercel (운영) |
 
@@ -40,6 +40,7 @@ NestJS + Next.js + PostgreSQL 풀스택 서비스. 자세한 기획은 [`PRD.md`
 
 ## 📝 최근 변경사항
 
+- **fix(chat)**: 퇴역한 Gemini 모델명 교체(gemini-2.5-flash·gemini-embedding-001) 및 임베딩 차원 명시
 - **fix(chat)**: Gemini 2차 리뷰 반영 — 순환참조 해소·정렬·정규식 검증
 - **fix(chat)**: ChatResponseDto 생성 시 Prisma JsonValue → MatchedSource[] 캐스팅
 - **fix(chat)**: Gemini 코드 리뷰 반영 — 타입 명시, 쿼리 제한, e2e 검증 개선
