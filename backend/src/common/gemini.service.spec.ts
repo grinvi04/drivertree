@@ -8,11 +8,11 @@ describe('GeminiService', () => {
   const embedContent = jest.fn();
   const generateContent = jest.fn();
   const getGenerativeModel = jest.fn();
-  const OLD_ENV = process.env;
+  const ORIGINAL_KEY = process.env.GEMINI_API_KEY;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    process.env = { ...OLD_ENV, GEMINI_API_KEY: 'test-key' };
+    process.env.GEMINI_API_KEY = 'test-key';
     getGenerativeModel.mockReturnValue({ embedContent, generateContent });
     (GoogleGenerativeAI as unknown as jest.Mock).mockImplementation(() => ({
       getGenerativeModel,
@@ -20,7 +20,11 @@ describe('GeminiService', () => {
   });
 
   afterAll(() => {
-    process.env = OLD_ENV;
+    if (ORIGINAL_KEY === undefined) {
+      delete process.env.GEMINI_API_KEY;
+    } else {
+      process.env.GEMINI_API_KEY = ORIGINAL_KEY;
+    }
   });
 
   it('RAG_CONFIG: 현행 사용 가능한 모델·차원으로 설정되어 있다', () => {
