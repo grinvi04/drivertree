@@ -47,7 +47,7 @@ describe('CalculatorController (e2e)', () => {
   });
 
   describe('POST /api/calculator/maintenance', () => {
-    it('200 → sedan/gasoline 유지비를 결정적 값으로 계산한다', () => {
+    it('201 → sedan/gasoline 유지비를 결정적 값으로 계산한다', () => {
       return request(app.getHttpServer())
         .post('/api/calculator/maintenance')
         .send({
@@ -77,7 +77,7 @@ describe('CalculatorController (e2e)', () => {
         });
     });
 
-    it('200 → compact/electric은 전기차 세금·정비비 분기를 적용한다', () => {
+    it('201 → compact/electric은 전기차 세금·정비비 분기를 적용한다', () => {
       return request(app.getHttpServer())
         .post('/api/calculator/maintenance')
         .send({
