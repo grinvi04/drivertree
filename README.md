@@ -202,10 +202,28 @@ Swagger UI: `http://localhost:4000/api/docs`
 
 ---
 
+## 🧪 테스트
+
+```bash
+cd backend  && npm test        # Jest 유닛 57개 (6 스위트)
+cd frontend && npm run build   # 타입체크 + 빌드
+# 전체 품질 체크: make quality
+```
+
+## 🛠️ 개발 규칙
+
+- 브랜치: `develop → feature/* | fix/* → PR → develop` · 릴리즈 `release/* → main(tag)`. **`main`·`develop` 직접 커밋 금지.**
+- 커밋: `타입(범위): 제목` (`feat`·`fix`·`refactor`·`test`·`docs`·`chore`·`ci`)
+- 의존성은 `npm ci` 사용. 작업 규약·아키텍처는 [CLAUDE.md](CLAUDE.md) 참고.
+
+## 📚 관련 문서
+
+[PRD.md](PRD.md) (기획) · [CLAUDE.md](CLAUDE.md) (작업 규칙) · [DESIGN.md](DESIGN.md) · [DESIGN_IMPL.md](DESIGN_IMPL.md) (디자인)
+
 ## 🛡️ 면책
 
 본 사이트의 범칙금 · 유지비 수치는 공식 자료 기반의 **추정값**이며 실제 처분과 다를 수 있습니다. 운전 관련 결정은 반드시 공식 자료를 직접 확인해 주세요.
 
 ## 📜 라이선스
 
-MIT
+[MIT](LICENSE)
