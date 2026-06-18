@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import Link from "next/link";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -20,6 +20,10 @@ export const metadata: Metadata = {
     description: "진짜 막막한 도로 위 상황을 해결해주는 AI 챗봇과 실전 가이드",
     type: "website",
   }
+};
+
+export const viewport: Viewport = {
+  themeColor: "#000000",
 };
 
 export default function RootLayout({
