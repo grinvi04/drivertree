@@ -205,9 +205,9 @@ Swagger UI: `http://localhost:4000/api/docs`
 ## 🧪 테스트
 
 ```bash
-cd backend  && npm test        # Jest 유닛 57개 (6 스위트)
-cd frontend && npm run build   # 타입체크 + 빌드
-# 전체 품질 체크: make quality
+(cd backend  && npm test)        # Jest 유닛 57개 (6 스위트)
+(cd frontend && npm run build)   # 타입체크 + 빌드
+make quality                     # 전체 품질 체크 (루트)
 ```
 
 ## 🛠️ 개발 규칙
