@@ -50,6 +50,7 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 - 백엔드 품질(format·lint·test): `cd backend && npm run format && npm run lint:check && npm test`
 - 백엔드 테스트만: `cd backend && npm test`
 - 프론트 빌드: `cd frontend && npm run build`
-- 프론트 e2e: `cd frontend && npm run test:e2e` (Playwright) — 프론트 단위 테스트 러너는 미설정
+- 프론트 단위 테스트: `cd frontend && npm run test:unit` (vitest + @testing-library/react)
+- 프론트 e2e: `cd frontend && npm run test:e2e` (Playwright)
 - **`npm ci` 사용** — 2026-06-09 클린 재생성 fix 이후 표준. `npm install`은 incremental drift를 마스킹함
 - **PostToolUse hook이 저장 시 자동 검사** — 실패하면 수정 후 재시도
