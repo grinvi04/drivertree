@@ -2,7 +2,9 @@ import type { MetadataRoute } from 'next';
 import type { GuideContent, PaginatedResult } from '@/types';
 
 const BASE_API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://drivertree.vercel.app';
+const SITE_URL = (
+  process.env.NEXT_PUBLIC_SITE_URL || 'https://drivertree.vercel.app'
+).replace(/\/$/, '');
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let contentUrls: MetadataRoute.Sitemap = [];
