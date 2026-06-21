@@ -8,12 +8,14 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import { PaginationQueryDto } from '../common/dto/pagination.dto';
 
-/**
- * 챗봇 답변에 첨부되는 출처 카드 — id/title/slug 만 노출.
- */
-export interface MatchedSource {
+export class MatchedSource {
+  @ApiProperty({ example: 'content-uuid' })
   id: string;
+
+  @ApiProperty({ example: '비보호 좌회전 방법' })
   title: string;
+
+  @ApiProperty({ example: 'unprotected-left-turn' })
   slug: string;
 }
 
@@ -42,12 +44,25 @@ export class FeedbackChatDto {
 export class ChatLogQueryDto extends PaginationQueryDto {}
 
 export class ChatResponseDto {
+  @ApiProperty({ example: 'chat-uuid' })
   id: string;
+
+  @ApiProperty({ example: 'session-uuid' })
   sessionKey: string;
+
+  @ApiProperty({ example: '비보호 좌회전은 어떻게 하나요?' })
   userMessage: string;
+
+  @ApiProperty({ example: '비보호 좌회전은 신호 없이...' })
   botResponse: string;
+
+  @ApiProperty({ type: () => MatchedSource, isArray: true, nullable: true })
   matchedSources: MatchedSource[] | null;
+
+  @ApiProperty({ enum: ['like', 'dislike', 'none'], example: 'none' })
   feedback: string;
+
+  @ApiProperty({ example: '2024-01-01T00:00:00.000Z' })
   createdAt: Date;
 
   constructor(partial: Partial<ChatResponseDto>) {
