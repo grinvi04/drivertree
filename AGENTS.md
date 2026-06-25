@@ -54,3 +54,7 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 - 프론트 e2e: `cd frontend && npm run test:e2e` (Playwright)
 - **`npm ci` 사용** — 2026-06-09 클린 재생성 fix 이후 표준. `npm install`은 incremental drift를 마스킹함
 - **PostToolUse hook이 저장 시 자동 검사** — 실패하면 수정 후 재시도
+
+## 문서 관리
+
+> **생성 문서는 repo에 커밋한다.** AI 도구가 만든 계획·설계 문서(`/plan` 스펙, `/milestone` 추적, 설계 결정 기록 등)는 도구 로컬 디렉터리(예: `~/.claude/plans`)에 두지 말고 프로젝트 `docs/` 아래에 커밋해 관리한다. 로컬 캐시는 노트북·도구·세션이 바뀌면 유실된다 — repo에 있어야 누가·어디서 이어받아도 일관되게 작업할 수 있다. (공통 규칙 단일 출처: team-harness `ai-collaboration.md`.)
