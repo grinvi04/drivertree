@@ -58,3 +58,17 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 ## 문서 관리
 
 > **생성 문서는 repo에 커밋한다.** AI 도구가 만든 계획·설계 문서(`/plan` 스펙, `/milestone` 추적, 설계 결정 기록 등)는 도구 로컬 디렉터리(예: `~/.claude/plans`)에 두지 말고 프로젝트 `docs/` 아래에 커밋해 관리한다. 로컬 캐시는 노트북·도구·세션이 바뀌면 유실된다 — repo에 있어야 누가·어디서 이어받아도 일관되게 작업할 수 있다. (공통 규칙 단일 출처: team-harness `ai-collaboration.md`.)
+
+## 배포·헬스체크
+
+| 환경 | 백엔드(Railway) | 프론트(Vercel) | DB(Neon) |
+|---|---|---|---|
+| Production | `https://drivertree-production.up.railway.app` | `https://drivertree.vercel.app` | DriverTree / production |
+| Staging | `https://drivertree-staging.up.railway.app` | (Vercel preview) | DriverTree / staging |
+
+- 백엔드 헬스: `curl -sf https://drivertree-production.up.railway.app/api/health` (200)
+- 프론트 헬스: `curl -sf -o /dev/null -w "%{http_code}" https://drivertree.vercel.app`
+
+**배포 신선도** (team-harness `operations.md` §6 — liveness ≠ freshness): 200만 보지 말고 최신 배포가 릴리즈 커밋과 일치하는지 확인.
+- `railway deployment list` (최신 SUCCESS commit = 방금 릴리즈) · `vercel ls drivertree` · `neonctl branches list --project-id weathered-breeze-14664744`(ready)
+- 배포 정체 시: ① 연결 브랜치(prod→main) ② **계정 리소스/크레딧 한도** ③ GitHub 웹훅 순 점검
