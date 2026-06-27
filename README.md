@@ -69,34 +69,41 @@ NestJS + Next.js + PostgreSQL 풀스택 서비스. 자세한 기획은 [`PRD.md`
 
 ## 🏗️ 아키텍처
 
+![아키텍처 다이어그램](docs/architecture.png)
+
+<details>
+<summary>mermaid 소스 (GitHub 웹에선 차트로 렌더)</summary>
+
 ```mermaid
 graph TD
     User(["👤 사용자 브라우저"])
 
     subgraph Vercel["▲ Vercel"]
-        FE["Next.js 16\nSSG 가이드 · ISR 1h revalidate\nCSR 챗봇 · 계산기 · 관리자"]
+        FE["Next.js 16<br/>SSG 가이드 · ISR 1h revalidate<br/>CSR 챗봇 · 계산기 · 관리자"]
     end
 
     subgraph Railway["🚂 Railway"]
-        Guard["ThrottlerGuard · JWT Guard\nAllExceptionsFilter"]
-        BE["NestJS 11\nauth · content · chat · calculator"]
+        Guard["ThrottlerGuard · JWT Guard<br/>AllExceptionsFilter"]
+        BE["NestJS 11<br/>auth · content · chat · calculator"]
         Guard --> BE
     end
 
     subgraph Neon["🐘 Neon PostgreSQL + pgvector"]
-        DB["content · chat_log\nrefresh_token · penalty_rule"]
+        DB["content · chat_log<br/>refresh_token · penalty_rule"]
     end
 
     subgraph CI["⚙️ GitHub Actions"]
-        CICD["lint → build → test\n브랜치 보호 · 자동 배포"]
+        CICD["lint → build → test<br/>브랜치 보호 · 자동 배포"]
     end
 
     User -->|"HTTPS"| FE
-    FE -->|"HTTPS · httpOnly Cookie\nAccess 15분 + Refresh 7일"| Guard
+    FE -->|"HTTPS · httpOnly Cookie<br/>Access 15분 + Refresh 7일"| Guard
     BE -->|"SQL + pgvector"| DB
     CICD -->|"main push"| Railway
     CICD -->|"main push"| Vercel
 ```
+
+</details>
 
 **핵심 원칙**
 
