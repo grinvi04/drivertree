@@ -76,6 +76,9 @@ jobs:
       - name: Prisma migrate deploy
         run: npx prisma migrate deploy
 
+      - name: Format check
+        run: npm run format:check
+
       - name: Lint
         run: npm run lint:check
 
@@ -111,6 +114,9 @@ jobs:
         # lock 동기화를 강제(npm ci)해 drift를 PR 단계에서 차단. Railway Nixpacks도 npm ci → 일관.
         # 과거 npm install 우회는 불완전 lock을 마스킹했음 → 클린 재생성 lock으로 해소(2026-06-08).
         run: npm ci
+
+      - name: Format check
+        run: npm run format:check
 
       - name: Lint
         run: npm run lint --if-present

@@ -1,15 +1,15 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
-import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
-import { CacheModule } from '@nestjs/cache-manager';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { PrismaModule } from './prisma.module';
-import { AuthModule } from './auth/auth.module';
-import { ContentModule } from './content/content.module';
-import { ChatModule } from './chat/chat.module';
-import { CalculatorModule } from './calculator/calculator.module';
-import { RequestLoggerMiddleware } from './common/request-logger.middleware';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common'
+import { APP_GUARD } from '@nestjs/core'
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler'
+import { CacheModule } from '@nestjs/cache-manager'
+import { AppController } from './app.controller'
+import { AppService } from './app.service'
+import { PrismaModule } from './prisma.module'
+import { AuthModule } from './auth/auth.module'
+import { ContentModule } from './content/content.module'
+import { ChatModule } from './chat/chat.module'
+import { CalculatorModule } from './calculator/calculator.module'
+import { RequestLoggerMiddleware } from './common/request-logger.middleware'
 
 @Module({
   imports: [
@@ -40,6 +40,6 @@ export class AppModule implements NestModule {
    * 헬스체크 노이즈는 미들웨어 내부에서 debug 레벨로 강등.
    */
   configure(consumer: MiddlewareConsumer): void {
-    consumer.apply(RequestLoggerMiddleware).forRoutes('*');
+    consumer.apply(RequestLoggerMiddleware).forRoutes('*')
   }
 }

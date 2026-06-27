@@ -1,24 +1,24 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common'
 
 // 범칙금/과태료 기준 데이터 (도로교통공단 공식 정보 요약 기반)
 export interface PenaltyRule {
-  id: string;
-  name: string;
-  category: string;
-  fineNormal: number; // 일반 도로 과태료 (승용차 기준)
-  fineChildZone: number; // 어린이 보호구역 과태료 (승용차 기준)
-  penaltyNormal: number; // 일반 도로 범칙금 (승용차 기준)
-  penaltyChildZone: number; // 어린이 보호구역 범칙금 (승용차 기준)
-  pointsNormal: number; // 일반 도로 벌점
-  pointsChildZone: number; // 어린이 보호구역 벌점
-  description: string;
+  id: string
+  name: string
+  category: string
+  fineNormal: number // 일반 도로 과태료 (승용차 기준)
+  fineChildZone: number // 어린이 보호구역 과태료 (승용차 기준)
+  penaltyNormal: number // 일반 도로 범칙금 (승용차 기준)
+  penaltyChildZone: number // 어린이 보호구역 범칙금 (승용차 기준)
+  pointsNormal: number // 일반 도로 벌점
+  pointsChildZone: number // 어린이 보호구역 벌점
+  description: string
 }
 
 export interface MaintenanceInput {
-  carType: 'compact' | 'sedan' | 'suv' | 'large';
-  fuelType: 'gasoline' | 'diesel' | 'electric';
-  annualMileage: number; // 연간 주행거리 (km)
-  insuranceCost: number; // 연간 보험료 (원)
+  carType: 'compact' | 'sedan' | 'suv' | 'large'
+  fuelType: 'gasoline' | 'diesel' | 'electric'
+  annualMileage: number // 연간 주행거리 (km)
+  insuranceCost: number // 연간 보험료 (원)
 }
 
 @Injectable()
@@ -34,8 +34,7 @@ export class CalculatorService {
       penaltyChildZone: 120000,
       pointsNormal: 15,
       pointsChildZone: 30,
-      description:
-        '적색 신호나 꼬리물기, 좌회전 금지 구역에서 신호를 위반한 경우 적용됩니다.',
+      description: '적색 신호나 꼬리물기, 좌회전 금지 구역에서 신호를 위반한 경우 적용됩니다.',
     },
     {
       id: 'speed_20_under',
@@ -60,8 +59,7 @@ export class CalculatorService {
       penaltyChildZone: 90000,
       pointsNormal: 15,
       pointsChildZone: 30,
-      description:
-        '제한속도를 20km/h 초과 40km/h 이하로 주행하여 단속된 경우입니다.',
+      description: '제한속도를 20km/h 초과 40km/h 이하로 주행하여 단속된 경우입니다.',
     },
     {
       id: 'speed_40_60',
@@ -114,106 +112,103 @@ export class CalculatorService {
       pointsChildZone: 0,
       description: '운전석 및 동승자 전 좌석 안전띠 착용은 필수 의무입니다.',
     },
-  ];
+  ]
 
   /**
    * 전체 위반 항목 규정 목록을 가져옵니다.
    */
   getPenaltyRules(): PenaltyRule[] {
-    return this.penaltyRules;
+    return this.penaltyRules
   }
 
   /**
    * 차량 유지비를 정밀 연산합니다.
    */
   calculateMaintenance(input: MaintenanceInput) {
-    const { carType, fuelType, annualMileage, insuranceCost } = input;
+    const { carType, fuelType, annualMileage, insuranceCost } = input
 
     // 1. 연비 및 연료 가격 세팅
-    let fuelEfficiency = 12.0; // km/L (또는 km/kWh)
-    let fuelUnitPrice = 1650; // 원/L (또는 원/kWh)
+    let fuelEfficiency = 12.0 // km/L (또는 km/kWh)
+    let fuelUnitPrice = 1650 // 원/L (또는 원/kWh)
 
     // 차종별 연비 보정
     switch (carType) {
       case 'compact':
-        fuelEfficiency = fuelType === 'electric' ? 6.0 : 15.5;
-        break;
+        fuelEfficiency = fuelType === 'electric' ? 6.0 : 15.5
+        break
       case 'sedan':
-        fuelEfficiency = fuelType === 'electric' ? 5.2 : 12.5;
-        break;
+        fuelEfficiency = fuelType === 'electric' ? 5.2 : 12.5
+        break
       case 'suv':
-        fuelEfficiency = fuelType === 'electric' ? 4.5 : 11.0;
-        break;
+        fuelEfficiency = fuelType === 'electric' ? 4.5 : 11.0
+        break
       case 'large':
-        fuelEfficiency = fuelType === 'electric' ? 3.8 : 8.5;
-        break;
+        fuelEfficiency = fuelType === 'electric' ? 3.8 : 8.5
+        break
     }
 
     // 연료별 단가 세팅
     switch (fuelType) {
       case 'gasoline':
-        fuelUnitPrice = 1650;
-        break;
+        fuelUnitPrice = 1650
+        break
       case 'diesel':
-        fuelUnitPrice = 1500;
-        break;
+        fuelUnitPrice = 1500
+        break
       case 'electric':
-        fuelUnitPrice = 340; // 한전 전기차 충전 단가 평균 가정
-        break;
+        fuelUnitPrice = 340 // 한전 전기차 충전 단가 평균 가정
+        break
     }
 
     // 2. 항목별 연간 비용 계산
     // 연간 유류비 = (연간주행거리 / 연비) * 연료단가
-    const annualFuelCost = Math.round(
-      (annualMileage / fuelEfficiency) * fuelUnitPrice,
-    );
+    const annualFuelCost = Math.round((annualMileage / fuelEfficiency) * fuelUnitPrice)
 
     // 연간 세금 계산
-    let annualTax = 290000; // 준중형/중형 세단 기본세율 가정
+    let annualTax = 290000 // 준중형/중형 세단 기본세율 가정
     switch (carType) {
       case 'compact':
-        annualTax = 100000;
-        break;
+        annualTax = 100000
+        break
       case 'sedan':
-        annualTax = 290000; // 1,600cc 기준
-        break;
+        annualTax = 290000 // 1,600cc 기준
+        break
       case 'suv':
-        annualTax = 390000; // 2,000cc 기준
-        break;
+        annualTax = 390000 // 2,000cc 기준
+        break
       case 'large':
-        annualTax = 520000; // 2,500cc 이상 기준
-        break;
+        annualTax = 520000 // 2,500cc 이상 기준
+        break
     }
     if (fuelType === 'electric') {
-      annualTax = 130000; // 전기차 일괄 세액 적용 (지방세 포함)
+      annualTax = 130000 // 전기차 일괄 세액 적용 (지방세 포함)
     }
 
     // 연간 소모품 및 정비 점검비 추정
-    let annualMaintenanceCost = 350000;
+    let annualMaintenanceCost = 350000
     switch (carType) {
       case 'compact':
-        annualMaintenanceCost = 200000;
-        break;
+        annualMaintenanceCost = 200000
+        break
       case 'sedan':
-        annualMaintenanceCost = 350000;
-        break;
+        annualMaintenanceCost = 350000
+        break
       case 'suv':
-        annualMaintenanceCost = 450000;
-        break;
+        annualMaintenanceCost = 450000
+        break
       case 'large':
-        annualMaintenanceCost = 600000;
-        break;
+        annualMaintenanceCost = 600000
+        break
     }
     // 전기차는 오일류 소모품 비용이 매우 낮음 (30% 절감 가정)
     if (fuelType === 'electric') {
-      annualMaintenanceCost = Math.round(annualMaintenanceCost * 0.7);
+      annualMaintenanceCost = Math.round(annualMaintenanceCost * 0.7)
     }
 
-    const annualTotal =
-      annualFuelCost + annualTax + insuranceCost + annualMaintenanceCost;
+    const annualTotal = annualFuelCost + annualTax + insuranceCost + annualMaintenanceCost
 
     // 3. 월 평균 비용 도출
-    const monthlyTotal = Math.round(annualTotal / 12);
+    const monthlyTotal = Math.round(annualTotal / 12)
 
     return {
       annual: {
@@ -234,10 +229,8 @@ export class CalculatorService {
         fuelPercentage: Math.round((annualFuelCost / annualTotal) * 100),
         taxPercentage: Math.round((annualTax / annualTotal) * 100),
         insurancePercentage: Math.round((insuranceCost / annualTotal) * 100),
-        maintenancePercentage: Math.round(
-          (annualMaintenanceCost / annualTotal) * 100,
-        ),
+        maintenancePercentage: Math.round((annualMaintenanceCost / annualTotal) * 100),
       },
-    };
+    }
   }
 }

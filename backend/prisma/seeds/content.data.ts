@@ -1,9 +1,9 @@
 export interface SeedContent {
-  title: string;
-  slug: string;
-  category: string;
-  tags: string[];
-  content: string;
+  title: string
+  slug: string
+  category: string
+  tags: string[]
+  content: string
 }
 
 export const SEED_CONTENTS: SeedContent[] = [
@@ -160,4 +160,4 @@ export const SEED_CONTENTS: SeedContent[] = [
 > [!TIP]
 > **차량 매뉴얼이 가장 정확합니다.** 위 수치는 일반론이고, 본인 차량 매뉴얼의 권장 주기·오일 등급을 우선 확인해 주세요.`,
   },
-];
+]

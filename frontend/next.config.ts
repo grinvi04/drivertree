@@ -1,4 +1,4 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next'
 
 /**
  * 보안 헤더 — XSS, clickjacking, MIME sniffing 등 일반적 웹 공격 방어 라인
@@ -18,12 +18,12 @@ import type { NextConfig } from "next";
  */
 const apiOrigin = process.env.NEXT_PUBLIC_API_URL
   ? new URL(process.env.NEXT_PUBLIC_API_URL).origin
-  : "http://localhost:4000";
+  : 'http://localhost:4000'
 
 const cspDirectives = [
   "default-src 'self'",
   // dev는 HMR을 위해 unsafe-eval 추가, production은 unsafe-inline 만(eval 차단)
-  process.env.NODE_ENV === "production"
+  process.env.NODE_ENV === 'production'
     ? "script-src 'self' 'unsafe-inline'"
     : "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
   // Tailwind v4 + React inline styles
@@ -35,32 +35,32 @@ const cspDirectives = [
   "base-uri 'self'",
   "form-action 'self'",
   "object-src 'none'",
-];
+]
 
 const securityHeaders = [
-  { key: "Content-Security-Policy", value: cspDirectives.join("; ") },
-  { key: "X-Content-Type-Options", value: "nosniff" },
-  { key: "X-Frame-Options", value: "DENY" },
-  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
-];
+  { key: 'Content-Security-Policy', value: cspDirectives.join('; ') },
+  { key: 'X-Content-Type-Options', value: 'nosniff' },
+  { key: 'X-Frame-Options', value: 'DENY' },
+  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+]
 
 const nextConfig: NextConfig = {
   // lucide-react 1.x는 배럴 파일에 tree-shaking 미작동 — 개별 아이콘 파일로 리라이트
   modularizeImports: {
-    "lucide-react": {
-      transform: "lucide-react/dist/esm/icons/{{kebabCase member}}",
+    'lucide-react': {
+      transform: 'lucide-react/dist/esm/icons/{{kebabCase member}}',
       preventFullImport: true,
     },
   },
   async headers() {
     return [
       {
-        source: "/:path*",
+        source: '/:path*',
         headers: securityHeaders,
       },
-    ];
+    ]
   },
-};
+}
 
-export default nextConfig;
+export default nextConfig
