@@ -7,7 +7,7 @@ NestJS + Next.js + PostgreSQL 풀스택 서비스. 자세한 기획은 [`PRD.md`
 [![CI](https://github.com/grinvi04/drivertree/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/grinvi04/drivertree/actions/workflows/ci.yml)
 [![Tests](https://img.shields.io/badge/tests-57%20passed-brightgreen)](https://github.com/grinvi04/drivertree/actions)
 [![Live](https://img.shields.io/badge/live-drivertree.vercel.app-blue)](https://drivertree.vercel.app)
-[![version](https://img.shields.io/badge/version-1.6.0-blue)](https://github.com/grinvi04/drivertree/releases)
+[![version](https://img.shields.io/badge/version-1.6.1-blue)](https://github.com/grinvi04/drivertree/releases)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 ---
