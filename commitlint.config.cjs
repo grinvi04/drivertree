@@ -1,4 +1,5 @@
-// commitlint.config.js — Conventional Commits 강제 (commitlint가 CI에서 검사)
+// commitlint.config.cjs — Conventional Commits 강제 (commitlint가 CI에서 검사)
+// .cjs 확장자: wagoid/commitlint-github-action v6 컨테이너가 .js를 ESM으로 취급해 CommonJS module.exports가 깨짐.
 // 타입은 영어, 제목·본문은 한국어 허용. 단일 출처: team-harness code-review.md
 // new-repo.sh가 repo 루트에 복사하고, ci/commitlint.yml 워크플로가 PR 커밋을 검사한다.
 module.exports = {
