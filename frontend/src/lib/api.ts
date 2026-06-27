@@ -1,4 +1,4 @@
-import { ApiError } from '@/lib/errors';
+import { ApiError } from '@/lib/errors'
 import type {
   GuideContent,
   ChatMessage,
@@ -9,107 +9,111 @@ import type {
   AdminContent,
   ChatLog,
   PaginatedResult,
-} from '@/types';
+} from '@/types'
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'
 
 export interface ContentPayload {
-  title: string;
-  slug: string;
-  content: string;
-  category: string;
-  tags?: string[];
+  title: string
+  slug: string
+  content: string
+  category: string
+  tags?: string[]
 }
 
-export type ContentUpdatePayload = Partial<ContentPayload>;
+export type ContentUpdatePayload = Partial<ContentPayload>
 
 interface LoginResponse {
-  accessToken: string;
-  username: string;
+  accessToken: string
+  username: string
 }
 
 interface AskChatResponse {
-  id: string;
-  botResponse: string;
-  matchedSources?: MatchedSource[];
+  id: string
+  botResponse: string
+  matchedSources?: MatchedSource[]
 }
 
-let isRefreshing = false;
-let refreshPromise: Promise<void> | null = null;
+let isRefreshing = false
+let refreshPromise: Promise<void> | null = null
 
 async function tryRefresh(): Promise<void> {
   const res = await fetch(`${BASE_URL}/auth/refresh`, {
     method: 'POST',
     credentials: 'include',
-  });
-  if (!res.ok) throw new ApiError(401, '세션이 만료되었습니다. 다시 로그인하세요.');
+  })
+  if (!res.ok) throw new ApiError(401, '세션이 만료되었습니다. 다시 로그인하세요.')
 }
 
 async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const headers = new Headers(options.headers ?? {});
+  const headers = new Headers(options.headers ?? {})
 
   if (options.body && !(options.body instanceof FormData)) {
-    headers.set('Content-Type', 'application/json');
+    headers.set('Content-Type', 'application/json')
   }
 
-  let response: Response;
+  let response: Response
   try {
     response = await fetch(`${BASE_URL}${path}`, {
       ...options,
       headers,
       credentials: 'include',
-    });
+    })
   } catch {
-    throw new ApiError(0, '서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.');
+    throw new ApiError(0, '서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.')
   }
 
   // 401 — 액세스 토큰 만료 시 refresh 후 1회 재시도
   if (response.status === 401 && !path.startsWith('/auth/')) {
     if (!isRefreshing) {
-      isRefreshing = true;
+      isRefreshing = true
       refreshPromise = tryRefresh().finally(() => {
-        isRefreshing = false;
-        refreshPromise = null;
-      });
+        isRefreshing = false
+        refreshPromise = null
+      })
     }
     try {
-      await refreshPromise;
+      await refreshPromise
     } catch {
-      throw new ApiError(401, '세션이 만료되었습니다. 다시 로그인하세요.');
+      throw new ApiError(401, '세션이 만료되었습니다. 다시 로그인하세요.')
     }
 
     // 원래 요청 재시도
-    let retryResponse: Response;
+    let retryResponse: Response
     try {
       retryResponse = await fetch(`${BASE_URL}${path}`, {
         ...options,
         headers,
         credentials: 'include',
-      });
+      })
     } catch {
-      throw new ApiError(0, '서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.');
+      throw new ApiError(0, '서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.')
     }
     if (!retryResponse.ok) {
-      let message = '요청 처리 중 오류가 발생했습니다.';
+      let message = '요청 처리 중 오류가 발생했습니다.'
       try {
-        const errorData = (await retryResponse.json()) as { message?: string };
-        message = errorData.message ?? message;
-      } catch { /* ignore */ }
-      throw new ApiError(retryResponse.status, message);
+        const errorData = (await retryResponse.json()) as { message?: string }
+        message = errorData.message ?? message
+      } catch {
+        /* ignore */
+      }
+      throw new ApiError(retryResponse.status, message)
     }
-    return retryResponse.json() as Promise<T>;
+    return retryResponse.json() as Promise<T>
   }
 
   if (!response.ok) {
-    let message = '요청 처리 중 오류가 발생했습니다.';
+    let message = '요청 처리 중 오류가 발생했습니다.'
     try {
-      const errorData = (await response.json()) as { message?: string };
-      message = errorData.message ?? message;
-    } catch { /* ignore */ }
-    throw new ApiError(response.status, message);
+      const errorData = (await response.json()) as { message?: string }
+      message = errorData.message ?? message
+    } catch {
+      /* ignore */
+    }
+    throw new ApiError(response.status, message)
   }
 
-  return response.json() as Promise<T>;
+  return response.json() as Promise<T>
 }
 
 export const api = {
@@ -133,19 +137,18 @@ export const api = {
     page = 1,
     limit = 12,
   ): Promise<PaginatedResult<GuideContent>> => {
-    const params = new URLSearchParams();
-    if (category) params.append('category', category);
-    if (search) params.append('search', search);
-    params.append('page', String(page));
-    params.append('limit', String(limit));
-    return apiRequest<PaginatedResult<GuideContent>>(`/content?${params.toString()}`);
+    const params = new URLSearchParams()
+    if (category) params.append('category', category)
+    if (search) params.append('search', search)
+    params.append('page', String(page))
+    params.append('limit', String(limit))
+    return apiRequest<PaginatedResult<GuideContent>>(`/content?${params.toString()}`)
   },
 
   getContentBySlug: (slug: string): Promise<GuideContent> =>
     apiRequest<GuideContent>(`/content/slug/${slug}`),
 
-  getContentById: (id: string): Promise<GuideContent> =>
-    apiRequest<GuideContent>(`/content/${id}`),
+  getContentById: (id: string): Promise<GuideContent> => apiRequest<GuideContent>(`/content/${id}`),
 
   createContent: (data: ContentPayload): Promise<GuideContent> =>
     apiRequest<GuideContent>('/content', {
@@ -176,22 +179,19 @@ export const api = {
     }),
 
   getChatLogs: (page = 1, limit = 20): Promise<PaginatedResult<ChatLog>> => {
-    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
-    return apiRequest<PaginatedResult<ChatLog>>(`/chat/logs?${params.toString()}`);
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) })
+    return apiRequest<PaginatedResult<ChatLog>>(`/chat/logs?${params.toString()}`)
   },
 
   // Calculator
-  getPenalties: (): Promise<PenaltyRule[]> =>
-    apiRequest<PenaltyRule[]>('/calculator/penalties'),
+  getPenalties: (): Promise<PenaltyRule[]> => apiRequest<PenaltyRule[]>('/calculator/penalties'),
 
   calculateMaintenance: (data: MaintenanceInput): Promise<MaintenanceResult> =>
     apiRequest<MaintenanceResult>('/calculator/maintenance', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
-
-
-};
+}
 
 // 타입 re-export (하위 호환)
-export type { AdminContent };
+export type { AdminContent }

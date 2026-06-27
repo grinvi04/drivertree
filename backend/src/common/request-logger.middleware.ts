@@ -1,5 +1,5 @@
-import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
+import { Injectable, Logger, NestMiddleware } from '@nestjs/common'
+import { Request, Response, NextFunction } from 'express'
 
 /**
  * HTTP 요청·응답 로깅 미들웨어
@@ -14,32 +14,31 @@ import { Request, Response, NextFunction } from 'express';
  */
 @Injectable()
 export class RequestLoggerMiddleware implements NestMiddleware {
-  private readonly logger = new Logger('HTTP');
+  private readonly logger = new Logger('HTTP')
 
   use(req: Request, res: Response, next: NextFunction): void {
-    const startedAt = process.hrtime.bigint();
-    const { method, originalUrl } = req;
-    const ua = req.get('user-agent') ?? '-';
+    const startedAt = process.hrtime.bigint()
+    const { method, originalUrl } = req
+    const ua = req.get('user-agent') ?? '-'
 
     res.on('finish', () => {
-      const durationMs =
-        Number(process.hrtime.bigint() - startedAt) / 1_000_000;
-      const { statusCode } = res;
-      const contentLength = res.get('content-length') ?? '-';
-      const line = `${method} ${originalUrl} ${statusCode} ${contentLength}b ${durationMs.toFixed(1)}ms ua="${ua}"`;
+      const durationMs = Number(process.hrtime.bigint() - startedAt) / 1_000_000
+      const { statusCode } = res
+      const contentLength = res.get('content-length') ?? '-'
+      const line = `${method} ${originalUrl} ${statusCode} ${contentLength}b ${durationMs.toFixed(1)}ms ua="${ua}"`
 
       if (statusCode >= 500) {
-        this.logger.error(line);
+        this.logger.error(line)
       } else if (statusCode >= 400) {
-        this.logger.warn(line);
+        this.logger.warn(line)
       } else if (originalUrl === '/api' || originalUrl === '/api/health') {
         // 헬스체크 소음 줄이기 — debug 레벨은 NEST_LOG_LEVEL=debug 시에만 표시
-        this.logger.debug(line);
+        this.logger.debug(line)
       } else {
-        this.logger.log(line);
+        this.logger.log(line)
       }
-    });
+    })
 
-    next();
+    next()
   }
 }

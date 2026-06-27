@@ -1,4 +1,4 @@
-import { BookOpen, Car, ShieldAlert, Wrench, MapPin, FileText } from 'lucide-react';
+import { BookOpen, Car, ShieldAlert, Wrench, MapPin, FileText } from 'lucide-react'
 
 export const CATEGORIES = [
   {
@@ -37,6 +37,6 @@ export const CATEGORIES = [
     icon: ShieldAlert,
     desc: '접촉사고 5단계 절차 및 과태료 대처',
   },
-] as const;
+] as const
 
-export type CategoryId = (typeof CATEGORIES)[number]['id'];
+export type CategoryId = (typeof CATEGORIES)[number]['id']
