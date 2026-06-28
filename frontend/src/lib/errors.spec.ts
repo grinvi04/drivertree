@@ -26,4 +26,9 @@ describe('ApiError', () => {
     expect(e.name).toBe('ApiError');
     expect(e).toBeInstanceOf(Error);
   });
+
+  it('code: 백엔드 Envelope 코드를 보존(분기는 code로), 없으면 undefined', () => {
+    expect(new ApiError(400, 'bad', 'BAD_REQUEST').code).toBe('BAD_REQUEST');
+    expect(new ApiError(0, '네트워크 오류').code).toBeUndefined();
+  });
 });

@@ -91,22 +91,32 @@ async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T
     }
     if (!retryResponse.ok) {
       let message = '요청 처리 중 오류가 발생했습니다.';
+      let code: string | undefined;
       try {
-        const errorData = (await retryResponse.json()) as { message?: string };
+        const errorData = (await retryResponse.json()) as {
+          message?: string;
+          code?: string;
+        };
         message = errorData.message ?? message;
+        code = errorData.code;
       } catch { /* ignore */ }
-      throw new ApiError(retryResponse.status, message);
+      throw new ApiError(retryResponse.status, message, code);
     }
     return retryResponse.json() as Promise<T>;
   }
 
   if (!response.ok) {
     let message = '요청 처리 중 오류가 발생했습니다.';
+    let code: string | undefined;
     try {
-      const errorData = (await response.json()) as { message?: string };
+      const errorData = (await response.json()) as {
+        message?: string;
+        code?: string;
+      };
       message = errorData.message ?? message;
+      code = errorData.code;
     } catch { /* ignore */ }
-    throw new ApiError(response.status, message);
+    throw new ApiError(response.status, message, code);
   }
 
   return response.json() as Promise<T>;

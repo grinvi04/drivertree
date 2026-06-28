@@ -39,6 +39,19 @@ export class AllExceptionsFilter implements ExceptionFilter {
     return HttpStatus.INTERNAL_SERVER_ERROR;
   }
 
+  /**
+   * 상태 코드를 SCREAMING_SNAKE 에러 코드로 변환한다(예: 400→BAD_REQUEST,
+   * 413→PAYLOAD_TOO_LARGE, 500→INTERNAL_SERVER_ERROR). HttpStatus 숫자 enum의
+   * 역방향 매핑을 그대로 사용하고, 표준 enum에 없는 상태는 `HTTP_<status>`로 폴백한다.
+   *
+   * 단일제품 deviation(경량안): 성공 응답 구조는 그대로 두고 에러에만 안정적 `code`를
+   * 부여해, 프론트가 표시용 message 문자열이 아닌 code로 분기할 수 있게 한다.
+   */
+  private static resolveCode(status: number): string {
+    const name = (HttpStatus as Record<number, string | undefined>)[status];
+    return typeof name === 'string' ? name : `HTTP_${status}`;
+  }
+
   catch(exception: unknown, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
@@ -77,6 +90,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     }
 
     response.status(status).json({
+      code: AllExceptionsFilter.resolveCode(status),
       statusCode: status,
       timestamp: new Date().toISOString(),
       path: request.originalUrl,
