@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { MessageSquare, X, Send, ChevronRight, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { api } from '@/lib/api';
 import { ApiError } from '@/lib/errors';
+import { renderMarkdownSafe } from '@/lib/markdown';
 import type { ChatMessage } from '@/types';
 
 const ERROR_TEXT = '네트워크 상태가 불안정합니다. 잠시 후 다시 시도해 주세요.';
@@ -150,7 +151,15 @@ export default function ChatbotWidget() {
                       lineHeight: 1.47,
                     }}
                   >
-                    {msg.text}
+                    {isUser ? (
+                      msg.text
+                    ) : (
+                      // 봇 답변은 콘텐츠 상세와 동일한 마크다운 렌더러(sanitize 포함) 재사용
+                      <div
+                        className="chat-markdown"
+                        dangerouslySetInnerHTML={{ __html: renderMarkdownSafe(msg.text) }}
+                      />
+                    )}
 
                     {!isUser && msg.sources && msg.sources.length > 0 && (
                       <div className="mt-3 pt-3 space-y-1.5" style={{ borderTop: "1px solid var(--hairline)" }}>
