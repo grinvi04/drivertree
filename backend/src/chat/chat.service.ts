@@ -76,6 +76,7 @@ export class ChatService {
         FROM "ContentEmbedding" CE
         JOIN "Content" C ON CE."contentId" = C.id
         WHERE CE.embedding IS NOT NULL
+          AND C."deletedAt" IS NULL
         ORDER BY distance ASC
         LIMIT ${limit}
       `,
@@ -181,6 +182,7 @@ ${message}`;
     sessionKey: string,
   ): Promise<ChatResponseDto> {
     const allContents = await this.prisma.content.findMany({
+      where: { deletedAt: null },
       select: { id: true, title: true, content: true, slug: true },
       orderBy: { createdAt: 'desc' },
       take: 100, // TODO: 인메모리 랭킹 성능 문제를 해결하기 위해 추후 DB 검색(Full-text/Vector) 도입 검토

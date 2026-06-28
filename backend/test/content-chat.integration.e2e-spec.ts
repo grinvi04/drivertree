@@ -47,7 +47,7 @@ describe('Content + Chat 실DB 통합 (e2e)', () => {
     await moduleRef.close();
   });
 
-  it('Content CRUD 라운드트립 + 임베딩 cascade 삭제가 실 DB에서 동작', async () => {
+  it('Content CRUD 라운드트립 + 소프트삭제(제외·임베딩 보존)가 실 DB에서 동작', async () => {
     const created = await content.create({
       title: '비보호 좌회전 완전정복',
       slug: 'it-unprotected-left',
@@ -83,15 +83,31 @@ describe('Content + Chat 실DB 통합 (e2e)', () => {
     const updated = await content.update(created.id, { title: '수정된 제목' });
     expect(updated.title).toBe('수정된 제목');
 
-    // 삭제 → 임베딩도 cascade 삭제
+    // 소프트삭제 → 조회/목록에서 제외되지만 물리 행·임베딩은 보존(이력 유지)
     await content.remove(created.id);
-    const embAfter = await prisma.contentEmbedding.count({
-      where: { contentId: created.id },
-    });
-    expect(embAfter).toBe(0);
+
+    // 단건/목록에서 제외
     await expect(content.findOne(created.id)).rejects.toBeInstanceOf(
       NotFoundException,
     );
+    const listAfter = await content.findAll({
+      page: 1,
+      limit: 10,
+      category: undefined,
+      search: undefined,
+    });
+    expect(listAfter.data.some((c) => c.id === created.id)).toBe(false);
+
+    // 물리 행은 잔존하고 deletedAt 이 기록됨(물리 delete 미발생)
+    const row = await prisma.content.findUnique({ where: { id: created.id } });
+    expect(row).not.toBeNull();
+    expect(row?.deletedAt).toBeInstanceOf(Date);
+
+    // 임베딩 이력 보존(cascade 물리삭제로 소실되지 않음)
+    const embAfter = await prisma.contentEmbedding.count({
+      where: { contentId: created.id },
+    });
+    expect(embAfter).toBeGreaterThan(0);
   });
 
   it('Chat ask 로컬 폴백이 실 DB 콘텐츠를 랭킹하고 ChatLog를 영속화', async () => {
