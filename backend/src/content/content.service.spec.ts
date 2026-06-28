@@ -16,6 +16,7 @@ function makeContentRow(overrides: Record<string, unknown> = {}) {
     tags: ['좌회전', '신호'],
     createdAt: new Date('2026-01-01'),
     updatedAt: new Date('2026-01-01'),
+    deletedAt: null,
     ...overrides,
   };
 }
@@ -174,12 +175,32 @@ describe('ContentService', () => {
   // remove()
   // ────────────────────────────────────────
   describe('remove()', () => {
-    it('returns { id } of deleted item', async () => {
+    it('soft-deletes (sets deletedAt) instead of physical delete, returns { id }', async () => {
       (prisma.content.findUnique as jest.Mock).mockResolvedValueOnce(
         makeContentRow(),
       );
+      /* eslint-disable @typescript-eslint/unbound-method -- jest.Mock 어서션용 참조이며 호출 분리가 아님 */
+      const updateMock = jest.mocked(prisma.content.update);
+      const deleteMock = jest.mocked(prisma.content.delete);
+      /* eslint-enable @typescript-eslint/unbound-method */
       const result = await service.remove('content-1');
       expect(result).toEqual({ id: 'content-1' });
+      expect(updateMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 'content-1' },
+          data: { deletedAt: expect.any(Date) as Date },
+        }),
+      );
+      expect(deleteMock).not.toHaveBeenCalled();
+    });
+
+    it('throws NotFoundException when already soft-deleted', async () => {
+      (prisma.content.findUnique as jest.Mock).mockResolvedValueOnce(
+        makeContentRow({ deletedAt: new Date('2026-02-01') }),
+      );
+      await expect(service.remove('content-1')).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
     });
 
     it('throws NotFoundException for nonexistent id', async () => {
