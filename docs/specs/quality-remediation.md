@@ -118,6 +118,7 @@
 ## §6 Open Questions (사용자 합의 필요)
 
 1. **Envelope(T2-3)**: 단일 제품이라 표준 `{code,message,data}`를 전면 도입할지, 아니면 **의식적 deviation**으로 두고 결정만 기록할지? (프론트 `message` 분기 1곳만 정리하는 경량안도 가능)
+   - **결정(2026-06-28)**: 단일제품 — **경량 `code` 필드 deviation 채택**. 성공 응답 구조는 불변, 에러 응답에만 SCREAMING_SNAKE `code`를 추가(`all-exceptions.filter.ts`)하고 프론트 `ApiError`가 `code`를 보존해 분기는 `code`/`statusCode`로(표시는 `message`). 전면 `{code,message,data}` 전환은 보류.
 2. **식별자 노출(T3-2)**: UUID 비열거형 + slug 공개키로 충분 — **수용(deviation)** 으로 종결할지?
 3. **소프트삭제 방식(T2-2)**: Content를 `is_active` 비활성화(마스터 관점)로 갈지, `deletedAt` soft-delete로 갈지? 임베딩 재인덱싱 정책은?
 4. **낙관적잠금(T3-1)**: 다중 운영자 계획이 있는가? 없으면 보류 확정.

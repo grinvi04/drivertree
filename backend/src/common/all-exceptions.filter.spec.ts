@@ -1,4 +1,9 @@
-import { ArgumentsHost, BadRequestException } from '@nestjs/common';
+import {
+  ArgumentsHost,
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AllExceptionsFilter } from './all-exceptions.filter';
 
@@ -44,7 +49,7 @@ describe('AllExceptionsFilter', () => {
 
     expect(statusFn).toHaveBeenCalledWith(400);
     expect(jsonFn).toHaveBeenCalledWith(
-      expect.objectContaining({ statusCode: 400 }),
+      expect.objectContaining({ statusCode: 400, code: 'BAD_REQUEST' }),
     );
   });
 
@@ -56,11 +61,29 @@ describe('AllExceptionsFilter', () => {
     filter.catch(err, host);
 
     expect(statusFn).toHaveBeenCalledWith(413);
+    expect(jsonFn).toHaveBeenCalledWith(
+      expect.objectContaining({ code: 'PAYLOAD_TOO_LARGE' }),
+    );
   });
 
   it('keeps plain Error (no status) as 500', () => {
     filter.catch(new Error('boom'), host);
     expect(statusFn).toHaveBeenCalledWith(500);
+  });
+
+  it('attaches SCREAMING_SNAKE code for 5xx server errors', () => {
+    filter.catch(new Error('boom'), host);
+    expect(jsonFn).toHaveBeenCalledWith(
+      expect.objectContaining({ code: 'INTERNAL_SERVER_ERROR' }),
+    );
+  });
+
+  it('maps 429 HttpException to TOO_MANY_REQUESTS code', () => {
+    filter.catch(new HttpException('rate', HttpStatus.TOO_MANY_REQUESTS), host);
+    expect(statusFn).toHaveBeenCalledWith(429);
+    expect(jsonFn).toHaveBeenCalledWith(
+      expect.objectContaining({ code: 'TOO_MANY_REQUESTS' }),
+    );
   });
 
   it('does NOT honor a non-HttpException 5xx status — treats as 500 server error', () => {
