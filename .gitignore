@@ -38,6 +38,7 @@ yarn-error.log*
 # 임시
 *.tmp
 .cache
-.claude/
+.claude/*
+!.claude/settings.json
 CLAUDE.local.md
 .vercel

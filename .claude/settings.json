@@ -1,0 +1,154 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git *)",
+      "Bash(gh pr *)",
+      "Bash(gh api *)",
+      "Bash(gh repo view *)",
+      "Bash(ls *)",
+      "Bash(find *)",
+      "Bash(grep *)",
+      "Bash(cat *)",
+      "Bash(echo *)",
+      "Bash(mkdir *)",
+      "Bash(openssl rand *)",
+      "Skill(update-config)",
+      "Bash(npm run *)",
+      "Bash(npm install *)",
+      "Bash(npm ci *)",
+      "Bash(npm test *)",
+      "Bash(npm ls *)",
+      "Bash(npm -v)",
+      "Bash(npx jest *)",
+      "Bash(npx tsc *)",
+      "Bash(npx prettier *)",
+      "Bash(npx eslint *)",
+      "Bash(npx playwright *)",
+      "Bash(node *)",
+      "Bash(npx prisma *)",
+      "Bash(docker-compose *)",
+      "Bash(docker compose *)",
+      "Bash(echo \"PID: $!\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000)",
+      "Bash(mkdir -p /tmp/drivetree-screenshots)",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --window-size=375,667 --screenshot=/tmp/drivetree-screenshots/mobile-375-home.png --hide-scrollbars --disable-gpu http://localhost:3000)",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --window-size=375,667 --screenshot=/tmp/drivetree-screenshots/mobile-375-calc.png --hide-scrollbars --disable-gpu http://localhost:3000/calculators)",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --window-size=375,1400 --screenshot=/tmp/drivetree-screenshots/mobile-375-home-full.png --hide-scrollbars --disable-gpu http://localhost:3000)",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --window-size=375,900 --screenshot=/tmp/drivetree-screenshots/mobile-375-content.png --hide-scrollbars --disable-gpu http://localhost:3000/content/unprotected-left-turn)",
+      "Bash(docker-compose ps *)",
+      "Bash(echo \"Backend PID: $!\")",
+      "Read(//private/tmp/**)",
+      "Bash(npm init *)",
+      "Bash(npx --yes lighthouse --version)",
+      "Bash(npx lighthouse *)",
+      "Bash(echo \"Home done: $?\")",
+      "Bash(echo \"Calc done: $?\")",
+      "Bash(railway --version)",
+      "Bash(vercel --version)",
+      "Bash(neonctl --version)",
+      "Bash(railway login *)",
+      "Bash(python3 -m json.tool)",
+      "Bash(mkdir -p ~/.railway)",
+      "Bash(railway whoami *)",
+      "Bash(railway help *)",
+      "Bash(neonctl projects *)",
+      "Bash(neonctl branches *)",
+      "Bash(gemini --version)",
+      "Read(//Users/grinvi04/.gemini/**)",
+      "Bash(gcloud version *)",
+      "Bash(echo \"Exit: $?\")",
+      "Bash(npm why *)",
+      "Bash(claude mcp *)"
+    ],
+    "deny": [
+      "Bash(sudo *)",
+      "Bash(chmod 777 *)",
+      "Bash(ssh *)",
+      "Bash(curl * | bash *)",
+      "Bash(wget * | bash *)",
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Read(./backend/.env)",
+      "Read(./frontend/.env.local)"
+    ],
+    "disableBypassPermissionsMode": "disable"
+  },
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "extraKnownMarketplaces": {
+    "team-harness": {
+      "source": {
+        "source": "github",
+        "repo": "grinvi04/team-harness"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "vercel@claude-plugins-official": true,
+    "harness-guard@team-harness": true,
+    "frontend-design@claude-plugins-official": true,
+    "security-guidance@claude-plugins-official": true
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PROJECT_DIR}/.claude/hooks/session-start.sh",
+            "timeout": 10,
+            "statusMessage": "세션 컨텍스트 로딩 중..."
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PROJECT_DIR}/.claude/hooks/guard-dangerous.sh",
+            "timeout": 10,
+            "statusMessage": "위험 명령 검사 중..."
+          },
+          {
+            "type": "prompt",
+            "timeout": 15,
+            "prompt": "아래 Bash 명령어가 Prisma DB를 전체 초기화하거나 파괴할 위험이 있으면 deny하라. 특히 'prisma migrate reset', 'prisma db push --force-reset', 'prisma db drop' 또는 이와 동등한 파괴적 DB 조작이면 deny한다. 일반적인 'prisma migrate dev', 'prisma generate'는 allow한다. 명령어: $ARGUMENTS.tool_input.command. JSON으로만 응답: {\"decision\": \"allow\" 또는 \"deny\", \"reason\": \"deny 시 이유\"}"
+          },
+          {
+            "type": "prompt",
+            "timeout": 15,
+            "prompt": "아래 Bash 명령어가 .env 파일이나 환경변수에 담긴 시크릿(DB 비밀번호, API 키, 토큰 등)을 외부 URL로 전송하거나 터미널 밖으로 노출할 위험이 있으면 deny하라. 단순히 .env를 읽거나 환경변수를 로컬에서 사용하는 것은 allow한다. 명령어: $ARGUMENTS.tool_input.command. JSON으로만 응답: {\"decision\": \"allow\" 또는 \"deny\", \"reason\": \"deny 시 이유\"}"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PROJECT_DIR}/.claude/hooks/validate-edit.sh",
+            "timeout": 120,
+            "statusMessage": "코드 검증 중 (lint · 타입 · 테스트)..."
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PROJECT_DIR}/.claude/hooks/notify.sh",
+            "async": true
+          }
+        ]
+      }
+    ]
+  }
+}
