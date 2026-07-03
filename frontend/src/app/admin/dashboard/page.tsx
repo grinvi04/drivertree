@@ -282,7 +282,7 @@ export default function AdminDashboardPage() {
             ) : (
               <div className="rounded-3xl glass-panel border border-white/[0.06] overflow-hidden shadow-2xl">
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs border-collapse">
+                  <table className="w-full min-w-[720px] text-left text-xs border-collapse">
                     <thead>
                       <tr className="bg-[#121825] border-b border-white/[0.06] text-slate-400 font-bold">
                         <th className="p-4">가이드 제목</th>
@@ -375,7 +375,7 @@ export default function AdminDashboardPage() {
             ) : (
               <div className="rounded-3xl glass-panel border border-white/[0.06] overflow-hidden shadow-2xl">
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs border-collapse">
+                  <table className="w-full min-w-[760px] text-left text-xs border-collapse">
                     <thead>
                       <tr className="bg-[#121825] border-b border-white/[0.06] text-slate-400 font-bold">
                         <th className="p-4">시간</th>

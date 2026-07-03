@@ -32,7 +32,11 @@ model Content {
   tags        String[]           // e.g., ['독학', '비용']
   createdAt   DateTime           @default(now())
   updatedAt   DateTime           @updatedAt
+  // 소프트삭제: 물리 delete 대신 시각을 기록해 비활성화. null = 활성. 이력·임베딩 보존.
+  deletedAt   DateTime?
   embeddings  ContentEmbedding[]
+
+  @@index([deletedAt])
 }
 
 model ContentEmbedding {
