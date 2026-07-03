@@ -171,8 +171,10 @@ describe('ContentService', () => {
     it('performs soft-delete: calls update with deletedAt timestamp', async () => {
       ;(prisma.content.findUnique as jest.Mock).mockResolvedValueOnce(makeContentRow())
       await service.remove('content-1')
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(prisma.content.update).toHaveBeenCalledWith({
         where: { id: 'content-1' },
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         data: { deletedAt: expect.any(Date) },
       })
     })
@@ -220,7 +222,9 @@ describe('ContentService', () => {
     it('excludes soft-deleted items: passes deletedAt: null filter to query', async () => {
       ;(prisma.$transaction as jest.Mock).mockResolvedValueOnce([[], 0])
       await service.findAll({ page: 1, limit: 10, category: undefined, search: undefined })
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(prisma.content.findMany).toHaveBeenCalledWith(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         expect.objectContaining({ where: expect.objectContaining({ deletedAt: null }) }),
       )
     })
