@@ -108,7 +108,7 @@ export class ContentService implements OnModuleInit {
     const { page, limit, category, search } = query
     const skip = (page - 1) * limit
 
-    const where: Prisma.ContentWhereInput = {}
+    const where: Prisma.ContentWhereInput = { deletedAt: null }
     if (category) where.category = category
 
     if (search) {
@@ -146,13 +146,13 @@ export class ContentService implements OnModuleInit {
 
   async findOne(id: string) {
     const item = await this.prisma.content.findUnique({ where: { id } })
-    if (!item) throw new NotFoundException('콘텐츠를 찾을 수 없습니다.')
+    if (!item || item.deletedAt) throw new NotFoundException('콘텐츠를 찾을 수 없습니다.')
     return this.toResponseDto(item)
   }
 
   async findOneBySlug(slug: string) {
     const item = await this.prisma.content.findUnique({ where: { slug } })
-    if (!item) throw new NotFoundException('콘텐츠를 찾을 수 없습니다.')
+    if (!item || item.deletedAt) throw new NotFoundException('콘텐츠를 찾을 수 없습니다.')
     return this.toResponseDto(item)
   }
 
@@ -177,8 +177,8 @@ export class ContentService implements OnModuleInit {
 
   async remove(id: string) {
     const item = await this.prisma.content.findUnique({ where: { id } })
-    if (!item) throw new NotFoundException('콘텐츠를 찾을 수 없습니다.')
-    await this.prisma.content.delete({ where: { id } })
+    if (!item || item.deletedAt) throw new NotFoundException('콘텐츠를 찾을 수 없습니다.')
+    await this.prisma.content.update({ where: { id }, data: { deletedAt: new Date() } })
     return { id }
   }
 
