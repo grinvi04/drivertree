@@ -88,6 +88,11 @@ jobs:
       - name: Unit tests
         run: npm test
 
+      # 실 Postgres 통합/e2e — 단위(mock)가 못 잡는 트랜잭션·cascade·로컬 NLP 폴백 검증.
+      # 위 services.postgres + migrate deploy 를 재사용한다(별도 DB 불필요).
+      - name: E2E tests (real DB)
+        run: npm run test:e2e
+
   frontend:
     name: Frontend — lint · build · e2e
     runs-on: ubuntu-latest
