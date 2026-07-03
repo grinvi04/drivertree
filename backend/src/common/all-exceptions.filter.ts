@@ -9,6 +9,21 @@ import {
 import { Request, Response } from 'express'
 import * as Sentry from '@sentry/node'
 
+// body-parser가 던지는 에러(SyntaxError, PayloadTooLargeError)는 status/statusCode를 가짐.
+// 4xx만 통과 — 5xx non-HttpException은 신뢰할 수 없으므로 500으로 유지.
+function resolveStatus(exception: unknown): number {
+  if (exception instanceof HttpException) return exception.getStatus()
+  const e = exception as Record<string, unknown>
+  const code = (e['status'] as number | undefined) ?? (e['statusCode'] as number | undefined)
+  if (typeof code === 'number' && code >= 400 && code < 500) return code
+  return HttpStatus.INTERNAL_SERVER_ERROR
+}
+
+// TypeScript numeric enum은 역방향 매핑을 가짐: HttpStatus[400] === 'BAD_REQUEST'
+function statusToCode(status: number): string {
+  return (HttpStatus as unknown as Record<number, string>)[status] ?? 'INTERNAL_SERVER_ERROR'
+}
+
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
   private readonly logger = new Logger(AllExceptionsFilter.name)
@@ -18,8 +33,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>()
     const request = ctx.getRequest<Request>()
 
-    const status =
-      exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR
+    const status = resolveStatus(exception)
+    const code = statusToCode(status)
 
     const errorBody = exception instanceof HttpException ? exception.getResponse() : null
     const message =
@@ -49,6 +64,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     response.status(status).json({
       statusCode: status,
+      code,
       timestamp: new Date().toISOString(),
       path: request.originalUrl,
       message: Array.isArray(message) ? message.join('; ') : message,
