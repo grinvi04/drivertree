@@ -69,12 +69,13 @@ NestJS + Next.js + PostgreSQL 풀스택 서비스. 자세한 기획은 [`PRD.md`
 
 ## 🏗️ 아키텍처
 
-![아키텍처 다이어그램](docs/architecture.png)
+![아키텍처 다이어그램](docs/architecture.svg)
 
 <details>
 <summary>mermaid 소스 (GitHub 웹에선 차트로 렌더)</summary>
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'lineColor': '#6b7280', 'background': '#f8fafc', 'mainBkg': '#f8fafc', 'clusterBkg': '#f1f5f9', 'fontSize': '14px'}}}%%
 graph TD
     User(["👤 사용자 브라우저"])
 

@@ -1,53 +1,58 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* ── Apple Design System Tokens ─────────────────────────────────── */
 :root {
   /* Brand accent */
-  --primary:          #0066cc;
-  --primary-focus:    #0071e3;
-  --primary-on-dark:  #2997ff;
+  --primary: #0066cc;
+  --primary-focus: #0071e3;
+  --primary-on-dark: #2997ff;
 
   /* Surfaces */
-  --canvas:           #ffffff;
+  --canvas: #ffffff;
   --canvas-parchment: #f5f5f7;
-  --surface-tile-1:   #272729;
-  --surface-tile-2:   #2a2a2c;
-  --surface-black:    #000000;
+  --surface-tile-1: #272729;
+  --surface-tile-2: #2a2a2c;
+  --surface-black: #000000;
 
   /* Text */
-  --ink:              #1d1d1f;
-  --ink-muted-80:     #333333;
-  --ink-muted-48:     #7a7a7a;
-  --body-muted:       #cccccc;
+  --ink: #1d1d1f;
+  --ink-muted-80: #333333;
+  --ink-muted-48: #7a7a7a;
+  --body-muted: #cccccc;
 
   /* Borders */
-  --hairline:         #e0e0e0;
-  --divider-soft:     rgba(0,0,0,0.08);
+  --hairline: #e0e0e0;
+  --divider-soft: rgba(0, 0, 0, 0.08);
 
   /* Legacy aliases (ChatbotWidget 등) */
-  --background:       var(--canvas);
-  --foreground:       var(--ink);
+  --background: var(--canvas);
+  --foreground: var(--ink);
 }
 
 @theme inline {
-  --color-primary:           var(--primary);
-  --color-primary-focus:     var(--primary-focus);
-  --color-primary-on-dark:   var(--primary-on-dark);
-  --color-canvas:            var(--canvas);
-  --color-canvas-parchment:  var(--canvas-parchment);
-  --color-surface-tile-1:    var(--surface-tile-1);
-  --color-ink:               var(--ink);
-  --color-ink-muted-80:      var(--ink-muted-80);
-  --color-ink-muted-48:      var(--ink-muted-48);
-  --color-body-muted:        var(--body-muted);
-  --color-hairline:          var(--hairline);
+  --color-primary: var(--primary);
+  --color-primary-focus: var(--primary-focus);
+  --color-primary-on-dark: var(--primary-on-dark);
+  --color-canvas: var(--canvas);
+  --color-canvas-parchment: var(--canvas-parchment);
+  --color-surface-tile-1: var(--surface-tile-1);
+  --color-ink: var(--ink);
+  --color-ink-muted-80: var(--ink-muted-80);
+  --color-ink-muted-48: var(--ink-muted-48);
+  --color-body-muted: var(--body-muted);
+  --color-hairline: var(--hairline);
 }
 
 /* ── Base ─────────────────────────────────────────────────────────── */
 body {
   background: var(--canvas);
   color: var(--ink);
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family:
+    'Inter',
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
@@ -62,7 +67,7 @@ body {
 .apple-display {
   font-size: 40px;
   font-weight: 600;
-  line-height: 1.10;
+  line-height: 1.1;
   letter-spacing: -0.01em;
 }
 .apple-tagline {
@@ -97,8 +102,13 @@ body {
   text-decoration: none;
   white-space: nowrap;
 }
-.btn-primary:active { transform: scale(0.95); }
-.btn-primary:focus-visible { outline: 2px solid var(--primary-focus); outline-offset: 2px; }
+.btn-primary:active {
+  transform: scale(0.95);
+}
+.btn-primary:focus-visible {
+  outline: 2px solid var(--primary-focus);
+  outline-offset: 2px;
+}
 
 /* ── Button: Ghost pill ────────────────────────────────────────────── */
 .btn-ghost {
@@ -119,7 +129,9 @@ body {
   text-decoration: none;
   white-space: nowrap;
 }
-.btn-ghost:active { transform: scale(0.95); }
+.btn-ghost:active {
+  transform: scale(0.95);
+}
 
 /* ── Utility card ──────────────────────────────────────────────────── */
 .utility-card {
@@ -164,7 +176,17 @@ body {
 .chat-markdown blockquote { margin: 8px 0 !important; padding: 8px 12px !important; }
 
 /* ── Scrollbar ─────────────────────────────────────────────────────── */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: var(--canvas-parchment); }
-::-webkit-scrollbar-thumb { background: var(--hairline); border-radius: 9999px; }
-::-webkit-scrollbar-thumb:hover { background: #c0c0c0; }
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--canvas-parchment);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--hairline);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #c0c0c0;
+}

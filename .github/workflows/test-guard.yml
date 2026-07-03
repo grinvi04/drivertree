@@ -3,9 +3,9 @@
 # CI는 테스트가 삭제되면 그냥 green이라 못 잡는다. 이 게이트가 그 공백을 메운다.
 # 정당한 제거(데드코드 정리 등)는 PR에 'allow-test-removal' 라벨을 붙이면 통과.
 #
-# DriveTree 적용: 테스트는 backend/src/**/*.spec.ts · backend/test/, 마이그레이션은
-# backend/prisma/migrations/. 마커 카운트를 그 경로로 좁히고, Prisma 마이그레이션 파일
-# 삭제도 함께 차단한다(마이그레이션은 .sql이라 테스트 마커로는 안 잡힘).
+# 스택 무관: 흔한 테스트 마커를 repo 전역에서 센다(@Test / it()·test() / def test_ / rspec it).
+# 필요 시 프로젝트가 count() 정규식을 스택에 맞게 좁혀도 된다.
+# 셋업: new-repo.sh가 이 파일을 복사하고 'test-guard'를 required check에 등록한다.
 name: test-guard
 
 on:
@@ -20,7 +20,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Detect test/migration removals
+      - name: Detect test removals
         env:
           BASE: ${{ github.base_ref }}
           LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
@@ -28,39 +28,25 @@ jobs:
           set -uo pipefail
 
           if echo "$LABELS" | grep -q "allow-test-removal"; then
-            echo "::notice::'allow-test-removal' 라벨 — 테스트/마이그레이션 감소 허용(게이트 스킵)"
+            echo "::notice::'allow-test-removal' 라벨 — 테스트 감소 허용(게이트 스킵)"
             exit 0
           fi
 
           git fetch --quiet origin "$BASE"
 
-          # 테스트 마커 총개수(TS): it()·test() — DriveTree 테스트 경로로 한정.
-          MARKER='(^|[^A-Za-z_])(it|test)[[:space:]]*\('
-          TEST_PATHS='backend/src backend/test'
-          count_markers() {
-            git grep -hIE "$MARKER" "$1" -- $TEST_PATHS 2>/dev/null | grep -cE "$MARKER" || true
+          # 테스트 마커 총개수(스택 무관): JUnit @Test / JS·TS it()·test() / pytest def test_
+          # (rspec `it '...' do` 등은 프로젝트가 MARKER를 보강해 커버)
+          MARKER='@Test|(^|[^A-Za-z_])(it|test)[[:space:]]*\(|def[[:space:]]+test_'
+          count() {
+            git grep -hIE "$MARKER" "$1" 2>/dev/null | grep -cE "$MARKER" || true
           }
 
-          # Prisma 마이그레이션 파일 총개수 — 삭제 차단용.
-          count_migrations() {
-            git ls-tree -r --name-only "$1" -- backend/prisma/migrations 2>/dev/null | grep -c '\.sql$' || true
-          }
+          BEFORE=$(count "origin/$BASE")
+          AFTER=$(count "HEAD")
+          echo "테스트 마커 — base($BASE)=$BEFORE, PR(merge)=$AFTER"
 
-          TEST_BEFORE=$(count_markers "origin/$BASE")
-          TEST_AFTER=$(count_markers "HEAD")
-          MIG_BEFORE=$(count_migrations "origin/$BASE")
-          MIG_AFTER=$(count_migrations "HEAD")
-          echo "테스트 마커 — base($BASE)=$TEST_BEFORE, PR(merge)=$TEST_AFTER"
-          echo "마이그레이션 파일 — base($BASE)=$MIG_BEFORE, PR(merge)=$MIG_AFTER"
-
-          FAIL=0
-          if [ "$TEST_AFTER" -lt "$TEST_BEFORE" ]; then
-            echo "::error::테스트가 $((TEST_BEFORE - TEST_AFTER))개 감소했습니다. 의도된 제거라면 PR에 'allow-test-removal' 라벨을 붙이세요."
-            FAIL=1
+          if [ "$AFTER" -lt "$BEFORE" ]; then
+            echo "::error::테스트가 $((BEFORE - AFTER))개 감소했습니다. 의도된 제거라면 PR에 'allow-test-removal' 라벨을 붙이세요."
+            exit 1
           fi
-          if [ "$MIG_AFTER" -lt "$MIG_BEFORE" ]; then
-            echo "::error::Prisma 마이그레이션이 $((MIG_BEFORE - MIG_AFTER))개 감소했습니다. forward-only 위반 — 의도된 제거라면 'allow-test-removal' 라벨을 붙이세요."
-            FAIL=1
-          fi
-          [ "$FAIL" -eq 0 ] && echo "✅ 테스트·마이그레이션 감소 없음"
-          exit "$FAIL"
+          echo "✅ 테스트 감소 없음"

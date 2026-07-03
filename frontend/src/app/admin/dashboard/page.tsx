@@ -1,8 +1,8 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { api } from '@/lib/api';
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { api } from '@/lib/api'
 import {
   FileText,
   MessageSquare,
@@ -15,136 +15,149 @@ import {
   ThumbsDown,
   ChevronRight,
   BookOpen,
-} from 'lucide-react';
-import type { GuideContent, ChatLog } from '@/types';
+} from 'lucide-react'
+import type { GuideContent, ChatLog } from '@/types'
 
 export default function AdminDashboardPage() {
-  const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'content' | 'chatlogs'>('content');
-  const [adminUser, setAdminUser] = useState('');
+  const router = useRouter()
+  const [activeTab, setActiveTab] = useState<'content' | 'chatlogs'>('content')
+  const [adminUser, setAdminUser] = useState('')
 
   // 가이드 콘텐츠 상태
-  const [contents, setContents] = useState<GuideContent[]>([]);
-  const [contentsLoading, setContentsLoading] = useState(true);
-  const [contentsPage, setContentsPage] = useState(1);
-  const [contentsMeta, setContentsMeta] = useState({ totalPages: 1, total: 0 });
+  const [contents, setContents] = useState<GuideContent[]>([])
+  const [contentsLoading, setContentsLoading] = useState(true)
+  const [contentsPage, setContentsPage] = useState(1)
+  const [contentsMeta, setContentsMeta] = useState({ totalPages: 1, total: 0 })
 
   // 챗 로그 상태
-  const [chatLogs, setChatLogs] = useState<ChatLog[]>([]);
-  const [logsLoading, setLogsLoading] = useState(true);
-  const [logsPage, setLogsPage] = useState(1);
-  const [logsMeta, setLogsMeta] = useState({ totalPages: 1, total: 0 });
+  const [chatLogs, setChatLogs] = useState<ChatLog[]>([])
+  const [logsLoading, setLogsLoading] = useState(true)
+  const [logsPage, setLogsPage] = useState(1)
+  const [logsMeta, setLogsMeta] = useState({ totalPages: 1, total: 0 })
 
   // 콘텐츠 추가/수정 모달 상태
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingPostId, setEditingPostId] = useState<string | null>(null);
-  const [title, setTitle] = useState('');
-  const [slug, setSlug] = useState('');
-  const [content, setContent] = useState('');
-  const [category, setCategory] = useState('license');
-  const [tagsStr, setTagsStr] = useState('');
-  const [formError, setFormError] = useState('');
-  const [formSaving, setFormSaving] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingPostId, setEditingPostId] = useState<string | null>(null)
+  const [title, setTitle] = useState('')
+  const [slug, setSlug] = useState('')
+  const [content, setContent] = useState('')
+  const [category, setCategory] = useState('license')
+  const [tagsStr, setTagsStr] = useState('')
+  const [formError, setFormError] = useState('')
+  const [formSaving, setFormSaving] = useState(false)
 
-  const [contentsRefreshKey, setContentsRefreshKey] = useState(0);
+  const [contentsRefreshKey, setContentsRefreshKey] = useState(0)
 
   // 인증 가드 — httpOnly 쿠키 검증 (마운트 1회)
   useEffect(() => {
-    api.getProfile()
+    api
+      .getProfile()
       .then((profile) => {
-        setAdminUser(profile.username);
-        localStorage.setItem('drivetree_user', profile.username);
+        setAdminUser(profile.username)
+        localStorage.setItem('drivetree_user', profile.username)
       })
       .catch(() => {
-        localStorage.removeItem('drivetree_user');
-        router.push('/admin/login');
-      });
-  }, [router]);
+        localStorage.removeItem('drivetree_user')
+        router.push('/admin/login')
+      })
+  }, [router])
 
   // 페이지 또는 refreshKey 변경 시 콘텐츠 재조회
   useEffect(() => {
-    let cancelled = false;
+    let cancelled = false
     const load = async () => {
-      setContentsLoading(true);
+      setContentsLoading(true)
       try {
-        const result = await api.getContents(undefined, undefined, contentsPage, 10);
+        const result = await api.getContents(undefined, undefined, contentsPage, 10)
         if (!cancelled) {
-          setContents(result.data);
-          setContentsMeta({ totalPages: result.meta.totalPages, total: result.meta.total });
+          setContents(result.data)
+          setContentsMeta({ totalPages: result.meta.totalPages, total: result.meta.total })
         }
-      } catch { /* ignore */ } finally {
-        if (!cancelled) setContentsLoading(false);
+      } catch {
+        /* ignore */
+      } finally {
+        if (!cancelled) setContentsLoading(false)
       }
-    };
-    void load();
-    return () => { cancelled = true; };
-  }, [contentsPage, contentsRefreshKey]);
+    }
+    void load()
+    return () => {
+      cancelled = true
+    }
+  }, [contentsPage, contentsRefreshKey])
 
   // 페이지 변경 시 챗 로그 재조회
   useEffect(() => {
-    let cancelled = false;
+    let cancelled = false
     const load = async () => {
-      setLogsLoading(true);
+      setLogsLoading(true)
       try {
-        const result = await api.getChatLogs(logsPage, 20);
+        const result = await api.getChatLogs(logsPage, 20)
         if (!cancelled) {
-          setChatLogs(result.data);
-          setLogsMeta({ totalPages: result.meta.totalPages, total: result.meta.total });
+          setChatLogs(result.data)
+          setLogsMeta({ totalPages: result.meta.totalPages, total: result.meta.total })
         }
-      } catch { /* ignore */ } finally {
-        if (!cancelled) setLogsLoading(false);
+      } catch {
+        /* ignore */
+      } finally {
+        if (!cancelled) setLogsLoading(false)
       }
-    };
-    void load();
-    return () => { cancelled = true; };
-  }, [logsPage]);
+    }
+    void load()
+    return () => {
+      cancelled = true
+    }
+  }, [logsPage])
 
   // 로그아웃 — 서버에서 쿠키 삭제 + refresh token 무효화
   const handleLogout = async () => {
-    try { await api.logout(); } catch { /* ignore */ }
-    localStorage.removeItem('drivetree_user');
-    router.push('/admin/login');
-  };
+    try {
+      await api.logout()
+    } catch {
+      /* ignore */
+    }
+    localStorage.removeItem('drivetree_user')
+    router.push('/admin/login')
+  }
 
   // 모달 오픈 (등록용)
   const handleOpenAddModal = () => {
-    setEditingPostId(null);
-    setTitle('');
-    setSlug('');
-    setContent('');
-    setCategory('license');
-    setTagsStr('');
-    setFormError('');
-    setIsModalOpen(true);
-  };
+    setEditingPostId(null)
+    setTitle('')
+    setSlug('')
+    setContent('')
+    setCategory('license')
+    setTagsStr('')
+    setFormError('')
+    setIsModalOpen(true)
+  }
 
   // 모달 오픈 (수정용)
   const handleOpenEditModal = (post: GuideContent) => {
-    setEditingPostId(post.id);
-    setTitle(post.title);
-    setSlug(post.slug);
-    setContent(post.content);
-    setCategory(post.category);
-    setTagsStr(post.tags.join(', '));
-    setFormError('');
-    setIsModalOpen(true);
-  };
+    setEditingPostId(post.id)
+    setTitle(post.title)
+    setSlug(post.slug)
+    setContent(post.content)
+    setCategory(post.category)
+    setTagsStr(post.tags.join(', '))
+    setFormError('')
+    setIsModalOpen(true)
+  }
 
   // 콘텐츠 저장 처리 (C & U)
   const handleSaveContent = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
     if (!title || !slug || !content) {
-      setFormError('모든 필드를 채워주세요.');
-      return;
+      setFormError('모든 필드를 채워주세요.')
+      return
     }
 
-    setFormSaving(true);
-    setFormError('');
+    setFormSaving(true)
+    setFormError('')
 
     const parsedTags = tagsStr
       .split(',')
-      .map(t => t.trim())
-      .filter(t => t.length > 0);
+      .map((t) => t.trim())
+      .filter((t) => t.length > 0)
 
     const postData = {
       title,
@@ -152,41 +165,45 @@ export default function AdminDashboardPage() {
       content,
       category,
       tags: parsedTags,
-    };
+    }
 
     try {
       if (editingPostId) {
         // Update
-        await api.updateContent(editingPostId, postData);
+        await api.updateContent(editingPostId, postData)
       } else {
         // Create
-        await api.createContent(postData);
+        await api.createContent(postData)
       }
-      setIsModalOpen(false);
-      setContentsRefreshKey((k) => k + 1);
+      setIsModalOpen(false)
+      setContentsRefreshKey((k) => k + 1)
     } catch (err) {
-      const message = err instanceof Error ? err.message : '가이드 저장 중 에러가 발생했습니다.';
-      setFormError(message);
+      const message = err instanceof Error ? err.message : '가이드 저장 중 에러가 발생했습니다.'
+      setFormError(message)
     } finally {
-      setFormSaving(false);
+      setFormSaving(false)
     }
-  };
+  }
 
   // 콘텐츠 삭제 처리 (D)
   const handleDeleteContent = async (id: string) => {
-    if (!confirm('정말로 이 가이드 콘텐츠를 영구 삭제하시겠습니까?\nRAG 임베딩 정보도 자동으로 함께 제거됩니다.')) return;
+    if (
+      !confirm(
+        '정말로 이 가이드 콘텐츠를 영구 삭제하시겠습니까?\nRAG 임베딩 정보도 자동으로 함께 제거됩니다.',
+      )
+    )
+      return
     try {
-      await api.deleteContent(id);
-      setContentsRefreshKey((k) => k + 1);
+      await api.deleteContent(id)
+      setContentsRefreshKey((k) => k + 1)
     } catch {
-      alert('삭제에 실패했습니다.');
+      alert('삭제에 실패했습니다.')
     }
-  };
+  }
 
   return (
     <div className="relative w-full flex flex-col min-h-screen bg-[#0B0F19] py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        
         {/* Top Control Bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-5 border-b border-white/[0.05]">
           <div>
@@ -198,9 +215,11 @@ export default function AdminDashboardPage() {
               접속 관리자: <span className="text-yellow-accent">{adminUser}</span>
             </p>
           </div>
-          
+
           <button
-            onClick={() => { void handleLogout(); }}
+            onClick={() => {
+              void handleLogout()
+            }}
             className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl border border-red-500/20 bg-red-500/5 hover:bg-red-500/10 text-xs font-bold text-red-400 cursor-pointer transition-colors w-fit"
           >
             <LogOut className="w-4 h-4" />
@@ -246,8 +265,7 @@ export default function AdminDashboardPage() {
                 onClick={handleOpenAddModal}
                 className="flex items-center gap-1.5 px-[18px] py-2.5 rounded-xl btn-yellow-glow text-xs font-bold"
               >
-                <Plus className="w-4 h-4" />
-                새 실전 가이드 작성
+                <Plus className="w-4 h-4" />새 실전 가이드 작성
               </button>
             </div>
 
@@ -257,7 +275,9 @@ export default function AdminDashboardPage() {
               <div className="text-center py-20 rounded-3xl glass-panel border border-white/5 flex flex-col items-center justify-center">
                 <AlertTriangle className="w-10 h-10 text-slate-600 mb-2" />
                 <h4 className="text-xs font-bold text-slate-400">등록된 가이드가 없습니다</h4>
-                <p className="text-[10px] text-slate-500 mt-1">새 실전 가이드 작성 버튼을 눌러 초보자를 위한 팁을 작성하세요!</p>
+                <p className="text-[10px] text-slate-500 mt-1">
+                  새 실전 가이드 작성 버튼을 눌러 초보자를 위한 팁을 작성하세요!
+                </p>
               </div>
             ) : (
               <div className="rounded-3xl glass-panel border border-white/[0.06] overflow-hidden shadow-2xl">
@@ -275,14 +295,18 @@ export default function AdminDashboardPage() {
                     <tbody className="divide-y divide-white/[0.04]">
                       {contents.map((post) => (
                         <tr key={post.id} className="hover:bg-white/[0.01] transition-colors">
-                          <td className="p-4 font-bold text-slate-200 truncate max-w-[250px]">{post.title}</td>
+                          <td className="p-4 font-bold text-slate-200 truncate max-w-[250px]">
+                            {post.title}
+                          </td>
                           <td className="p-4 text-slate-400 font-mono text-[11px]">{post.slug}</td>
                           <td className="p-4">
                             <span className="bg-slate-800/80 text-slate-300 px-2 py-0.5 rounded text-[10px] font-semibold">
                               {post.category}
                             </span>
                           </td>
-                          <td className="p-4 text-slate-500">{new Date(post.createdAt).toLocaleDateString()}</td>
+                          <td className="p-4 text-slate-500">
+                            {new Date(post.createdAt).toLocaleDateString()}
+                          </td>
                           <td className="p-4 flex items-center justify-center gap-3">
                             <button
                               onClick={() => handleOpenEditModal(post)}
@@ -308,11 +332,23 @@ export default function AdminDashboardPage() {
             {/* 콘텐츠 페이지네이션 */}
             {contentsMeta.totalPages > 1 && (
               <div className="flex items-center justify-center gap-2 mt-4">
-                <button onClick={() => setContentsPage((p) => Math.max(1, p - 1))} disabled={contentsPage === 1}
-                  className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all">← 이전</button>
-                <span className="text-xs text-slate-500">{contentsPage} / {contentsMeta.totalPages} 페이지</span>
-                <button onClick={() => setContentsPage((p) => Math.min(contentsMeta.totalPages, p + 1))} disabled={contentsPage === contentsMeta.totalPages}
-                  className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all">다음 →</button>
+                <button
+                  onClick={() => setContentsPage((p) => Math.max(1, p - 1))}
+                  disabled={contentsPage === 1}
+                  className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                >
+                  ← 이전
+                </button>
+                <span className="text-xs text-slate-500">
+                  {contentsPage} / {contentsMeta.totalPages} 페이지
+                </span>
+                <button
+                  onClick={() => setContentsPage((p) => Math.min(contentsMeta.totalPages, p + 1))}
+                  disabled={contentsPage === contentsMeta.totalPages}
+                  className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                >
+                  다음 →
+                </button>
               </div>
             )}
           </div>
@@ -332,7 +368,9 @@ export default function AdminDashboardPage() {
               <div className="text-center py-20 rounded-3xl glass-panel border border-white/5 flex flex-col items-center justify-center">
                 <MessageSquare className="w-10 h-10 text-slate-600 mb-2" />
                 <h4 className="text-xs font-bold text-slate-400">대화 이력이 아직 없습니다</h4>
-                <p className="text-[10px] text-slate-500 mt-1">사용자가 챗봇을 호출하면 대화 로그와 RAG 만족도가 실시간 적재됩니다.</p>
+                <p className="text-[10px] text-slate-500 mt-1">
+                  사용자가 챗봇을 호출하면 대화 로그와 RAG 만족도가 실시간 적재됩니다.
+                </p>
               </div>
             ) : (
               <div className="rounded-3xl glass-panel border border-white/[0.06] overflow-hidden shadow-2xl">
@@ -349,25 +387,39 @@ export default function AdminDashboardPage() {
                     </thead>
                     <tbody className="divide-y divide-white/[0.04]">
                       {chatLogs.map((log) => (
-                        <tr key={log.id} className="hover:bg-white/[0.01] transition-colors align-top">
+                        <tr
+                          key={log.id}
+                          className="hover:bg-white/[0.01] transition-colors align-top"
+                        >
                           <td className="p-4 text-slate-500 whitespace-nowrap text-[10px] font-semibold">
                             {new Date(log.createdAt).toLocaleTimeString()} <br />
-                            <span className="text-[9px] text-slate-600">{new Date(log.createdAt).toLocaleDateString()}</span>
+                            <span className="text-[9px] text-slate-600">
+                              {new Date(log.createdAt).toLocaleDateString()}
+                            </span>
                           </td>
-                          <td className="p-4 text-slate-200 font-semibold max-w-[200px] break-words">{log.userMessage}</td>
-                          <td className="p-4 text-slate-400 max-w-[300px] break-words leading-relaxed text-[11px]">{log.botResponse}</td>
+                          <td className="p-4 text-slate-200 font-semibold max-w-[200px] break-words">
+                            {log.userMessage}
+                          </td>
+                          <td className="p-4 text-slate-400 max-w-[300px] break-words leading-relaxed text-[11px]">
+                            {log.botResponse}
+                          </td>
                           <td className="p-4 max-w-[150px]">
                             {log.matchedSources && log.matchedSources.length > 0 ? (
                               <div className="flex flex-col gap-1.5">
                                 {log.matchedSources.map((src) => (
-                                  <span key={src.id} className="bg-slate-800 text-[10px] text-slate-300 px-2 py-0.5 rounded truncate font-bold flex items-center gap-0.5">
+                                  <span
+                                    key={src.id}
+                                    className="bg-slate-800 text-[10px] text-slate-300 px-2 py-0.5 rounded truncate font-bold flex items-center gap-0.5"
+                                  >
                                     <ChevronRight className="w-2.5 h-2.5 text-yellow-accent shrink-0" />
                                     {src.title}
                                   </span>
                                 ))}
                               </div>
                             ) : (
-                              <span className="text-[10px] text-slate-600 font-semibold">출처 매칭 없음</span>
+                              <span className="text-[10px] text-slate-600 font-semibold">
+                                출처 매칭 없음
+                              </span>
                             )}
                           </td>
                           <td className="p-4 text-center">
@@ -384,7 +436,9 @@ export default function AdminDashboardPage() {
                               </span>
                             )}
                             {log.feedback === 'none' && (
-                              <span className="text-slate-600 text-[10px] font-bold">피드백 없음</span>
+                              <span className="text-slate-600 text-[10px] font-bold">
+                                피드백 없음
+                              </span>
                             )}
                           </td>
                         </tr>
@@ -398,11 +452,23 @@ export default function AdminDashboardPage() {
             {/* 로그 페이지네이션 */}
             {logsMeta.totalPages > 1 && (
               <div className="flex items-center justify-center gap-2 mt-6">
-                <button onClick={() => setLogsPage((p) => Math.max(1, p - 1))} disabled={logsPage === 1}
-                  className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all">← 이전</button>
-                <span className="text-xs text-slate-500">{logsPage} / {logsMeta.totalPages} 페이지</span>
-                <button onClick={() => setLogsPage((p) => Math.min(logsMeta.totalPages, p + 1))} disabled={logsPage === logsMeta.totalPages}
-                  className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all">다음 →</button>
+                <button
+                  onClick={() => setLogsPage((p) => Math.max(1, p - 1))}
+                  disabled={logsPage === 1}
+                  className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                >
+                  ← 이전
+                </button>
+                <span className="text-xs text-slate-500">
+                  {logsPage} / {logsMeta.totalPages} 페이지
+                </span>
+                <button
+                  onClick={() => setLogsPage((p) => Math.min(logsMeta.totalPages, p + 1))}
+                  disabled={logsPage === logsMeta.totalPages}
+                  className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                >
+                  다음 →
+                </button>
               </div>
             )}
           </div>
@@ -412,7 +478,6 @@ export default function AdminDashboardPage() {
         {isModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
             <div className="w-full max-w-2xl rounded-3xl glass-panel border border-white/[0.08] shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-200">
-              
               {/* Modal Header */}
               <div className="px-6 py-[18px] bg-[#121825] border-b border-white/[0.06] flex items-center justify-between">
                 <h3 className="text-sm font-bold text-white">
@@ -427,8 +492,10 @@ export default function AdminDashboardPage() {
               </div>
 
               {/* Modal Body (Scrollable) */}
-              <form onSubmit={handleSaveContent} className="flex-grow p-6 overflow-y-auto space-y-4 flex flex-col">
-                
+              <form
+                onSubmit={handleSaveContent}
+                className="flex-grow p-6 overflow-y-auto space-y-4 flex flex-col"
+              >
                 {/* 제목 */}
                 <div className="flex flex-col gap-1.5">
                   <label className="text-xs text-slate-400 font-bold">가이드 제목</label>
@@ -464,18 +531,30 @@ export default function AdminDashboardPage() {
                       onChange={(e) => setCategory(e.target.value)}
                       className="w-full h-11 px-4 rounded-xl bg-white/[0.02] border border-white/[0.08] focus:border-yellow-accent text-xs font-semibold text-slate-200 focus:outline-none"
                     >
-                      <option value="license" className="bg-[#121825]">면허 취득 가이드</option>
-                      <option value="basics" className="bg-[#121825]">운전 기본기</option>
-                      <option value="rules" className="bg-[#121825]">도로 법규 · 신호</option>
-                      <option value="management" className="bg-[#121825]">차량 관리 · 생활</option>
-                      <option value="accidents" className="bg-[#121825]">사고 · 이슈 대처</option>
+                      <option value="license" className="bg-[#121825]">
+                        면허 취득 가이드
+                      </option>
+                      <option value="basics" className="bg-[#121825]">
+                        운전 기본기
+                      </option>
+                      <option value="rules" className="bg-[#121825]">
+                        도로 법규 · 신호
+                      </option>
+                      <option value="management" className="bg-[#121825]">
+                        차량 관리 · 생활
+                      </option>
+                      <option value="accidents" className="bg-[#121825]">
+                        사고 · 이슈 대처
+                      </option>
                     </select>
                   </div>
                 </div>
 
                 {/* 태그 (쉼표 구분) */}
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs text-slate-400 font-bold">검색 태그 (쉼표로 구분)</label>
+                  <label className="text-xs text-slate-400 font-bold">
+                    검색 태그 (쉼표로 구분)
+                  </label>
                   <input
                     type="text"
                     placeholder="예: 우회전, 신호위반, 교차로"
@@ -487,7 +566,9 @@ export default function AdminDashboardPage() {
 
                 {/* 마크다운 본문 에디터 */}
                 <div className="flex flex-col gap-1.5 flex-grow min-h-[200px]">
-                  <label className="text-xs text-slate-400 font-bold">가이드 본문 내용 (Markdown 문법 지원)</label>
+                  <label className="text-xs text-slate-400 font-bold">
+                    가이드 본문 내용 (Markdown 문법 지원)
+                  </label>
                   <textarea
                     placeholder="마크다운을 지원합니다.
 ## 1. 보행자가 횡단보도를 건너는 중일 때
@@ -532,5 +613,5 @@ export default function AdminDashboardPage() {
         )}
       </div>
     </div>
-  );
+  )
 }

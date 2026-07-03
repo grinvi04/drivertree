@@ -1,105 +1,103 @@
 // 프로젝트 전체 공유 타입 — 이 파일 하나에서 관리
 
 export interface PaginatedResult<T> {
-  data: T[];
+  data: T[]
   meta: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
+    total: number
+    page: number
+    limit: number
+    totalPages: number
+  }
 }
 
-
 export interface GuideContent {
-  id: string;
-  title: string;
-  slug: string;
-  content: string;
-  category: string;
-  tags: string[];
-  createdAt: string;
-  updatedAt: string;
+  id: string
+  title: string
+  slug: string
+  content: string
+  category: string
+  tags: string[]
+  createdAt: string
+  updatedAt: string
 }
 
 export interface MatchedSource {
-  id: string;
-  title: string;
-  slug: string;
+  id: string
+  title: string
+  slug: string
 }
 
 export interface ChatMessage {
-  id?: string;
-  sender: 'user' | 'bot';
-  text: string;
-  sources?: MatchedSource[];
-  feedback?: 'like' | 'dislike' | 'none';
+  id?: string
+  sender: 'user' | 'bot'
+  text: string
+  sources?: MatchedSource[]
+  feedback?: 'like' | 'dislike' | 'none'
 }
 
 export interface PenaltyRule {
-  id: string;
-  name: string;
-  category: string;
-  fineNormal: number;
-  fineChildZone: number;
-  penaltyNormal: number;
-  penaltyChildZone: number;
-  pointsNormal: number;
-  pointsChildZone: number;
-  description: string;
+  id: string
+  name: string
+  category: string
+  fineNormal: number
+  fineChildZone: number
+  penaltyNormal: number
+  penaltyChildZone: number
+  pointsNormal: number
+  pointsChildZone: number
+  description: string
 }
 
 export interface MaintenanceInput {
-  carType: 'compact' | 'sedan' | 'suv' | 'large';
-  fuelType: 'gasoline' | 'diesel' | 'electric';
-  annualMileage: number;
-  insuranceCost: number;
+  carType: 'compact' | 'sedan' | 'suv' | 'large'
+  fuelType: 'gasoline' | 'diesel' | 'electric'
+  annualMileage: number
+  insuranceCost: number
 }
 
 export interface MaintenanceCosts {
-  fuel: number;
-  tax: number;
-  insurance: number;
-  maintenance: number;
-  total: number;
+  fuel: number
+  tax: number
+  insurance: number
+  maintenance: number
+  total: number
 }
 
 export interface MaintenanceResult {
-  annual: MaintenanceCosts;
-  monthly: MaintenanceCosts;
+  annual: MaintenanceCosts
+  monthly: MaintenanceCosts
   analysis: {
-    fuelPercentage: number;
-    taxPercentage: number;
-    insurancePercentage: number;
-    maintenancePercentage: number;
-  };
+    fuelPercentage: number
+    taxPercentage: number
+    insurancePercentage: number
+    maintenancePercentage: number
+  }
 }
 
 export interface AdminContent {
-  id: string;
-  title: string;
-  slug: string;
-  category: string;
-  tags: string[];
-  createdAt: string;
-  updatedAt: string;
+  id: string
+  title: string
+  slug: string
+  category: string
+  tags: string[]
+  createdAt: string
+  updatedAt: string
 }
 
 export interface ChatLog {
-  id: string;
-  sessionKey: string;
-  userMessage: string;
-  botResponse: string;
-  matchedSources: MatchedSource[] | null;
-  feedback: 'like' | 'dislike' | 'none';
-  createdAt: string;
+  id: string
+  sessionKey: string
+  userMessage: string
+  botResponse: string
+  matchedSources: MatchedSource[] | null
+  feedback: 'like' | 'dislike' | 'none'
+  createdAt: string
 }
 
-
 export interface ContentFormData {
-  title: string;
-  slug: string;
-  category: string;
-  tags: string;
-  content: string;
+  title: string
+  slug: string
+  category: string
+  tags: string
+  content: string
 }

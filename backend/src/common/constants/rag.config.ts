@@ -5,4 +5,4 @@ export const RAG_CONFIG = {
   EMBEDDING_MODEL: 'gemini-embedding-001',
   EMBEDDING_DIMENSION: 768, // DB ContentEmbedding.embedding vector(768)와 일치시킬 것
   GENERATION_MODEL: 'gemini-2.5-flash',
-} as const;
+} as const
