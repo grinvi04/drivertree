@@ -155,8 +155,12 @@ body {
 /* 콘텐츠 상세용 마크다운 렌더러를 챗봇 말풍선에 재사용 — 말풍선(14px)에
    맞게 본문 글자/여백만 축소(렌더러·sanitize 로직은 그대로). 인라인 style을
    덮어야 하므로 !important 사용. */
-.chat-markdown > :first-child { margin-top: 0 !important; }
-.chat-markdown > :last-child { margin-bottom: 0 !important; }
+.chat-markdown > :first-child {
+  margin-top: 0 !important;
+}
+.chat-markdown > :last-child {
+  margin-bottom: 0 !important;
+}
 .chat-markdown p,
 .chat-markdown li {
   font-size: 14px !important;
@@ -172,8 +176,13 @@ body {
   border-bottom: none !important;
 }
 .chat-markdown ul,
-.chat-markdown ol { margin: 0 0 8px 18px !important; }
-.chat-markdown blockquote { margin: 8px 0 !important; padding: 8px 12px !important; }
+.chat-markdown ol {
+  margin: 0 0 8px 18px !important;
+}
+.chat-markdown blockquote {
+  margin: 8px 0 !important;
+  padding: 8px 12px !important;
+}
 
 /* ── Scrollbar ─────────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
