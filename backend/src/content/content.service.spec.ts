@@ -167,6 +167,22 @@ describe('ContentService', () => {
       ;(prisma.content.findUnique as jest.Mock).mockResolvedValueOnce(null)
       await expect(service.remove('ghost')).rejects.toBeInstanceOf(NotFoundException)
     })
+
+    it('performs soft-delete: calls update with deletedAt timestamp', async () => {
+      ;(prisma.content.findUnique as jest.Mock).mockResolvedValueOnce(makeContentRow())
+      await service.remove('content-1')
+      expect(prisma.content.update).toHaveBeenCalledWith({
+        where: { id: 'content-1' },
+        data: { deletedAt: expect.any(Date) },
+      })
+    })
+
+    it('throws NotFoundException when item is already soft-deleted', async () => {
+      ;(prisma.content.findUnique as jest.Mock).mockResolvedValueOnce(
+        makeContentRow({ deletedAt: new Date() }),
+      )
+      await expect(service.remove('content-1')).rejects.toBeInstanceOf(NotFoundException)
+    })
   })
 
   // ────────────────────────────────────────
@@ -199,6 +215,14 @@ describe('ContentService', () => {
         search: undefined,
       })
       expect(result.meta.totalPages).toBe(1)
+    })
+
+    it('excludes soft-deleted items: passes deletedAt: null filter to query', async () => {
+      ;(prisma.$transaction as jest.Mock).mockResolvedValueOnce([[], 0])
+      await service.findAll({ page: 1, limit: 10, category: undefined, search: undefined })
+      expect(prisma.content.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: expect.objectContaining({ deletedAt: null }) }),
+      )
     })
   })
 })
