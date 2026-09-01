@@ -40,8 +40,12 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 
 | 타입 | 의미 |
 |---|---|
-| `feat` | 새 기능 · `fix` 버그 · `hotfix` 긴급 · `refactor` 개선 |
-| `test` | 테스트 · `docs` 문서 · `chore` 빌드/설정 · `ci` CI/CD |
+| `feat` · `fix` · `refactor` · `perf` | 코드 의미 변경 — scope와 `이유:` 본문 필수 |
+| `test` | 테스트 변경 — scope 필수 |
+| `docs` · `style` · `chore` · `ci` · `build` · `revert` | 문서·스타일·설정·CI·빌드·되돌리기 |
+
+`hotfix/*`는 브랜치·workflow 유형이며 커밋은 `fix(scope): 한국어 제목`과
+`이유:` 본문을 사용한다.
 
 ---
 
