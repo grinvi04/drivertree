@@ -59,6 +59,11 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 
 > **이 repo의 프로젝트 상태는 repo/GitHub에 둔다.** 플랜·스펙은 `docs/specs/`, 백로그·할 일은 GitHub Issues + Milestone(`/milestone`), 작업로그는 git 히스토리 + CHANGELOG/릴리즈노트, 설계 결정·도메인 지식은 `docs/decisions.md`에 기록한다. **도구 로컬 AI 메모리(예: `~/.claude` 메모리)에 프로젝트 상태·백로그·작업로그·결정·도메인 지식을 두지 않는다**(다른 PC·세션·사람이 못 보고 유실). 로컬 메모리는 팀 공유 불필요한 *개인 작업습관*에만 최소로. (정본: `ai-collaboration.md`)
 
+## Stack Rule 전달
+
+- 작업 대상 stack과 관련된 `.claude/rules/*.md`를 작업 전에 읽는다. 이 경로는 Claude Code의 자동 로딩
+  위치이지만 rule 원문은 도구 공통이다. Codex/Gemini는 AGENTS의 이 지시에 따라 관련 `.claude/rules/*.md` 원문을 먼저 읽는다.
+
 ## 배포·헬스체크
 
 | 환경 | 백엔드(Railway) | 프론트(Vercel) | DB(Neon) |
