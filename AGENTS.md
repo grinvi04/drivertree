@@ -62,7 +62,7 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 ## Stack Rule 전달
 
 - 작업 대상 stack과 관련된 `.claude/rules/*.md`를 작업 전에 읽는다. 이 경로는 Claude Code의 자동 로딩
-  위치이지만 rule 원문은 도구 공통이다. Codex/Gemini는 AGENTS의 이 지시에 따라 관련 `.claude/rules/*.md` 원문을 먼저 읽는다.
+  위치이지만 rule 원문은 도구 공통이다. Codex/Gemini는 AGENTS의 이 지시에 따라 관련 파일을 명시적으로 읽는다.
 
 ## 배포·헬스체크
 
