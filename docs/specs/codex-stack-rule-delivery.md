@@ -52,7 +52,7 @@ TypeScript·Next.js·Prisma rule 3종을 모두 `OK`로 판정하고 기존 제�
 
 ## 8. 태스크 (test-first 순서)
 
-| # | 태스크 | AC 참조 | 대상 파일 | 검증(이 명령 exit 0) | 의존 | [P] |
+| # | 태스크 | AC 참조 | 대상 파일 | 검증/판정 결과 | 의존 | [P] |
 |---|---|---|---|---|---|---|
 | 1 | stack-rule 전달 계약과 정본 rule 3종 백필 | AC-1~AC-4 | `AGENTS.md`, `.claude/rules/*.md`, 이 스펙 | `node /path/to/team-harness/plugins/harness-guard/scripts/check-repo-sync.mjs --repo .`는 잔여 MISSING으로 exit 1이되 pointer·rule 3종 `OK`, `WARN 0` | — | |
 | 2 | 제품 품질 회귀 검증 | AC-5 | 변경 없음 | backend `format:check`, `lint:check`, `build`, `test`; frontend `format:check`, `lint`, `test:unit`, `build` | #1 | |
