@@ -109,7 +109,7 @@ describe('Content + Chat 실DB 통합 (e2e)', () => {
   })
 
   it('Chat ask 로컬 폴백이 실 DB 콘텐츠를 랭킹하고 ChatLog를 영속화', async () => {
-    await content.create({
+    const activeContent = await content.create({
       title: '접촉사고 대처 5단계',
       slug: 'it-accident-steps',
       content:
@@ -126,10 +126,18 @@ describe('Content + Chat 실DB 통합 (e2e)', () => {
 
     expect(typeof res.botResponse).toBe('string')
     expect(res.botResponse.length).toBeGreaterThan(0)
+    const expectedSource = { id: activeContent.id, slug: 'it-accident-steps' }
+    expect(res.matchedSources).toEqual(
+      expect.arrayContaining([expect.objectContaining(expectedSource)]),
+    )
+    expect(res.botResponse).toContain(activeContent.title)
 
     // ChatLog 가 실제로 저장됐는지
     const logs = await prisma.chatLog.findMany({ where: { sessionKey } })
     expect(logs).toHaveLength(1)
     expect(logs[0].userMessage).toBe('접촉사고 났을 때 어떻게 해요')
+    expect(logs[0].matchedSources).toEqual(
+      expect.arrayContaining([expect.objectContaining(expectedSource)]),
+    )
   })
 })

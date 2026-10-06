@@ -1,9 +1,48 @@
 # 품질 리메디에이션 로드맵 — DriveTree
 
-> 상태: 제안(미착수). 머지 전 사용자 합의 필요.
+> 상태: 부분 구현됨; 현재 후보 QA와 Harness 검사 단계 전환 진행. 과거 정적 감사는 당시 기록이며 현재 결함 목록으로 재해석하지 않는다.
 > 작성 근거: 자매 프로젝트 erp 품질 감사에서 도출된 결함 클래스 + team-harness 표준.
 
 ## §0 Context / Why
+
+### 현재 상태와 QA 계약 (2026-10-07)
+
+기준 소스는 `bd634e62b2902cbd843a2d9bac9766464d06f9b6`이다. 사용자 승인으로 QA/문서 계약 연결과 격리 검증을 진행한다. 운영 배포·main/default 배치·브랜치 보호/이벤트 정책 변경은 별도 범위다.
+
+- T1-1: filter와 단위 회귀가 이미 구현됐다. 현재 시험의 HTTP 응답 증거를 대조하며 새 구현을 반복하지 않는다.
+- T2-1: `backend/test/content-chat.integration.e2e-spec.ts`와 CI `test:e2e` 연결이 존재한다. 실DB 실행 전 전체 PASS로 표시하지 않는다.
+- T2-2: Content `deletedAt`과 조회 제외·행/임베딩 보존 회귀가 존재한다. 과거 물리삭제 서술은 아래에 보존한다. 벡터 검색은 기존 단언만으로 전수 검증됐다고 주장하지 않는다.
+- T2-3: §6의 경량 error-code deviation 결정을 유지한다. 전면 Envelope를 새로 구현하지 않는다.
+- T3: 기존 제품 결정·잔여 정책을 유지한다. 이번 연결이 다중 운영자·PII 정책 합의를 만들지 않는다.
+
+| 필수 요구·위험 | 조건과 기대값 / 관찰 경계 | 검사·증거 / 현재 판정 |
+|---|---|---|
+| 입력 오류와 서버 오류 구분 | malformed 400, oversize 413, plain Error 500; filter 단위와 실제 HTTP 파서 경계를 구분 | backend 단위 70·e2e 17 PASS; 새 실제 HTTP parser 회귀 4개 포함 |
+| 데이터 보존·활성 조회 | 실DB CRUD 후 soft-delete; 단건/slug/목록 제외, Content 행·임베딩 보존 | 격리 Postgres의 backend `test:e2e` PASS |
+| AI 미사용 폴백 | 키 없이 실DB 콘텐츠를 검색하고 ChatLog 1개 저장; 삭제 콘텐츠는 출처에서 제외 | 출처 ID/slug의 응답·저장 긍정 단언을 보완; 실제 DB PASS, 검색이 빈 배열인 반례 검출 |
+| 브라우저 유지 흐름 | 홈·관리자·계산기 기존 기대값; API 대역은 실제 저장/실인증 증거와 분리 | frontend 단위 8·Chromium 20 PASS, 재시도 0; API 대역 관찰 |
+| 제품 필수 품질 | backend/frontend format·lint·build·단위·e2e exit 0; skip/미해결 flaky 금지 | 로컬 명령 모두 exit 0; 원격 CI는 NOT_RUN/UNVERIFIED |
+| 문서·검사 전환 | 현재 상태/링크와 후보 일치; 기존 commitlint 보존; 새 검사 정상/거부/metadata 경계 유지 | byte parity PASS, 독립 검토 후 검색 단언 보완 재검토 PASS; 원격 활성화 UNVERIFIED |
+
+증거는 이 절에 cwd·명령·후보·최초/최종 결과로 기록한다. 기대값은 §2 AC와 기존 단언이 근거이며 실패 뒤 약화하지 않는다. 추가 공백은 해당 경계만 보완하고 제품 전체 무결함으로 확대하지 않는다.
+
+### 실행 증거와 잔여 (2026-10-07)
+
+[실행 원문·명령·지문](harness-qa-contract-evidence.json)은 기준 SHA와 변경 파일 지문으로 후보를 식별한다. Node 22.18.0/npm 11.6.2, `npm ci`로 양쪽 lock을 설치했고 모든 검사는 해당 backend/frontend에서 실행했다. 새 pgvector/pg16 container의 합성 DB를 `127.0.0.1:55439`에만 노출하고 Gemini/Sentry 키를 비워 운영 외부 호출을 차단했다. DB 정리 시험은 `--runInBand`로 실행했다.
+
+최초 로컬 품질 명령은 모두 exit 0이었다. 독립 검토에서 기존 검색 단언 공백을 찾아 활성 출처 ID/slug가 응답과 ChatLog에 존재하는 긍정 단언을 보완했다. 검색 결과를 빈 배열로 만드는 안전한 일시 반례에서 새 단언이 exit 1로 검출했고 원본 runtime bytes 복구 후 전체 backend e2e를 다시 확인했다. 이는 실제 장애 재현이 아니라 검사 검출력 확인이다. 제품 runtime·schema·lock은 변경하지 않았다.
+
+**보안 잔여:** npm audit exit 1. backend 전체 28(critical 1/high 15), 운영 의존성 19(critical 1/high 9); frontend 전체 20(critical 1/high 13), 운영 의존성 9(critical 1/high 5). critical 보고 자산은 backend `proxy-addr`, frontend `next`다. 실제 악용 가능성은 이 감사로 확정하지 않는다. 의존성 수정은 이번 QA 계약 변경과 분리하고 배포 전 영향·수정 후보·회귀 검증을 확인한다. 전체 보안/배포 준비는 FAIL이며 기능 검사 PASS로 덮지 않는다.
+
+현재는 로컬 기능/품질 검증과 자산 준비 단계다. 원격 CI/병합/target 활성화/배포는 미실행이며 전체 채택 완료가 아니다. 독립 재검토에서 새 P1/P2 finding 없음으로 확인했다. 다음은 변경 후보 전달, 배포 영향 승인, 기존 보호를 보존하는 실제 원격 전환이다.
+
+### 신뢰 커밋 검사 전환 — 준비와 활성화 분리
+
+`.github/workflows/commitlint-trusted.yml`을 Harness v0.81.0 정본에서 추가한다. 기존 workflow와 필수 `commitlint`는 유지한다. develop 파일 존재나 최초 PR의 기존 CI green은 새 target 검사 활성화 증거가 아니다.
+
+다음은 별도 승인된 main/default 배치 → 후속 실제 PR의 같은 HEAD에서 새 검사 PASS → 새 required context 추가/readback → 기존 context 제거 순이다. 다른 검사·앱 binding·strict·승인·관리자·force-push/삭제 보호를 보존한다. 새 정본 파일을 감지하는 로컬 repo-sync는 18/18 PASS다. 이는 자산 정합성이고 원격 이벤트/필수 검사 활성화는 여전히 UNVERIFIED다. checker를 약화하거나 성공 상태를 수동 게시하지 않는다. develop 병합은 Railway staging 자동 배포와 연결되므로 검증 완료와 배포 승인을 분리한다.
+
+원본: [Harness 전환 계약](https://github.com/grinvi04/team-harness/blob/9838c2ef288b4566f81fae03acb56530ee165c06/docs/specs/trusted-commitlint.md). 전체 소비 적용: [Harness #496](https://github.com/grinvi04/team-harness/issues/496).
 
 자매 프로젝트 **erp**에서 실 스택 감사로 다수 결함을 찾아 **team-harness 표준**(`api-standards.md`·`db-standards.md`·`code-review.md`)에 메커니즘으로 박았다. DriveTree(NestJS 11 + Prisma 7 + pgvector RAG / Next.js 15)도 **같은 클래스 문제**가 있을 가능성이 높아 동일 기준으로 점검했다.
 
