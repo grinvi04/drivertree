@@ -1,9 +1,108 @@
 # 품질 리메디에이션 로드맵 — DriveTree
 
-> 상태: 제안(미착수). 머지 전 사용자 합의 필요.
+> 상태: 부분 구현됨; 현재 후보 QA와 Harness 검사 단계 전환 진행. 과거 정적 감사는 당시 기록이며 현재 결함 목록으로 재해석하지 않는다.
 > 작성 근거: 자매 프로젝트 erp 품질 감사에서 도출된 결함 클래스 + team-harness 표준.
 
 ## §0 Context / Why
+
+### 현재 상태와 QA 계약 (2026-10-07)
+
+기준 소스는 `bd634e62b2902cbd843a2d9bac9766464d06f9b6`이다. 사용자 승인으로 QA/문서 계약 연결과 격리 검증을 진행한다. 운영 배포·main/default 배치·브랜치 보호/이벤트 정책 변경은 별도 범위다.
+
+- T1-1: filter와 단위 회귀가 이미 구현됐다. 현재 시험의 HTTP 응답 증거를 대조하며 새 구현을 반복하지 않는다.
+- T2-1: `backend/test/content-chat.integration.e2e-spec.ts`와 CI `test:e2e` 연결이 존재한다. 실DB 실행 전 전체 PASS로 표시하지 않는다.
+- T2-2: Content `deletedAt`과 조회 제외·행/임베딩 보존 회귀가 존재한다. 과거 물리삭제 서술은 아래에 보존한다. 벡터 검색은 기존 단언만으로 전수 검증됐다고 주장하지 않는다.
+- T2-3: §6의 경량 error-code deviation 결정을 유지한다. 전면 Envelope를 새로 구현하지 않는다.
+- T3: 기존 제품 결정·잔여 정책을 유지한다. 이번 연결이 다중 운영자·PII 정책 합의를 만들지 않는다.
+
+| 필수 요구·위험 | 조건과 기대값 / 관찰 경계 | 검사·증거 / 현재 판정 |
+|---|---|---|
+| 입력 오류와 서버 오류 구분 | malformed 400, oversize 413, plain Error 500; filter 단위와 실제 HTTP 파서 경계를 구분 | backend 단위 70·e2e 17 PASS; 새 실제 HTTP parser 회귀 4개 포함 |
+| 데이터 보존·활성 조회 | 실DB CRUD 후 soft-delete; 단건/slug/목록 제외, Content 행·임베딩 보존 | 격리 Postgres의 backend `test:e2e` PASS |
+| AI 미사용 폴백 | 키 없이 실DB 콘텐츠를 검색하고 ChatLog 1개 저장; 삭제 콘텐츠는 출처에서 제외 | 출처 ID/slug의 응답·저장 긍정 단언을 보완; 실제 DB PASS, 검색이 빈 배열인 반례 검출 |
+| 브라우저 유지 흐름 | 홈·관리자·계산기 기존 기대값; API 대역은 실제 저장/실인증 증거와 분리 | frontend 단위 8·Chromium 20 PASS, 재시도 0; API 대역 관찰 |
+| 제품 필수 품질 | backend/frontend format·lint·build·단위·e2e exit 0; skip/미해결 flaky 금지 | 로컬 명령 모두 exit 0; 원격 CI는 NOT_RUN/UNVERIFIED |
+| 문서·검사 전환 | 현재 상태/링크와 후보 일치; 기존 commitlint 보존; 새 검사 정상/거부/metadata 경계 유지 | byte parity PASS, 독립 검토 후 검색 단언 보완 재검토 PASS; 원격 활성화 UNVERIFIED |
+
+증거는 이 절에 cwd·명령·후보·최초/최종 결과로 기록한다. 기대값은 §2 AC와 기존 단언이 근거이며 실패 뒤 약화하지 않는다. 추가 공백은 해당 경계만 보완하고 제품 전체 무결함으로 확대하지 않는다.
+
+### 최초 로컬 후보 b5fd437의 실행 증거와 잔여 (2026-10-07)
+
+[실행 원문·명령·지문](harness-qa-contract-evidence.json)은 기준 SHA와 변경 파일 지문으로 후보를 식별한다. Node 22.18.0/npm 11.6.2, `npm ci`로 양쪽 lock을 설치했고 모든 검사는 해당 backend/frontend에서 실행했다. 새 pgvector/pg16 container의 합성 DB를 `127.0.0.1:55439`에만 노출하고 Gemini/Sentry 키를 비워 운영 외부 호출을 차단했다. DB 정리 시험은 `--runInBand`로 실행했다.
+
+최초 로컬 품질 명령은 모두 exit 0이었다. 독립 검토에서 기존 검색 단언 공백을 찾아 활성 출처 ID/slug가 응답과 ChatLog에 존재하는 긍정 단언을 보완했다. 검색 결과를 빈 배열로 만드는 안전한 일시 반례에서 새 단언이 exit 1로 검출했고 원본 runtime bytes 복구 후 전체 backend e2e를 다시 확인했다. 이는 실제 장애 재현이 아니라 검사 검출력 확인이다. 제품 runtime·schema·lock은 변경하지 않았다.
+
+**보안 잔여:** npm audit exit 1. backend 전체 28(critical 1/high 15), 운영 의존성 19(critical 1/high 9); frontend 전체 20(critical 1/high 13), 운영 의존성 9(critical 1/high 5). critical 보고 자산은 backend `proxy-addr`, frontend `next`다. 실제 악용 가능성은 이 감사로 확정하지 않는다. 의존성 수정은 이번 QA 계약 변경과 분리하고 배포 전 영향·수정 후보·회귀 검증을 확인한다. 전체 보안/배포 준비는 FAIL이며 기능 검사 PASS로 덮지 않는다.
+
+현재는 로컬 기능/품질 검증과 자산 준비 단계다. 원격 CI/병합/target 활성화/배포는 미실행이며 전체 채택 완료가 아니다. 독립 재검토에서 새 P1/P2 finding 없음으로 확인했다. 다음은 변경 후보 전달, 배포 영향 승인, 기존 보호를 보존하는 실제 원격 전환이다.
+
+### 네 소비 보강 승인 후 의존성 보완 (2026-10-07)
+
+사용자 승인 후 `proxy-addr` 2.0.8과 `next`/`eslint-config-next` 16.3.6의 공식 수정 범위를 확인했다. 기존 manifest의 호환 범위 안에서 취약 transitive 의존성을 갱신했다. 증분 잠금 갱신 뒤 `npm ci`의 optional wasm 의존성 EUSAGE가 발생해 당시 실패를 보존하고, 빈 scratch에 manifest만 넣어 잠금 파일을 재생성했다. 양쪽 최종 `npm ci` PASS이며 테스트/skip/설치 기준을 약화하지 않았다.
+
+수정 후보에서 양쪽 format/lint/build·backend 단위 70/실DB e2e 17·frontend 단위 8/Chromium 20(재시도 0)을 다시 통과했다. 실제 proxy subnet의 허용/거부 경계도 확인했다. 제품 runtime/schema는 변경하지 않았다. source/audit/명령/candidate 지문은 실행 근거 JSON의 `securityFollowup`에 연결한다.
+
+**이전 감사 (Swagger YAML 수정 전):** backend 전체 25(moderate 21/high 4/critical 0), 운영 6(moderate 2/high 4/critical 0); frontend 전체 high 5/critical 0, 운영 0. 이전 critical 경고는 해소됐지만 전체 의존성 감사는 여전히 FAIL이다. backend Prisma 전이의 deepmerge-ts/mysql2 등과 Swagger YAML, frontend 개발 도구의 braces 전이는 잔여다. 감사의 Prisma major 다운그레이드/강제 수정을 적용하지 않는다. 샘플의 local braces patch를 이 제품에 자동 복사하지 않는다. 실제 악용 가능성과 별도 주요 버전/보완 채택은 추가 호환성·범위 검토가 필요하다.
+
+#### Swagger YAML 전이 보완의 QA 계약 (현 후보 실행 전)
+
+이번 범위는 `@nestjs/swagger` 11.4.7의 고정 `js-yaml` 5.3.0만 공식 수정판 5.4.3으로 교체한다. 이 제품의 Swagger 경로는 문서를 YAML로 **직렬화**하며 임의 YAML 업로드·파싱 API는 확인되지 않았다. 그러므로 취약한 파서 반례와 실제 Swagger 문서 소비 경로를 구분해 검증한다. 다른 Prisma 전이·프런트엔드 보안 잔여는 이 수정의 범위가 아니다.
+
+| 요구·위험 / 선정 이유 | 입력·환경 | 기대 결과 / 관찰 경계 | 필수 | 증거·판정 |
+|---|---|---|---|---|
+| GHSA-r3ph-w7gj-g6xm / 빈 mapping merge가 `maxTotalMergeKeys` 예산을 세지 않아 CPU를 소모 | Swagger가 실제 resolve한 `js-yaml`에 YAML11 빈 mapping merge 배열 5개와 예산 2 | 취약 5.3.0은 허용하는 RED; 수정판은 `maxTotalMergeKeys` 예외로 거부. 작은 합성 입력만 사용 | 필수 | 새 Swagger YAML 회귀의 RED→GREEN 원문 |
+| OpenAPI 문서 유지 / 라이브러리 강제 교체가 Swagger YAML 출력을 깨뜨릴 수 있음 | DB·외부 호출 없는 최소 Nest 앱에서 `SwaggerModule.createDocument`·`setup('api/docs')` | JSON·YAML 문서 endpoint 200, YAML을 Swagger resolve parser로 읽은 구조가 JSON과 동일하고 기존 앱 경로를 포함 | 필수 | 같은 e2e 회귀; 정상 문서 결과만 입증 |
+| 의존성 범위·제품 품질 | `npm ci`로 lock을 깨끗이 설치, Swagger 내부 resolve 버전과 backend format/lint/build/unit/e2e·실DB 경계 | Swagger만 5.4.3 resolve, 정상 전체 품질 exit 0, 실제 격리 DB 유지 | 필수 | 아래 로컬 PASS와 후보·명령·cwd·exit·소스 지문·원문 로그 연결; 원격 미확인 |
+
+**로컬 검증 결과 (2026-10-07):** [공식 GHSA-r3ph-w7gj-g6xm](https://github.com/advisories/GHSA-r3ph-w7gj-g6xm)의 최소 수정판은 5.4.1이고, 이 후보는 Swagger 11.4.7에만 `js-yaml` 5.4.3 override를 건다. 실제 Swagger 모듈이 resolve한 버전은 5.4.3이며 루트 4.3.2 등 다른 경로는 유지됐다. 새 `swagger-yaml.e2e-spec.ts`에서 취약 5.3.0의 예산 초과 입력은 거부 단언을 통과하지 못했고(RED), 5.4.3에서는 예외로 거부됐다(GREEN). 같은 시험에서 `SwaggerModule.createDocument`·`setup('api/docs')`의 JSON/YAML 엔드포인트가 200이며 두 문서의 파싱 결과가 같고 `/api` 경로를 포함함을 확인했다. 실제 앱은 Swagger YAML을 직렬화하며 외부 YAML을 파싱하는 API는 확인되지 않았다. 이 시험은 의존성 파서의 반례 차단과 기존 문서 경로의 호환성을 각각 입증한다.
+
+첫 증분 잠금파일 갱신은 선택적 `@emnapi` 항목이 빠져 `npm ci`가 EUSAGE로 실패했다. 빈 디렉터리에서 동일 `package.json`으로 잠금파일을 재생성하자 원래 lock 대비 Swagger YAML 세 값(version/resolved/integrity)만 바뀌었고, 그 파일로 `npm ci`가 통과했다. backend format/lint/build·단위 70·실DB e2e 19(새 2 포함)도 통과했다. 실DB는 기존 합성 전용 pgvector fixture의 127.0.0.1:55439 노출을 검사하고 실행 후 중지했다. 감사는 전체 24(moderate 20/high 4), 운영 4(high 4)로 각각 exit 1이며 남은 Prisma 전이 등은 이 후보에서 미수정이다. 전체 감사의 `js-yaml` moderate는 Jest 개발 전이 `@istanbuljs/load-nyc-config`의 3.15.2에 대한 `argparse` 경고이고 운영 감사에는 없다. [실행 원문·지문](harness-qa-contract-evidence.json)의 `swaggerYamlFollowup`에 각 후보·명령·실패·종료 상태를 연결한다. 원격 CI·PR·병합·배포는 미실행/UNVERIFIED다.
+
+Swagger YAML 후보 `8c5b4f89ca6b7c3bbb255c89e7dcef5ca60728cc`의 독립 검토에서 추가 P1/P2는 발견되지 않았다. 검토 원문은 [실행 근거 JSON](harness-qa-contract-evidence.json)의 `swaggerYamlFollowup.independentReviewEvidence`에 연결한다. 당시 커밋의 소스 지문 4개와 실행 원문 18개를 대조했으며, 후속 미커밋 변경은 이 검토의 통과 범위에 포함하지 않는다. 원격 CI/병합·default branch 배치·필수 검사 전환·staging/production 배포는 여전히 NOT_RUN/UNVERIFIED다. 로컬 기능 품질 PASS와 전체 보안/배포 FAIL을 구분한다.
+
+#### Prisma 내부 전이 보완의 QA 계약 (실행 전 고정)
+
+이번 후보는 Prisma·`@prisma/config`·`@prisma/client` 7.10.0을 유지하면서 Prisma CLI의 정확한 하위 전이 `deepmerge-ts` 7.1.5→8.0.0, `mysql2` 3.15.3→3.23.1만 바꾼다. 기존 Swagger override와 제품 TypeScript·schema·시험·frontend 파일은 그대로 둔다. 원래 재현은 현 잠금파일의 네 가지 high 감사 항목과 `npm ls` 실제 전이이다. 정상 유지 시험은 이미 있는 품질·실DB e2e를 재사용한다.
+
+| 요구·위험 / 선정 이유 | 조건·행동 / 환경 | 기대 결과·관찰 경계 | 필수 | 증거·판정 |
+|---|---|---|---|---|
+| 취약 전이 제거 / deepmerge 재귀 객체·mysql 인증/압축 경고 | clean lock·`npm ci`, `npm ls`와 `npm audit` 전체/운영 | CLI 두 전이만 공식 수정판으로 resolve; 기존 Prisma 7.10.0·Swagger 유지. 운영 감사 0, 전체 감사의 개발 도구 잔여는 별도 FAIL로 보고 | 필수 | 로컬 PASS; 전체 감사 20 moderate/exit 1은 별도 잔여 |
+| deepmerge 8 Map 병합 의미 변경 / 설정 적재 호환 | `.env`를 읽지 않는 합성 Postgres URL로 실제 제품 config/schema의 `prisma validate`·`generate` | 둘 다 exit 0, 생성 클라이언트 7.10.0. 현재 설정에 Map이 없다는 정적 경계만 주장 | 필수 | 로컬 PASS; 실제 Map 설정 호환성은 미시험 |
+| Prisma runtime·마이그레이션 유지 / SQL·데이터 경계 | 기존 전용 127.0.0.1:55439 pgvector 컨테이너의 **새 합성 DB**에 `migrate deploy` 후 backend format/lint/build/unit/e2e | migration deploy exit 0, 단위 70·실DB e2e 19 및 나머지 품질 명령 exit 0; 새 DB 외 행 미변경 | 필수 | 로컬 PASS; 생성한 DB 삭제·fixture 종료 |
+| MySQL 패키지 자체 변경 / 제품 비적용 경계 | 제품은 `PrismaPg`/Postgres만 호출하며 MySQL endpoint·DB 없음 | 제품 Postgres 경로만 확인. 실제 MySQL 연결 호환성은 이번 제품 범위에 비적용, 일반 MySQL 지원 주장 금지 | 비적용 | 실제 MySQL 시험 SKIP; 별도 사용 시 재검증 |
+
+**로컬 결과 (2026-10-07):** [deepmerge 취약점](https://github.com/advisories/GHSA-ggr8-5vv4-36mx)은 8.0.0에서, [mysql2 평문 인증](https://github.com/advisories/GHSA-3f6p-5ww8-9rcr)은 3.22.0에서, [mysql2 압축 해제](https://github.com/advisories/GHSA-rgwj-5xj2-c3m3)는 3.23.1에서 각각 수정됐다. 실제 제품의 clean `npm ci`·resolve에서 Prisma와 client 7.10.0, Swagger YAML 5.4.3을 유지하고 두 Prisma 내부 전이만 8.0.0/3.23.1로 교체했다. npm lock의 추가 차이는 mysql2 전이의 `sqlstring`·`seq-queue` 제거와 `sql-escaper` 추가뿐이다. 이번 제품 config는 plain object이며 Map이 없고 `prisma validate`·`generate`가 합성 URL로 통과했다. Map 값의 깊은 병합 변경 자체는 프로젝트 설정에서 관찰되지 않았다.
+
+새 합성 DB `qa_prisma_2cec6e6bbc46`에서 `migrate deploy`가 3개 migration을 적용했고 backend format/lint/build·단위 70·실DB e2e 19가 통과했다. 기존 데이터베이스 행은 시험 대상으로 사용하지 않았다. 새 DB는 삭제하고 pgvector fixture를 종료했다. backend 감사 결과 운영 0/exit 0, 전체 20 moderate/exit 1이다. 남은 `sprintf-js` 등은 Jest 개발 전이에 있으며 [공식 advisory](https://github.com/advisories/GHSA-hp3w-g68c-fv3c)에 수정판이 없다. frontend 이전 검사(단위 8·Chromium 20)는 frontend manifest/lock 지문과 코드가 unchanged여서 기존 `securityFollowup` 증거를 재사용했다; 이번 후보에서 다시 실행하지 않았다. [명령·실행 원문·소스 지문](harness-qa-contract-evidence.json)의 `prismaTransitiveFollowup`에 연결한다.
+
+MySQL 실제 연결은 제품이 PostgreSQL `PrismaPg`만 사용하는 현재 범위에 비적용이며 일반 Prisma CLI의 모든 MySQL 동작을 보증하지 않는다. backend 전체 감사 exit 1과 frontend braces high 5는 남아 있어 제품 전체 보안 gate는 FAIL이다. 로컬 기능·마이그레이션 검사와 원격 CI/PR/병합/배포를 구분하며, 원격은 NOT_RUN/UNVERIFIED다.
+
+Prisma 보완 후보 `0a654e0eb74d1ccee671200a776b3245e4affccc`의 독립 검토 결과 추가 P1/P2는 없다. 검토는 소스 12개·실행 원문 21개와 조사 근거 24개 지문 일치, 새 DB 삭제·loopback fixture 종료, 7.10.0/Swagger 5.4.3 유지 및 lock 변경 범위를 확인했다. 이는 현재 PostgreSQL 설정·실DB 흐름의 로컬 후보 판정이다. Map 설정과 실제 MySQL 경로, frontend 경고 5건과 전체 backend 개발 도구 경고 20건, 원격 단계는 해결·검증한 범위가 아니다. 이 문단과 근거 JSON의 후속 갱신은 **문서 전용 커밋**이며 `0a654e0`에서 실행한 제품 검사를 새 코드 후보에서 재실행한 것으로 주장하지 않는다.
+
+#### 수정판 없는 `braces` 깊이 오류의 로컬 보완 (2026-10-07)
+
+이번 범위는 frontend 개발 도구의 `eslint-config-next` → `@next/eslint-plugin-next` → `fast-glob` → `micromatch` → `braces@3.0.3`만이다. [GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm)에 게시된 수정판은 없고 [상류 PR #78](https://github.com/micromatch/braces/pull/78)은 아직 병합·출시되지 않았다. 상류 패치를 자동 복사하지 않고 이 제품의 설치 소스 6개 SHA, 실제 ESLint `getRootDirs` 소비 경로, 정상 입력을 격리 복사본에서 먼저 대조했다. 현 제품 ESLint 설정은 `next.rootDir`을 별도로 지정하지 않으므로 원격 요청이 이 패턴에 도달한다고 주장하지 않는다. 합성 설정의 깊은 패턴은 수정 전 `RangeError`로 실패한다.
+
+| 요구·위험 / 선정 이유 | 조건·행동 / 환경 | 기대 결과 / 관찰 경계 | 필수 | 증거·판정 |
+|---|---|---|---|---|
+| 깊은 brace·직접 AST의 스택 소진 | 512KB stack 자식에서 2000단계 패턴과 AST, `parse`·`compile`·`expand`·`stringify` | 원래 `RangeError` 또는 무제한 허용을 재현한 뒤 제한된 `SyntaxError`로 거부; 시간 제한 내 종료 | 필수 | 회귀 RED→GREEN, 로컬 PASS |
+| 기존 구문과 직접 소비자 유지 | 정상 alternatives·range·escape, ESLint `getRootDirs` 정상/깊은 합성 `rootDir` | 정상 결과 유지, 깊은 입력은 `SyntaxError`; API·실제 서비스 입력으로 확대 해석 금지 | 필수 | 정상 30개 비교·제품 회귀 PASS |
+| 설치 시 보완 누락·드리프트 차단 | 깨끗한 `npm ci`, 정확한 버전·원본/패치 SHA, 재실행·변조·새 버전·심볼릭 링크/표준입력 import, 개발 의존성 제외 | 설치 직후 6파일 SHA가 검증된 후보와 동일. 다른 바이트/버전은 사전 검사에서 실패; 재실행은 0파일. `--omit=dev`에서 패키지가 실제 없을 때만 적용 불필요. 표준입력 import는 무출력·설치 바이트 불변 | 필수 | 설치 원문, 무결성 회귀 10건 PASS |
+| 프런트 품질과 보안 잔여 | 비밀 `.env`를 제외한 동일 소스 격리본에서 format/lint/unit/build; 전체/운영 npm audit | 품질 명령 exit 0. npm audit의 수정판 없는 dev 전이 경고는 별도 FAIL, 운영 의존성은 0 | 필수/잔여 | 로컬 품질 PASS; 전체 audit FAIL |
+
+`frontend/scripts/apply-braces-depth.mjs`를 `postinstall`에 연결했다. 스크립트는 `braces@3.0.3`과 6개 원본/패치 지문 및 유일한 변경 문맥을 모두 검사한 뒤 설치 파일에만 쓴다. 패치된 바이트의 재검증과 `test:dependency-security`를 제공하며, `--ignore-scripts` 설치 등으로 적용되지 않았다면 무결성 검사가 실패한다. 개발 의존성을 실제로 제외한 `npm ci --omit=dev`에서 `braces`가 없는 경우만 적용 불필요를 명시 출력하고 설치를 유지한다. 그 밖의 의존성 누락은 실패한다. 100을 넘는 정상 중첩 패턴도 의도적으로 거부하는 한계가 있고, 확장 결과의 개수·임의의 잘못 형성된 AST 전체를 제한하지 않는다. 공식 수정판이 출시되고 현재 소비 전이에 호환되면 동일 회귀를 통과한 뒤 이 로컬 보완을 제거한다.
+
+기준 HEAD는 `76cb019958e929200b0de42533182aec93d1bfeb`이며 변경 소스·원문 로그·최초 실패와 환경 수정은 [실행 근거 JSON](harness-qa-contract-evidence.json)의 `bracesDepthFollowup`에 있다. 원본에서 깊이 회귀 4개 중 3개가 실패했다. 최초 로컬 커밋 `40ffba2`의 독립 검토에서 표준입력 `node --input-type=module -`로 패치 스크립트를 import하면 `realpathSync('-')`가 `ENOENT`로 실패하는 경계를 발견했다. 새 회귀는 기존 소스에서 RED였고, 직접실행 판별 앞에 파일 존재 검사를 더한 최종 후보에서 무출력·설치 바이트 불변으로 GREEN, 보안 회귀 전체 10/10 PASS다. 깨끗한 `npm ci`가 `postinstall` 6파일 적용을 다시 출력했고, 설치된 6개 SHA를 검증했다. 수정된 스크립트에 대해 format/lint를 다시 통과했다. unit 8건/build의 직전 통과 원문은 제품 앱 입력·잠금파일·설치 패치 바이트가 변하지 않아 재사용하며 이번 문서 후속에서 재실행한 것으로 주장하지 않는다. 최초 format은 상위 `.prettierrc` 누락으로 FAIL한 뒤 원본과 동일 지문을 복사해 통과했다. 최초 build는 격리본의 외부 `node_modules` 심볼릭 링크를 Turbopack이 거부했고, 같은 설치 디렉터리를 격리본 안으로 복사해 통과했다. `--omit=dev` 첫 시험은 `braces` 부재로 실패했으며, 실제 개발 도구가 없는 그 설치에만 적용을 생략하도록 수정한 뒤 격리 재설치가 통과했다. 첫 명령은 실수로 제품 `node_modules`에서 실행됐으나 즉시 전체 `npm ci`로 복구했고 이후 최종 설치·검사를 다시 수행했다. 이 실패를 제품 코드 실패나 재현성 있는 flaky로 덮지 않는다.
+
+frontend 전체 감사는 여전히 high 5/exit 1이며 운영 의존성 감사는 0/exit 0이다. 로컬 패치는 npm 감사의 패키지 메타데이터를 바꾸지 않으므로 전체 보안 gate를 PASS로 표시하지 않는다. backend `sprintf-js@1.0.3`의 과도한 숫자 정밀도 예외는 직접 호출에서 재현했지만 현재 Jest의 `@istanbuljs/load-nyc-config` → `js-yaml` 프로그래밍 경로는 `argparse`/`sprintf-js`를 로드하지 않았고, `argparse`는 YAML CLI에서만 참조된다. 현 제품 입력이 해당 형식 문자열에 도달한다는 증거가 없어 backend를 패치하지 않았다. 실제 새 소비 경로가 생기면 별도 재평가한다. 원격 CI·PR·병합·배포는 NOT_RUN/UNVERIFIED다.
+
+### 신뢰 커밋 검사 전환 — 준비와 활성화 분리
+
+`.github/workflows/commitlint-trusted.yml`을 Harness v0.81.0 정본에서 추가한다. 기존 workflow와 필수 `commitlint`는 유지한다. develop 파일 존재나 최초 PR의 기존 CI green은 새 target 검사 활성화 증거가 아니다.
+
+다음은 별도 승인된 main/default 배치 → 후속 실제 PR의 같은 HEAD에서 새 검사 PASS → 새 required context 추가/readback → 기존 context 제거 순이다. 다른 검사·앱 binding·strict·승인·관리자·force-push/삭제 보호를 보존한다. 새 정본 파일을 감지하는 로컬 repo-sync는 18/18 PASS다. 이는 자산 정합성이고 원격 이벤트/필수 검사 활성화는 여전히 UNVERIFIED다. checker를 약화하거나 성공 상태를 수동 게시하지 않는다. develop 병합은 Railway staging 자동 배포와 연결되므로 검증 완료와 배포 승인을 분리한다.
+
+원본: [Harness 전환 계약](https://github.com/grinvi04/team-harness/blob/9838c2ef288b4566f81fae03acb56530ee165c06/docs/specs/trusted-commitlint.md). 전체 소비 적용: [Harness #496](https://github.com/grinvi04/team-harness/issues/496).
 
 자매 프로젝트 **erp**에서 실 스택 감사로 다수 결함을 찾아 **team-harness 표준**(`api-standards.md`·`db-standards.md`·`code-review.md`)에 메커니즘으로 박았다. DriveTree(NestJS 11 + Prisma 7 + pgvector RAG / Next.js 15)도 **같은 클래스 문제**가 있을 가능성이 높아 동일 기준으로 점검했다.
 

@@ -51,7 +51,9 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 
 ## 빌드·테스트 명령
 
-- 백엔드 품질(format·lint·test): `cd backend && npm run format && npm run lint:check && npm test`
+- 백엔드 품질 검사: `cd backend && npm run format:check && npm run lint:check && npm run build && npm test && npm run test:e2e`
+- 프론트 품질 검사: `cd frontend && npm run format:check && npm run lint && npm run test:unit && npm run build && npm run test:e2e`
+- `format`과 `lint --fix`는 수정 명령이다. 검증에는 `format:check`와 `lint:check`를 사용한다.
 - 백엔드 테스트만: `cd backend && npm test`
 - 프론트 빌드: `cd frontend && npm run build`
 - 프론트 단위 테스트: `cd frontend && npm run test:unit` (vitest + @testing-library/react)
@@ -62,6 +64,20 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 ## 문서 관리
 
 > **이 repo의 프로젝트 상태는 repo/GitHub에 둔다.** 플랜·스펙은 `docs/specs/`, 백로그·할 일은 GitHub Issues + Milestone(`/milestone`), 작업로그는 git 히스토리 + CHANGELOG/릴리즈노트, 설계 결정·도메인 지식은 `docs/decisions.md`에 기록한다. **도구 로컬 AI 메모리(예: `~/.claude` 메모리)에 프로젝트 상태·백로그·작업로그·결정·도메인 지식을 두지 않는다**(다른 PC·세션·사람이 못 보고 유실). 로컬 메모리는 팀 공유 불필요한 *개인 작업습관*에만 최소로. (정본: `ai-collaboration.md`)
+
+## QA 범위와 완료 기준
+
+- 구현·시험 전에 기존 스펙에 요구·위험 → 필수 정상/거부/실패/경계 사례 → 기대값과 관찰 경계 → 명령·환경을 연결한다. 테스트 개수나 파일 존재로 완료를 판정하지 않는다.
+- 기존 [품질 로드맵](docs/specs/quality-remediation.md)의 현재 후보·검증 표를 재사용한다. API 오류, 실DB CRUD·소프트삭제·챗 폴백, 브라우저 흐름은 각 관찰 경계를 구분한다. 브라우저 API 대역의 성공을 실제 DB·권한 성공으로 확대하지 않는다.
+- 시험 전 DB가 이번 작업의 격리된 loopback fixture인지 확인한다. 통합 시험은 전체 행을 정리하므로 기존 로컬/운영 DB에 실행하지 않는다. 운영 키·외부 Gemini 호출을 사용하지 않는다.
+- 증거에는 cwd·후보 SHA/미커밋 diff·명령·종료 코드·최초 실패와 재시도 조건을 남긴다. PASS/FAIL/UNVERIFIED/SKIP을 구분하고 미실행은 UNVERIFIED, 실제 비적용만 SKIP이다. 필수 flaky·실패·미확인이 남으면 완료 금지다.
+- 완료는 선정한 필수 범위 모두 PASS, 범위 내 차단 결함 0, 같은 후보의 제품 품질/원격 gate·필요한 독립 검토, 문서 상태 일치가 함께 필요하다. 구현·로컬 검증·병합·검사 활성화·배포를 별도로 보고한다.
+
+## Markdown 동기화 완료 기준
+
+- 변경 시작 시 관련 스펙·체크리스트·사용 안내를 확인하고 실제 변경·검증·진행 상태와 다음 행동을 같은 작업에서 갱신한다. 오래된 현재 안내가 남으면 완료로 판정하지 않는다.
+- 과거 기록은 당시 후보·실패·한계를 보존하고 최신 상태로 연결한다. PR/이슈에 갱신 문서와 상태 근거를 연결하며 영향이 없으면 이유를 남긴다.
+- 완료 전에 참조 경로·명령·후보·완료/미완료 표현을 대조한다. 재사용 체크리스트를 실제 진행 백로그로 세지 않는다.
 
 ## Stack Rule 전달
 
