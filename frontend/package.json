@@ -16,7 +16,9 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:report": "playwright show-report",
     "test:unit": "vitest run",
-    "test:unit:watch": "vitest"
+    "test:unit:watch": "vitest",
+    "postinstall": "node scripts/apply-braces-depth.mjs",
+    "test:dependency-security": "node scripts/apply-braces-depth.mjs --check && node --test scripts/test-braces-*.mjs"
   },
   "dependencies": {
     "@types/sanitize-html": "^2.16.1",

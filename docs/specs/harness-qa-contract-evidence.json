@@ -6750,5 +6750,315 @@
       "documentationReconciliation": "This follow-up changes only the product spec and evidence JSON; original 0a654e0 source fingerprints and raw logs are preserved under reviewedCandidateSourceFingerprints and checks. No code/QA rerun."
     },
     "documentationSpecSha256": "08429133646bf3ff41fbbdbbfa6b99b89f4aaee434497816db5634b2d80f3872"
+  },
+  "bracesDepthFollowup": {
+    "date": "2026-10-07",
+    "baseSha": "76cb019958e929200b0de42533182aec93d1bfeb",
+    "candidate": "base SHA plus sourceFingerprints; final local commit in Git history",
+    "scope": "DriveTree frontend installed braces@3.0.3 depth guard only; backend code/lock and frontend lock unchanged",
+    "qaContract": {
+      "reject": "2000 nested braces and direct AST nodes reject as SyntaxError under 512KB child stack",
+      "retain": "ordinary alternatives/ranges/escapes and Next ESLint getRootDirs normal path",
+      "install": "clean npm ci applies 6 pinned files and --check verifies; drift/new version fail closed",
+      "quality": "format/lint/unit/build after clean install; whole/prod audit accurately reported",
+      "productionOnly": "If dev dependencies are omitted and braces is absent, postinstall reports SKIP; unexpected missing braces remains an error. Scratch npm ci --omit=dev must pass."
+    },
+    "sourceFingerprints": {
+      "frontend/package.json": "4c6ca6fd89ab5c1d0bd4402c18453c8912230ba0ad73f5612e90b367bf44f2b8",
+      "frontend/package-lock.json": "905c7d9ea86cf969a70fdf164e19885b053b476d0b58a957690a884361626144",
+      "frontend/scripts/apply-braces-depth.mjs": "a475d38cc3d661b8c38a53a3b04f9f46dda72257023b590e0287e0823a77a9a2",
+      "frontend/scripts/test-braces-depth.mjs": "4a4816cf8f58c5d2d9a549fa6807db00a4ad2a2fc6951580f7f755e9d52476d0",
+      "frontend/scripts/test-braces-patch.mjs": "0e11fd36c68037f416372d6f79f54d147460979f53a107c46edb0ccf098e41a7",
+      "docs/specs/quality-remediation.md": "d115caf46099bc98e7d5e42cee6dbd015221111074ff9b69ecf981e1a24199f6"
+    },
+    "installedPatchFingerprints": {
+      "lib/parse.js": "adf3c108a16afaabe5379298d2227881e88f536cc7345b7df780a80d38dd01f9",
+      "lib/compile.js": "88cf20f18b59c9b2741c2d9b0f0ac6b2967d8e174667edf817133ca57d76809e",
+      "lib/expand.js": "46a259d3f23c0cd441fa370f16d5d48fa71060dfe918eeba84f6e95d3a94d368",
+      "lib/stringify.js": "a3b8b5e7567ff9bfdbe155479fbdd92d5a924c3919adf05316f8f0c4f6330332",
+      "lib/utils.js": "bbdfdad69da36c1994a19006af254659586a20d2c00b2a936926b7905cfb3aaf",
+      "lib/constants.js": "8d0bfdb50bb1e5267facef720ba09179634761165e3d6e13ad512ed10d6c180c"
+    },
+    "checks": [
+      {
+        "name": "red-before-patch",
+        "cwd": "/Users/grinvi04/project/DriveTree/frontend",
+        "command": "node --test scripts/test-braces-depth.mjs",
+        "exitCode": 1,
+        "rawPath": "/tmp/drivetree-residual-20261007/product-red.log",
+        "sha256": "2d77d8415c81586c6e48746f838471837d435077c3ca44c760c8012cae39add1"
+      },
+      {
+        "name": "local-patch-application",
+        "cwd": "/Users/grinvi04/project/DriveTree/frontend",
+        "command": "node scripts/apply-braces-depth.mjs",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-residual-20261007/product-apply.log",
+        "sha256": "6f29f1d96c3486a9ff8b1de98374afee4d0801d4509377ccf567fa1935559032"
+      },
+      {
+        "name": "green-before-clean-install",
+        "cwd": "/Users/grinvi04/project/DriveTree/frontend",
+        "command": "node --test scripts/test-braces-depth.mjs",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-residual-20261007/product-green.log",
+        "sha256": "f35c35259daac5ebbcf1e6ee5ffba32a25f43d4e76728bd1adf75b60d623c79c"
+      },
+      {
+        "name": "clean-product-install",
+        "cwd": "/Users/grinvi04/project/DriveTree/frontend",
+        "command": "npm ci",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-residual-20261007/product-npm-ci.log",
+        "sha256": "6602650c042b0226b66ef28e06c76eb04e43843f518ae0312aad056acf5bea8d"
+      },
+      {
+        "name": "security-after-ci",
+        "cwd": "/tmp/drivetree-residual-20261007/frontend-qa",
+        "command": "npm run test:dependency-security",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-residual-20261007/qa-security.log",
+        "sha256": "783b870bdbc7f263ede21cdff8c9af742947e8d29dc4f9c35dfa35f5c2c65687"
+      },
+      {
+        "name": "format-first",
+        "cwd": "/tmp/drivetree-residual-20261007/frontend-qa",
+        "command": "npm run format:check",
+        "exitCode": 1,
+        "rawPath": "/tmp/drivetree-residual-20261007/qa-format.log",
+        "sha256": "b55a5cdcb981a3cd90b8a14f8221b8998bccd81f949595a3245a66e5f6242827"
+      },
+      {
+        "name": "format-retry",
+        "cwd": "/tmp/drivetree-residual-20261007/frontend-qa",
+        "command": "npm run format:check",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-residual-20261007/qa-format-retry.log",
+        "sha256": "002c014304d8d33fea1bf353067c069fcab2fb71ce13f00a5d54fd4ff97a203f"
+      },
+      {
+        "name": "lint",
+        "cwd": "/tmp/drivetree-residual-20261007/frontend-qa",
+        "command": "npm run lint",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-residual-20261007/qa-lint.log",
+        "sha256": "259003c148efb132787bf125338f211ea063fa22f1a9bdd7fc8d278ff1d78950"
+      },
+      {
+        "name": "unit",
+        "cwd": "/tmp/drivetree-residual-20261007/frontend-qa",
+        "command": "npm run test:unit",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-residual-20261007/qa-unit.log",
+        "sha256": "1f840ab1a954ee80dd7e238a3252b5beb484dd0333ca08847568395c59e12b68"
+      },
+      {
+        "name": "build-first",
+        "cwd": "/tmp/drivetree-residual-20261007/frontend-qa",
+        "command": "NEXT_PUBLIC_API_URL=http://127.0.0.1:4000/api NEXT_TELEMETRY_DISABLED=1 npm run build",
+        "exitCode": 1,
+        "rawPath": "/tmp/drivetree-residual-20261007/qa-build.log",
+        "sha256": "ac648f41f1e13e1c0707109c6a8f6d52f4328c590069958caf47cb2b3495b173"
+      },
+      {
+        "name": "build-retry",
+        "cwd": "/tmp/drivetree-residual-20261007/frontend-qa",
+        "command": "NEXT_PUBLIC_API_URL=http://127.0.0.1:4000/api NEXT_TELEMETRY_DISABLED=1 npm run build",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-residual-20261007/qa-build-retry.log",
+        "sha256": "c23610e8dee800f0b6d4487920249ec29333c073594d474e71b5a0d935e687a8"
+      },
+      {
+        "name": "full-audit",
+        "cwd": "/Users/grinvi04/project/DriveTree/frontend",
+        "command": "npm audit --json",
+        "exitCode": 1,
+        "rawPath": "/tmp/drivetree-residual-20261007/qa-audit-full.json",
+        "sha256": "ddc8b843df815b50fa51f16805f1fb3ebe2ff9061935b077261b2ca74631094a"
+      },
+      {
+        "name": "production-audit",
+        "cwd": "/Users/grinvi04/project/DriveTree/frontend",
+        "command": "npm audit --omit=dev --json",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-residual-20261007/qa-audit-prod.json",
+        "sha256": "b2fbe9c71f78d45d8b7d71d5ef89a92e7a21c218a9bcc3f93cef851aa8ccf397"
+      },
+      {
+        "name": "prod-omit-product-first",
+        "cwd": "/Users/grinvi04/project/DriveTree/frontend",
+        "command": "npm ci --omit=dev --no-audit --no-fund",
+        "exitCode": 1,
+        "rawPath": "/tmp/drivetree-residual-20261007/prod-install-first.log",
+        "sha256": "5c64a3205b5b406f9ea880bfe7d8fa923790df7703c61ed2aded19580499b7ea"
+      },
+      {
+        "name": "product-install-restored",
+        "cwd": "/Users/grinvi04/project/DriveTree/frontend",
+        "command": "npm ci",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-residual-20261007/product-npm-ci-restore.log",
+        "sha256": "b22d0a4f1575c4ebf5ac5e445a4b9fd601ae0969c6727bf22ff1779518810d97"
+      },
+      {
+        "name": "prod-omit-scratch-first",
+        "cwd": "/tmp/drivetree-residual-20261007/prod-install",
+        "command": "npm ci --omit=dev --no-audit --no-fund",
+        "exitCode": 1,
+        "rawPath": "/tmp/drivetree-residual-20261007/prod-install-scratch.log",
+        "sha256": "fac36645b12cc24c08cc20c6b5f1f6872ecfb62397e0f49175b11b230f9bc229"
+      },
+      {
+        "name": "prod-omit-scratch-retry",
+        "cwd": "/tmp/drivetree-residual-20261007/prod-install",
+        "command": "npm ci --omit=dev --no-audit --no-fund",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-residual-20261007/prod-install-retry.log",
+        "sha256": "4e8f8d5f7c17496462f687e28ef8e4977be69ce978914c705b3aaea668e10835"
+      },
+      {
+        "name": "clean-product-install-final",
+        "cwd": "/Users/grinvi04/project/DriveTree/frontend",
+        "command": "npm ci",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-residual-20261007/product-npm-ci-final.log",
+        "sha256": "89afae649e999b673ff419beba8c2e6078c7445cf60900e6314855839c49e7d5"
+      },
+      {
+        "name": "final-security",
+        "cwd": "/tmp/drivetree-residual-20261007/frontend-qa",
+        "command": "npm run test:dependency-security",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-residual-20261007/qa-final-security.log",
+        "sha256": "c77bc7844a43d9e443205340537bfb883bbf01370489b9c6abe7c5f6c3fd683e"
+      },
+      {
+        "name": "final-format",
+        "cwd": "/tmp/drivetree-residual-20261007/frontend-qa",
+        "command": "npm run format:check",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-residual-20261007/qa-final-format.log",
+        "sha256": "002c014304d8d33fea1bf353067c069fcab2fb71ce13f00a5d54fd4ff97a203f"
+      },
+      {
+        "name": "final-lint",
+        "cwd": "/tmp/drivetree-residual-20261007/frontend-qa",
+        "command": "npm run lint",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-residual-20261007/qa-final-lint.log",
+        "sha256": "259003c148efb132787bf125338f211ea063fa22f1a9bdd7fc8d278ff1d78950"
+      },
+      {
+        "name": "final-unit",
+        "cwd": "/tmp/drivetree-residual-20261007/frontend-qa",
+        "command": "npm run test:unit",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-residual-20261007/qa-final-unit.log",
+        "sha256": "5ac089345908390493c23d803ddbb939e0bcabc61aca900bb74574a9e65caf3c"
+      },
+      {
+        "name": "final-build",
+        "cwd": "/tmp/drivetree-residual-20261007/frontend-qa",
+        "command": "NEXT_PUBLIC_API_URL=http://127.0.0.1:4000/api NEXT_TELEMETRY_DISABLED=1 npm run build",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-residual-20261007/qa-final-build.log",
+        "sha256": "f0077b3912da19bf8a999240a7c468833258980851a790706119438498563a69"
+      },
+      {
+        "name": "frozen-security",
+        "cwd": "/tmp/drivetree-residual-20261007/frontend-qa",
+        "command": "npm run test:dependency-security",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-residual-20261007/qa-frozen-security.log",
+        "sha256": "a42dfc667ca5df2e9953c3cc5485dcedee0e0aa53d6e435c545ad1c2f810a780"
+      },
+      {
+        "name": "frozen-format",
+        "cwd": "/tmp/drivetree-residual-20261007/frontend-qa",
+        "command": "npm run format:check",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-residual-20261007/qa-frozen-format.log",
+        "sha256": "002c014304d8d33fea1bf353067c069fcab2fb71ce13f00a5d54fd4ff97a203f"
+      },
+      {
+        "name": "frozen-lint",
+        "cwd": "/tmp/drivetree-residual-20261007/frontend-qa",
+        "command": "npm run lint",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-residual-20261007/qa-frozen-lint.log",
+        "sha256": "259003c148efb132787bf125338f211ea063fa22f1a9bdd7fc8d278ff1d78950"
+      },
+      {
+        "name": "frozen-unit",
+        "cwd": "/tmp/drivetree-residual-20261007/frontend-qa",
+        "command": "npm run test:unit",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-residual-20261007/qa-frozen-unit.log",
+        "sha256": "5ff0f080afa0cff500591d3b185951a6976540f08f4f25d5ea13d4ff13412a6c"
+      },
+      {
+        "name": "frozen-build",
+        "cwd": "/tmp/drivetree-residual-20261007/frontend-qa",
+        "command": "NEXT_PUBLIC_API_URL=http://127.0.0.1:4000/api NEXT_TELEMETRY_DISABLED=1 npm run build",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-residual-20261007/qa-frozen-build.log",
+        "sha256": "44f97400eb12e235f967a9ffb43e31ad9a241687ff206195062c3b6a6d5ec378"
+      }
+    ],
+    "observations": {
+      "redRegression": "1/4 passed, 3/4 failed on original installed braces",
+      "securityAfterCi": "9/9 passed, no skips on frozen candidate",
+      "unit": "8 passed",
+      "cleanInstall": "postinstall applied 6 files",
+      "fullAudit": "5 high, critical 0, exit 1; metadata continues to flag unpatched package",
+      "productionAudit": "0 vulnerabilities, exit 0",
+      "productionOnly": "first two attempts failed on absent dev dependency; final scratch npm ci --omit=dev exit 0, 95 packages; no braces installed",
+      "finalCandidate": "clean full npm ci applied 6 files, frozen security 9/9, format/lint/unit 8/build exit 0"
+    },
+    "firstFailureResolution": [
+      {
+        "first": "format-first",
+        "cause": "scratch copy lacked the product root .prettierrc",
+        "changedCondition": "copied same SHA .prettierrc to scratch parent",
+        "final": "format-retry"
+      },
+      {
+        "first": "build-first",
+        "cause": "Turbopack rejected scratch node_modules symlink outside filesystem root",
+        "changedCondition": "copied already patched installed node_modules into scratch; no source changes",
+        "final": "build-retry"
+      },
+      {
+        "first": "prod-omit-product-first",
+        "cause": "production-only install was accidentally run in product cwd; postinstall failed because braces was absent",
+        "changedCondition": "immediately restored product node_modules with full npm ci; moved subsequent production-only test to isolated scratch",
+        "final": "product-install-restored and prod-omit-scratch-retry"
+      },
+      {
+        "first": "prod-omit-scratch-first",
+        "cause": "dev-only braces absent during npm ci --omit=dev",
+        "changedCondition": "script skips only when npm_config_omit contains dev and braces is absent; explicit --check still fails if patch absent",
+        "final": "prod-omit-scratch-retry"
+      }
+    ],
+    "scratchEnvironment": {
+      "frontendCopy": "/tmp/drivetree-residual-20261007/frontend-qa",
+      "envFileCopies": 0,
+      "nodeModulesSource": "clean installed DriveTree frontend; copied after Turbopack symlink rejection",
+      "prettierConfigSha256": "c6cdf4ada0375fe89f3b85f6a0ae2d0f9c374f7c08e8f57e785a52b0f84d2612",
+      "buildPublicApiUrl": "http://127.0.0.1:4000/api",
+      "telemetryDisabled": true,
+      "productionOnlyCopy": "/tmp/drivetree-residual-20261007/prod-install"
+    },
+    "research": {
+      "rawPath": "/tmp/drivetree-residual-20261007/manifest.json",
+      "sha256": "dc4068f53c711644aafa73a18231b6153434f4ed8fdce257b52724dc32a1adf5",
+      "upstreamPullRequest": "https://github.com/micromatch/braces/pull/78",
+      "bracesAdvisory": "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm",
+      "sprintfAdvisory": "https://github.com/advisories/GHSA-hp3w-g68c-fv3c"
+    },
+    "sprintfDisposition": "Direct precision RangeError reproduced, but this product Jest load-nyc-config/js-yaml programmatic path did not load argparse or sprintf-js; no backend patch. Full backend dev audit remains separate failure.",
+    "limits": "Local patch changes installed node_modules, not npm audit metadata. Current ESLint config does not expose next.rootDir to runtime requests. >100-depth normal patterns intentionally reject; expansion cardinality and arbitrary malformed AST are outside this guard. Remote CI/PR/merge/deploy NOT_RUN/UNVERIFIED. Browser E2E NOT_RUN for this candidate; change is limited to dev tooling installation and its guard.",
+    "documentationSpecSha256": "d115caf46099bc98e7d5e42cee6dbd015221111074ff9b69ecf981e1a24199f6"
   }
 }

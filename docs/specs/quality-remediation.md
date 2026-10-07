@@ -79,6 +79,23 @@ MySQL 실제 연결은 제품이 PostgreSQL `PrismaPg`만 사용하는 현재 �
 
 Prisma 보완 후보 `0a654e0eb74d1ccee671200a776b3245e4affccc`의 독립 검토 결과 추가 P1/P2는 없다. 검토는 소스 12개·실행 원문 21개와 조사 근거 24개 지문 일치, 새 DB 삭제·loopback fixture 종료, 7.10.0/Swagger 5.4.3 유지 및 lock 변경 범위를 확인했다. 이는 현재 PostgreSQL 설정·실DB 흐름의 로컬 후보 판정이다. Map 설정과 실제 MySQL 경로, frontend 경고 5건과 전체 backend 개발 도구 경고 20건, 원격 단계는 해결·검증한 범위가 아니다. 이 문단과 근거 JSON의 후속 갱신은 **문서 전용 커밋**이며 `0a654e0`에서 실행한 제품 검사를 새 코드 후보에서 재실행한 것으로 주장하지 않는다.
 
+#### 수정판 없는 `braces` 깊이 오류의 로컬 보완 (2026-10-07)
+
+이번 범위는 frontend 개발 도구의 `eslint-config-next` → `@next/eslint-plugin-next` → `fast-glob` → `micromatch` → `braces@3.0.3`만이다. [GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm)에 게시된 수정판은 없고 [상류 PR #78](https://github.com/micromatch/braces/pull/78)은 아직 병합·출시되지 않았다. 상류 패치를 자동 복사하지 않고 이 제품의 설치 소스 6개 SHA, 실제 ESLint `getRootDirs` 소비 경로, 정상 입력을 격리 복사본에서 먼저 대조했다. 현 제품 ESLint 설정은 `next.rootDir`을 별도로 지정하지 않으므로 원격 요청이 이 패턴에 도달한다고 주장하지 않는다. 합성 설정의 깊은 패턴은 수정 전 `RangeError`로 실패한다.
+
+| 요구·위험 / 선정 이유 | 조건·행동 / 환경 | 기대 결과 / 관찰 경계 | 필수 | 증거·판정 |
+|---|---|---|---|---|
+| 깊은 brace·직접 AST의 스택 소진 | 512KB stack 자식에서 2000단계 패턴과 AST, `parse`·`compile`·`expand`·`stringify` | 원래 `RangeError` 또는 무제한 허용을 재현한 뒤 제한된 `SyntaxError`로 거부; 시간 제한 내 종료 | 필수 | 회귀 RED→GREEN, 로컬 PASS |
+| 기존 구문과 직접 소비자 유지 | 정상 alternatives·range·escape, ESLint `getRootDirs` 정상/깊은 합성 `rootDir` | 정상 결과 유지, 깊은 입력은 `SyntaxError`; API·실제 서비스 입력으로 확대 해석 금지 | 필수 | 정상 30개 비교·제품 회귀 PASS |
+| 설치 시 보완 누락·드리프트 차단 | 깨끗한 `npm ci`, 정확한 버전·원본/패치 SHA, 재실행·변조·새 버전·심볼릭 링크 호출, 개발 의존성 제외 | 설치 직후 6파일 SHA가 검증된 후보와 동일. 다른 바이트/버전은 사전 검사에서 실패; 재실행은 0파일. `--omit=dev`에서 패키지가 실제 없을 때만 적용 불필요 | 필수 | 설치 원문, 무결성 회귀 9건 PASS |
+| 프런트 품질과 보안 잔여 | 비밀 `.env`를 제외한 동일 소스 격리본에서 format/lint/unit/build; 전체/운영 npm audit | 품질 명령 exit 0. npm audit의 수정판 없는 dev 전이 경고는 별도 FAIL, 운영 의존성은 0 | 필수/잔여 | 로컬 품질 PASS; 전체 audit FAIL |
+
+`frontend/scripts/apply-braces-depth.mjs`를 `postinstall`에 연결했다. 스크립트는 `braces@3.0.3`과 6개 원본/패치 지문 및 유일한 변경 문맥을 모두 검사한 뒤 설치 파일에만 쓴다. 패치된 바이트의 재검증과 `test:dependency-security`를 제공하며, `--ignore-scripts` 설치 등으로 적용되지 않았다면 무결성 검사가 실패한다. 개발 의존성을 실제로 제외한 `npm ci --omit=dev`에서 `braces`가 없는 경우만 적용 불필요를 명시 출력하고 설치를 유지한다. 그 밖의 의존성 누락은 실패한다. 100을 넘는 정상 중첩 패턴도 의도적으로 거부하는 한계가 있고, 확장 결과의 개수·임의의 잘못 형성된 AST 전체를 제한하지 않는다. 공식 수정판이 출시되고 현재 소비 전이에 호환되면 동일 회귀를 통과한 뒤 이 로컬 보완을 제거한다.
+
+기준 HEAD는 `76cb019958e929200b0de42533182aec93d1bfeb`이며 변경 소스·원문 로그·최초 실패와 환경 수정은 [실행 근거 JSON](harness-qa-contract-evidence.json)의 `bracesDepthFollowup`에 있다. 원본에서 회귀 4개 중 3개가 실패했고, 최종 설치 후 9/9 PASS다. 깨끗한 `npm ci`가 `postinstall` 6파일 적용을 출력했고, 설치된 6개 SHA를 검증했다. 격리 프런트에서 format/lint/unit 8건/build는 최종 exit 0이다. 최초 format은 상위 `.prettierrc` 누락으로 FAIL한 뒤 원본과 동일 지문을 복사해 통과했다. 최초 build는 격리본의 외부 `node_modules` 심볼릭 링크를 Turbopack이 거부했고, 같은 설치 디렉터리를 격리본 안으로 복사해 통과했다. `--omit=dev` 첫 시험은 `braces` 부재로 실패했으며, 실제 개발 도구가 없는 그 설치에만 적용을 생략하도록 수정한 뒤 격리 재설치가 통과했다. 첫 명령은 실수로 제품 `node_modules`에서 실행됐으나 즉시 전체 `npm ci`로 복구했고 이후 최종 설치·검사를 다시 수행했다. 이 실패를 제품 코드 실패나 재현성 있는 flaky로 덮지 않는다.
+
+frontend 전체 감사는 여전히 high 5/exit 1이며 운영 의존성 감사는 0/exit 0이다. 로컬 패치는 npm 감사의 패키지 메타데이터를 바꾸지 않으므로 전체 보안 gate를 PASS로 표시하지 않는다. backend `sprintf-js@1.0.3`의 과도한 숫자 정밀도 예외는 직접 호출에서 재현했지만 현재 Jest의 `@istanbuljs/load-nyc-config` → `js-yaml` 프로그래밍 경로는 `argparse`/`sprintf-js`를 로드하지 않았고, `argparse`는 YAML CLI에서만 참조된다. 현 제품 입력이 해당 형식 문자열에 도달한다는 증거가 없어 backend를 패치하지 않았다. 실제 새 소비 경로가 생기면 별도 재평가한다. 원격 CI·PR·병합·배포는 NOT_RUN/UNVERIFIED다.
+
 ### 신뢰 커밋 검사 전환 — 준비와 활성화 분리
 
 `.github/workflows/commitlint-trusted.yml`을 Harness v0.81.0 정본에서 추가한다. 기존 workflow와 필수 `commitlint`는 유지한다. develop 파일 존재나 최초 PR의 기존 CI green은 새 target 검사 활성화 증거가 아니다.
