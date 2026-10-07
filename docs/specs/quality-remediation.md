@@ -42,7 +42,21 @@
 
 수정 후보에서 양쪽 format/lint/build·backend 단위 70/실DB e2e 17·frontend 단위 8/Chromium 20(재시도 0)을 다시 통과했다. 실제 proxy subnet의 허용/거부 경계도 확인했다. 제품 runtime/schema는 변경하지 않았다. source/audit/명령/candidate 지문은 실행 근거 JSON의 `securityFollowup`에 연결한다.
 
-**현재 감사:** backend 전체 25(moderate 21/high 4/critical 0), 운영 6(moderate 2/high 4/critical 0); frontend 전체 high 5/critical 0, 운영 0. 이전 critical 경고는 해소됐지만 전체 의존성 감사는 여전히 FAIL이다. backend Prisma 전이의 deepmerge-ts/mysql2 등과 Swagger YAML, frontend 개발 도구의 braces 전이는 잔여다. 감사의 Prisma major 다운그레이드/강제 수정을 적용하지 않는다. 샘플의 local braces patch를 이 제품에 자동 복사하지 않는다. 실제 악용 가능성과 별도 주요 버전/보완 채택은 추가 호환성·범위 검토가 필요하다.
+**이전 감사 (Swagger YAML 수정 전):** backend 전체 25(moderate 21/high 4/critical 0), 운영 6(moderate 2/high 4/critical 0); frontend 전체 high 5/critical 0, 운영 0. 이전 critical 경고는 해소됐지만 전체 의존성 감사는 여전히 FAIL이다. backend Prisma 전이의 deepmerge-ts/mysql2 등과 Swagger YAML, frontend 개발 도구의 braces 전이는 잔여다. 감사의 Prisma major 다운그레이드/강제 수정을 적용하지 않는다. 샘플의 local braces patch를 이 제품에 자동 복사하지 않는다. 실제 악용 가능성과 별도 주요 버전/보완 채택은 추가 호환성·범위 검토가 필요하다.
+
+#### Swagger YAML 전이 보완의 QA 계약 (현 후보 실행 전)
+
+이번 범위는 `@nestjs/swagger` 11.4.7의 고정 `js-yaml` 5.3.0만 공식 수정판 5.4.3으로 교체한다. 이 제품의 Swagger 경로는 문서를 YAML로 **직렬화**하며 임의 YAML 업로드·파싱 API는 확인되지 않았다. 그러므로 취약한 파서 반례와 실제 Swagger 문서 소비 경로를 구분해 검증한다. 다른 Prisma 전이·프런트엔드 보안 잔여는 이 수정의 범위가 아니다.
+
+| 요구·위험 / 선정 이유 | 입력·환경 | 기대 결과 / 관찰 경계 | 필수 | 증거·판정 |
+|---|---|---|---|---|
+| GHSA-r3ph-w7gj-g6xm / 빈 mapping merge가 `maxTotalMergeKeys` 예산을 세지 않아 CPU를 소모 | Swagger가 실제 resolve한 `js-yaml`에 YAML11 빈 mapping merge 배열 5개와 예산 2 | 취약 5.3.0은 허용하는 RED; 수정판은 `maxTotalMergeKeys` 예외로 거부. 작은 합성 입력만 사용 | 필수 | 새 Swagger YAML 회귀의 RED→GREEN 원문 |
+| OpenAPI 문서 유지 / 라이브러리 강제 교체가 Swagger YAML 출력을 깨뜨릴 수 있음 | DB·외부 호출 없는 최소 Nest 앱에서 `SwaggerModule.createDocument`·`setup('api/docs')` | JSON·YAML 문서 endpoint 200, YAML을 Swagger resolve parser로 읽은 구조가 JSON과 동일하고 기존 앱 경로를 포함 | 필수 | 같은 e2e 회귀; 정상 문서 결과만 입증 |
+| 의존성 범위·제품 품질 | `npm ci`로 lock을 깨끗이 설치, Swagger 내부 resolve 버전과 backend format/lint/build/unit/e2e·실DB 경계 | Swagger만 5.4.3 resolve, 정상 전체 품질 exit 0, 실제 격리 DB 유지 | 필수 | 아래 로컬 PASS와 후보·명령·cwd·exit·소스 지문·원문 로그 연결; 원격 미확인 |
+
+**로컬 검증 결과 (2026-10-07):** [공식 GHSA-r3ph-w7gj-g6xm](https://github.com/advisories/GHSA-r3ph-w7gj-g6xm)의 최소 수정판은 5.4.1이고, 이 후보는 Swagger 11.4.7에만 `js-yaml` 5.4.3 override를 건다. 실제 Swagger 모듈이 resolve한 버전은 5.4.3이며 루트 4.3.2 등 다른 경로는 유지됐다. 새 `swagger-yaml.e2e-spec.ts`에서 취약 5.3.0의 예산 초과 입력은 거부 단언을 통과하지 못했고(RED), 5.4.3에서는 예외로 거부됐다(GREEN). 같은 시험에서 `SwaggerModule.createDocument`·`setup('api/docs')`의 JSON/YAML 엔드포인트가 200이며 두 문서의 파싱 결과가 같고 `/api` 경로를 포함함을 확인했다. 실제 앱은 Swagger YAML을 직렬화하며 외부 YAML을 파싱하는 API는 확인되지 않았다. 이 시험은 의존성 파서의 반례 차단과 기존 문서 경로의 호환성을 각각 입증한다.
+
+첫 증분 잠금파일 갱신은 선택적 `@emnapi` 항목이 빠져 `npm ci`가 EUSAGE로 실패했다. 빈 디렉터리에서 동일 `package.json`으로 잠금파일을 재생성하자 원래 lock 대비 Swagger YAML 세 값(version/resolved/integrity)만 바뀌었고, 그 파일로 `npm ci`가 통과했다. backend format/lint/build·단위 70·실DB e2e 19(새 2 포함)도 통과했다. 실DB는 기존 합성 전용 pgvector fixture의 127.0.0.1:55439 노출을 검사하고 실행 후 중지했다. 감사는 전체 24(moderate 20/high 4), 운영 4(high 4)로 각각 exit 1이며 남은 Prisma 전이 등은 이 후보에서 미수정이다. 전체 감사의 `js-yaml` moderate는 Jest 개발 전이 `@istanbuljs/load-nyc-config`의 3.15.2에 대한 `argparse` 경고이고 운영 감사에는 없다. [실행 원문·지문](harness-qa-contract-evidence.json)의 `swaggerYamlFollowup`에 각 후보·명령·실패·종료 상태를 연결한다. 원격 CI·PR·병합·배포는 미실행/UNVERIFIED다.
 
 독립 의존성 후보 검토 진행 중이다. 원격 CI/병합·default branch 배치·필수 검사 전환·staging/production 배포는 여전히 NOT_RUN/UNVERIFIED다. 로컬 기능 품질 PASS와 전체 보안/배포 FAIL을 구분한다.
 

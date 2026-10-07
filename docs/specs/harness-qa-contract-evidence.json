@@ -6245,5 +6245,211 @@
     ],
     "review": "pending independent fixed dependency candidate review",
     "verdict": "critical findings removed; complete dependency audit remains FAIL; product full security/deployment not complete"
+  },
+  "swaggerYamlFollowup": {
+    "date": "2026-10-07",
+    "baseSha": "36f9b0d5d440780d0efe143dbac4f64ef451494d",
+    "candidate": "uncommitted tree identified by sourceFingerprints; final commit reported separately",
+    "sourceFingerprints": {
+      "backend/package.json": "2feaa786f42f2b8ff887576ac644eb1a407c0c460c78608feed5210dde8af29e",
+      "backend/package-lock.json": "d6923836cd8ca87f99ec4d59e0ba20c8a50753aae062cfe2da152cf39a380027",
+      "backend/test/swagger-yaml.e2e-spec.ts": "47612c88ee560e47847e07f02edac82da68a711649ce70d54e9949307f94d614",
+      "docs/specs/quality-remediation.md": "419ab417e0ff64f3f1b6704a0754f73ee850c1f055f4369f8ac505ab04d79e19"
+    },
+    "scope": "@nestjs/swagger 11.4.7 nested js-yaml 5.3.0 -> 5.4.3 only; root js-yaml remains 4.3.2",
+    "qaContract": "docs/specs/quality-remediation.md Swagger YAML 전이 보완의 QA 계약",
+    "checks": [
+      {
+        "name": "red-semantic-and-document",
+        "cwd": "/Users/grinvi04/project/DriveTree/backend",
+        "command": "npm run test:e2e -- swagger-yaml.e2e-spec.ts --runInBand",
+        "exitCode": 1,
+        "rawPath": "/tmp/drivetree-yaml-evidence/01-red-e2e.log",
+        "sha256": "2d0bf726ac3ea1d695f97f8a2f4cd0201ed933022ebc5f6b2e5e755065b26813"
+      },
+      {
+        "name": "incremental-lock-update",
+        "cwd": "/Users/grinvi04/project/DriveTree/backend",
+        "command": "npm install --package-lock-only --ignore-scripts --no-audit --no-fund",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-yaml-evidence/02-lock-update.log",
+        "sha256": "8d575c4c619fd77947d87d77fcd1576e65409f7a89a476b96469e91b8e64dd1e"
+      },
+      {
+        "name": "first-clean-install-EUSAGE",
+        "cwd": "/Users/grinvi04/project/DriveTree/backend",
+        "command": "npm ci --no-audit --no-fund",
+        "exitCode": 1,
+        "rawPath": "/tmp/drivetree-yaml-evidence/03-first-clean-install.log",
+        "sha256": "b56139e5ffad93edb8198efb6698564ae09e50bd52270f4128fdec7e726a08d2"
+      },
+      {
+        "name": "clean-lock-generation",
+        "cwd": "/tmp/drivetree-yaml-evidence/clean-lock",
+        "command": "npm install --package-lock-only --ignore-scripts --no-audit --no-fund",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-yaml-evidence/04-clean-lock-generation.log",
+        "sha256": "9c3bc594064d24385efa630865095b93a4d59ce9305c339898ec87cef22f3458"
+      },
+      {
+        "name": "clean-install",
+        "cwd": "/Users/grinvi04/project/DriveTree/backend",
+        "command": "npm ci --no-audit --no-fund",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-yaml-evidence/05-clean-install.log",
+        "sha256": "04e058196a01b6b880b4f7cb70c11707f7657e78a521207eda7155bd32c8b6fe"
+      },
+      {
+        "name": "green-semantic-and-document",
+        "cwd": "/Users/grinvi04/project/DriveTree/backend",
+        "command": "npm run test:e2e -- swagger-yaml.e2e-spec.ts --runInBand",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-yaml-evidence/06-green-e2e.log",
+        "sha256": "1d2831dc65ef3a250d6e2939ffd2938d4ed7379a6d292e8f8b62cae3e3528fee"
+      },
+      {
+        "name": "format",
+        "cwd": "/Users/grinvi04/project/DriveTree/backend",
+        "command": "npm run format:check",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-yaml-evidence/07-format.log",
+        "sha256": "72b1de3522e76bda34ecc3f5ea8c1d24910e3caafb9be8bfc9a0e3568249a72d"
+      },
+      {
+        "name": "lint",
+        "cwd": "/Users/grinvi04/project/DriveTree/backend",
+        "command": "npm run lint:check",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-yaml-evidence/07-lint.log",
+        "sha256": "d89c7c074c6751fdcb47e3eba0fa00bb055e72cd8934a6721576d6ae4136d4e3"
+      },
+      {
+        "name": "build",
+        "cwd": "/Users/grinvi04/project/DriveTree/backend",
+        "command": "npm run build",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-yaml-evidence/07-build.log",
+        "sha256": "a2ea943010062a3eed22a3d9a4d72127ef2b16723aa90c94b360b69a2f13010f"
+      },
+      {
+        "name": "unit",
+        "cwd": "/Users/grinvi04/project/DriveTree/backend",
+        "command": "npm test -- --runInBand",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-yaml-evidence/07-unit.log",
+        "sha256": "bd2a9a9834a1e7e54b455c09b8bf108f67da64231370a29ec40a728c3af7db23"
+      },
+      {
+        "name": "real-db-e2e",
+        "cwd": "/Users/grinvi04/project/DriveTree/backend",
+        "command": "npm run test:e2e -- --runInBand",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-yaml-evidence/09-full-e2e.log",
+        "sha256": "c07efd6d30a69dec4d4e28967c166d0a9e05ed7bf0f003bf73ba44dfff956e12"
+      },
+      {
+        "name": "audit-full",
+        "cwd": "/Users/grinvi04/project/DriveTree/backend",
+        "command": "npm audit --json",
+        "exitCode": 1,
+        "rawPath": "/tmp/drivetree-yaml-evidence/11-audit-full.json",
+        "sha256": "a5c1e2dbd45a7b982022d9cb14f1fe69da659d31913b057e64d96970c858056c"
+      },
+      {
+        "name": "audit-production",
+        "cwd": "/Users/grinvi04/project/DriveTree/backend",
+        "command": "npm audit --omit=dev --json",
+        "exitCode": 1,
+        "rawPath": "/tmp/drivetree-yaml-evidence/11-audit-prod.json",
+        "sha256": "c2ad75a3bd879b2bdda2f3a1cdf2ab52c1fc5e9295a69c40cae2c844de2abf04"
+      },
+      {
+        "name": "fixture-loopback-inspect",
+        "cwd": "/Users/grinvi04/project/DriveTree/backend",
+        "command": "docker inspect drivertree-harness-qa-20261007 --format status-and-NetworkSettings.Ports",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-yaml-evidence/12-loopback-inspect.log",
+        "sha256": "7e2320b29ebe567eddb00028be7d671c2cd60a759d70edea0b8749b88cad6107"
+      },
+      {
+        "name": "fixture-final-inspect",
+        "cwd": "/Users/grinvi04/project/DriveTree/backend",
+        "command": "docker inspect drivertree-harness-qa-20261007 --format status-and-NetworkSettings.Ports",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-yaml-evidence/12-final-inspect.log",
+        "sha256": "dad4fc2724a25b67e4885941ed10261b60f25e6c00f953d2704b4ded7db6af50"
+      },
+      {
+        "name": "swagger-resolve",
+        "cwd": "/Users/grinvi04/project/DriveTree/backend",
+        "command": "node createRequire(require.resolve(@nestjs/swagger)) then resolve js-yaml/package.json",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-yaml-evidence/13-resolution.log",
+        "sha256": "441d931577f909285f5f1a2e913a5215089d7cc3db81a8995aa4c40c34870c3c"
+      },
+      {
+        "name": "lock-diff",
+        "cwd": "/Users/grinvi04/project/DriveTree/backend",
+        "command": "diff -u original-package-lock.json package-lock.json",
+        "exitCode": 1,
+        "rawPath": "/tmp/drivetree-yaml-evidence/13-lock-diff.log",
+        "sha256": "7ca1adc83d3da2bfa724e29d74864de240a1e30e8b7add037b76a1dcab75f65e"
+      },
+      {
+        "name": "secret-pattern-scan",
+        "cwd": "/Users/grinvi04/project/DriveTree/backend",
+        "command": "rg -l credential-assignment-or-connection-url /tmp/drivetree-yaml-evidence/*.log *.json",
+        "exitCode": 1,
+        "rawPath": "/tmp/drivetree-yaml-evidence/13-secret-scan-matches.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "counts": {
+      "red": {
+        "testsPassed": 1,
+        "testsFailed": 1
+      },
+      "green": {
+        "testsPassed": 2,
+        "testsFailed": 0
+      },
+      "unit": {
+        "testsPassed": 70,
+        "testsFailed": 0
+      },
+      "realDbE2E": {
+        "testsPassed": 19,
+        "testsFailed": 0
+      },
+      "auditFull": {
+        "moderate": 20,
+        "high": 4,
+        "critical": 0,
+        "total": 24
+      },
+      "auditProduction": {
+        "moderate": 0,
+        "high": 4,
+        "critical": 0,
+        "total": 4
+      }
+    },
+    "fixture": {
+      "name": "drivertree-harness-qa-20261007",
+      "image": "pgvector/pgvector:pg16",
+      "host": "127.0.0.1",
+      "port": 55439,
+      "credentialSource": "existing synthetic Docker fixture only; values suppressed",
+      "runtimeEnvironment": "DATABASE_URL synthesized for loopback, GEMINI_API_KEY/SENTRY_DSN empty, DOTENV_CONFIG_PATH=/dev/null, NODE_ENV=test; no operational env read",
+      "finalStatus": "exited; no listener"
+    },
+    "redaction": {
+      "scanLog": "/tmp/drivetree-yaml-evidence/13-secret-scan-matches.log",
+      "scanMatchCount": 0,
+      "credentialValuesInManifest": false
+    },
+    "remoteCi": "NOT_RUN/UNVERIFIED",
+    "delivery": "NOT_RUN/UNVERIFIED",
+    "independentReview": "PENDING"
   }
 }
