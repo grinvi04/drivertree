@@ -1,9 +1,27 @@
 # 품질 리메디에이션 로드맵 — DriveTree
 
-> 상태 (2026-10-08): [PR #85](https://github.com/grinvi04/drivertree/pull/85)의 QA/의존성 보완과 신뢰 검사 파일은 `develop`에 병합됨. 병합 커밋의 Vercel 미리보기 배포는 성공했으나 연결된 백엔드 기능 확인은 실패했고 Railway staging 최신 배포는 확인되지 않았다. 신뢰 검사 target 전환과 전체 의존성 감사도 미완료다. 과거 정적 감사는 당시 기록이며 현재 결함 목록으로 재해석하지 않는다.
+> 상태 (2026-10-08 첫 병합 관찰): [PR #85](https://github.com/grinvi04/drivertree/pull/85)의 QA/의존성 보완과 신뢰 검사 파일은 `develop`에 병합됨. 병합 커밋의 Vercel 미리보기 배포는 성공했으나 연결된 백엔드 기능 확인은 실패했고 Railway staging 최신 배포는 확인되지 않았다. 신뢰 검사 target 전환과 전체 의존성 감사도 미완료다. 과거 정적 감사는 당시 기록이며 현재 결함 목록으로 재해석하지 않는다.
+> 현재 staging 복구 상태는 §0의 첫 진단 절을 따른다.
 > 작성 근거: 자매 프로젝트 erp 품질 감사에서 도출된 결함 클래스 + team-harness 표준.
 
 ## §0 Context / Why
+
+### staging 복구 진단의 현재 상태 (2026-10-08)
+
+staging 복구 요청으로 현재 API·Railway 설정·계정 자격을 다시 읽었다. `/api/health`는 HTTP 404 `Application not found`, staging 활성 배포는 0, 마지막 배포는 2026-06-08 FAILED/stopped다. 실제 서비스 설정의 `rootDirectory`는 `/backend`이지만 `source`가 null이어서 저장소 소스 연결이 비어 있다. 별도 repoTrigger에는 `develop`→staging·`main`→production이 여전히 있으므로 트리거 존재를 소스 연결이나 배포 성공으로 취급하지 않는다.
+
+현재 Railway 배포 자격은 비활성이다: 구독 상태 INACTIVE·체험 남은 기간 0·체험 중 아님·활성 subscription 없음으로 조회됐다. [Railway 공식 안내](https://docs.railway.com/pricing/plans)는 활성 구독을 요구한다. 소스 연결 누락과 계정 비활성은 현재 확인된 복구 선행 조건이며, 당시 6월 배포 실패/연결 제거의 역사상 원인은 확인되지 않았다. 해당 옛 build 로그 조회는 exit 0/0줄로 반환돼 원인 증거로 사용할 수 없다. 이번에는 Railway·결제·DB·인증·보호 설정을 쓰지 않았고 자동 재시도·새 계정/플랜/우회 배포를 만들지 않았다.
+
+| 복구 수용 조건 | 관찰 경계와 현재 판정 |
+|---|---|
+| 배포 자격·소스 연결 | 계정 활성화 뒤 staging만 `grinvi04/drivertree`·develop·`/backend` 연결 및 현재 API/CLI의 환경 격리 의미를 확인. 현재 복구 UNVERIFIED; 결제/구독 변경은 사용자 작업이며 production 재시작 영향부터 재확인 |
+| 최신 배포·기동 | exact develop SHA의 build·migration·deployment SUCCESS와 같은 배포의 health 200. 현재 배포 UNVERIFIED/health FAIL. 200만으로 배포 신선도를 대체하지 않음 |
+| 실제 계산·거부 | 기존 Vercel preview→staging의 정상 유지비 계산: annual 합계=항목 합, monthly 합계=연간/12 반올림; 잘못된 차종 HTTP 400, penalties의 기존 정적 규칙 응답. 기존 controller/service 시험을 판정자로 연결하며 현재 원격 기능 FAIL/미재검증 |
+| 안전한 재개 | 기존 production 설정/배포 전후 동일 및 staging DB 참조 분리 확인 후 기존 배포 절차만 적용. DB reset·운영 migrate·seed·새 비밀키·보호 완화 제외. 이번 읽기 전용 단계의 서버 변경은 0 |
+
+재개 순서는 사용자 계정 활성화와 그 workspace 영향 확인 → 양 환경 설정 보관·staging DB 분리 → 환경 단독 소스 복원 → 고정 SHA 배포와 실제 기능 재검증이다. `serviceInstanceUpdate`의 현재 schema 설명에는 fork가 아닌 환경에서 다중 환경 적용 가능성이 있어 의미를 확인하지 않고 호출하지 않는다. [현재 CLI의 환경 설정](https://docs.railway.com/cli/environment)과 [서비스 소스](https://docs.railway.com/services)를 대조한 안전한 환경 경로를 사용하고 production 전후를 확인한다. backend/railway.json의 `npm install`과 기존 `npm ci` 정책 차이는 배포 재개 시 별도 검증 항목이며 이번 무배포 진단에서 임의로 변경하지 않았다.
+
+명령·후보·현재 응답·원본 schema와 재개 계획은 `$HOME/Documents/Codex/2026-10-08/drivetree-staging-recovery/`에 보존한다. 아래 병합/이전 QA 결과는 당시 검증을 유지한다. 현재 장애는 **복구 미완료**, 다음 행동은 활성화 여부 결정이다. 결제 없이 진행하는 로컬 QA는 원격 staging 복구의 대체 증거가 아니다.
 
 ### 병합 후 현재 상태 (2026-10-08)
 
