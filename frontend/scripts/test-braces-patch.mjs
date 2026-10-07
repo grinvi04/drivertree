@@ -3,7 +3,7 @@ import { spawnSync } from 'node:child_process'
 import { cpSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import test from 'node:test'
 import { applyBracesPatch, verifyBracesPatch } from './apply-braces-depth.mjs'
 
@@ -81,4 +81,24 @@ test('only an omitted dev dependency may skip the install patch', () => {
   } finally {
     rmSync(directory, { recursive: true, force: true })
   }
+})
+
+test('stdin module import does not execute or change installed source', () => {
+  const patchFile = fileURLToPath(new URL('./apply-braces-depth.mjs', import.meta.url))
+  const sourceFiles = ['parse', 'compile', 'expand', 'stringify', 'utils', 'constants'].map(
+    (name) => path.join(installedRoot, `lib/${name}.js`),
+  )
+  const before = sourceFiles.map((file) => readFileSync(file))
+  const result = spawnSync(process.execPath, ['--input-type=module', '-'], {
+    input: `process.argv[1] = '-'; await import(${JSON.stringify(pathToFileURL(patchFile).href)});`,
+    encoding: 'utf8',
+    timeout: 2000,
+  })
+  assert.equal(result.status, 0, result.stderr)
+  assert.equal(result.stdout, '')
+  assert.equal(result.stderr, '')
+  assert.deepEqual(
+    sourceFiles.map((file) => readFileSync(file)),
+    before,
+  )
 })

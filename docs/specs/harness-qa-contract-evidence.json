@@ -6766,10 +6766,10 @@
     "sourceFingerprints": {
       "frontend/package.json": "4c6ca6fd89ab5c1d0bd4402c18453c8912230ba0ad73f5612e90b367bf44f2b8",
       "frontend/package-lock.json": "905c7d9ea86cf969a70fdf164e19885b053b476d0b58a957690a884361626144",
-      "frontend/scripts/apply-braces-depth.mjs": "a475d38cc3d661b8c38a53a3b04f9f46dda72257023b590e0287e0823a77a9a2",
+      "frontend/scripts/apply-braces-depth.mjs": "a435cf242ff2b9dfe864d073d592e4d133393ffb9c790c551caef0a0cb0ffb8c",
       "frontend/scripts/test-braces-depth.mjs": "4a4816cf8f58c5d2d9a549fa6807db00a4ad2a2fc6951580f7f755e9d52476d0",
-      "frontend/scripts/test-braces-patch.mjs": "0e11fd36c68037f416372d6f79f54d147460979f53a107c46edb0ccf098e41a7",
-      "docs/specs/quality-remediation.md": "d115caf46099bc98e7d5e42cee6dbd015221111074ff9b69ecf981e1a24199f6"
+      "frontend/scripts/test-braces-patch.mjs": "cefc545906db262f094afb6922da941c504957b1758a7675e707b246a9150b2e",
+      "docs/specs/quality-remediation.md": "32436b05d59553434f459223091e6a66a30df15e7b04952bdaf90684ddb4006e"
     },
     "installedPatchFingerprints": {
       "lib/parse.js": "adf3c108a16afaabe5379298d2227881e88f536cc7345b7df780a80d38dd01f9",
@@ -7003,17 +7003,65 @@
         "exitCode": 0,
         "rawPath": "/tmp/drivetree-residual-20261007/qa-frozen-build.log",
         "sha256": "44f97400eb12e235f967a9ffb43e31ad9a241687ff206195062c3b6a6d5ec378"
+      },
+      {
+        "name": "stdin-red",
+        "cwd": "/Users/grinvi04/project/DriveTree/frontend",
+        "command": "node --test scripts/test-braces-patch.mjs",
+        "exitCode": 1,
+        "rawPath": "/tmp/drivetree-residual-20261007/stdin-red.log",
+        "sha256": "dd34cff44bd3421c7987d63620c5f175905d138780cd4361bb89b0c12ead9e47"
+      },
+      {
+        "name": "stdin-green",
+        "cwd": "/Users/grinvi04/project/DriveTree/frontend",
+        "command": "npm run test:dependency-security",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-residual-20261007/stdin-green.log",
+        "sha256": "47d19063c0a33eb062032a5e03b756023e60f2d7b18a3d945f5a897e31788cb2"
+      },
+      {
+        "name": "stdin-clean-install",
+        "cwd": "/Users/grinvi04/project/DriveTree/frontend",
+        "command": "npm ci",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-residual-20261007/stdin-npm-ci.log",
+        "sha256": "89afae649e999b673ff419beba8c2e6078c7445cf60900e6314855839c49e7d5"
+      },
+      {
+        "name": "stdin-check",
+        "cwd": "/Users/grinvi04/project/DriveTree/frontend",
+        "command": "node scripts/apply-braces-depth.mjs --check",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-residual-20261007/stdin-check.log",
+        "sha256": "77f24d6de88e708e1dffc61a485242142c5474665e92b9a43b9442535e5d18f0"
+      },
+      {
+        "name": "stdin-format",
+        "cwd": "/tmp/drivetree-residual-20261007/frontend-qa",
+        "command": "npm run format:check",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-residual-20261007/stdin-qa-format.log",
+        "sha256": "002c014304d8d33fea1bf353067c069fcab2fb71ce13f00a5d54fd4ff97a203f"
+      },
+      {
+        "name": "stdin-lint",
+        "cwd": "/tmp/drivetree-residual-20261007/frontend-qa",
+        "command": "npm run lint",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-residual-20261007/stdin-qa-lint.log",
+        "sha256": "259003c148efb132787bf125338f211ea063fa22f1a9bdd7fc8d278ff1d78950"
       }
     ],
     "observations": {
       "redRegression": "1/4 passed, 3/4 failed on original installed braces",
-      "securityAfterCi": "9/9 passed, no skips on frozen candidate",
+      "securityAfterCi": "10/10 passed, no skips after stdin guard",
       "unit": "8 passed",
       "cleanInstall": "postinstall applied 6 files",
       "fullAudit": "5 high, critical 0, exit 1; metadata continues to flag unpatched package",
       "productionAudit": "0 vulnerabilities, exit 0",
       "productionOnly": "first two attempts failed on absent dev dependency; final scratch npm ci --omit=dev exit 0, 95 packages; no braces installed",
-      "finalCandidate": "clean full npm ci applied 6 files, frozen security 9/9, format/lint/unit 8/build exit 0"
+      "finalCandidate": "new stdin RED exit 1 due ENOENT, GREEN security 10/10; clean npm ci applied 6 files; current format/lint exit 0. Unit 8/build prior candidate results reused because product inputs, lock and installed patch bytes unchanged."
     },
     "firstFailureResolution": [
       {
@@ -7039,6 +7087,12 @@
         "cause": "dev-only braces absent during npm ci --omit=dev",
         "changedCondition": "script skips only when npm_config_omit contains dev and braces is absent; explicit --check still fails if patch absent",
         "final": "prod-omit-scratch-retry"
+      },
+      {
+        "first": "stdin-red",
+        "cause": "realpathSync(process.argv[1]) throws ENOENT when stdin module import leaves argv as -",
+        "changedCondition": "existsSync(process.argv[1]) before realpathSync; stdin import has output 0 and installed 6 file bytes unchanged",
+        "final": "stdin-green"
       }
     ],
     "scratchEnvironment": {
@@ -7059,6 +7113,16 @@
     },
     "sprintfDisposition": "Direct precision RangeError reproduced, but this product Jest load-nyc-config/js-yaml programmatic path did not load argparse or sprintf-js; no backend patch. Full backend dev audit remains separate failure.",
     "limits": "Local patch changes installed node_modules, not npm audit metadata. Current ESLint config does not expose next.rootDir to runtime requests. >100-depth normal patterns intentionally reject; expansion cardinality and arbitrary malformed AST are outside this guard. Remote CI/PR/merge/deploy NOT_RUN/UNVERIFIED. Browser E2E NOT_RUN for this candidate; change is limited to dev tooling installation and its guard.",
-    "documentationSpecSha256": "d115caf46099bc98e7d5e42cee6dbd015221111074ff9b69ecf981e1a24199f6"
+    "documentationSpecSha256": "32436b05d59553434f459223091e6a66a30df15e7b04952bdaf90684ddb4006e",
+    "reviewedCandidateSha": "40ffba2c812123802b2f84375f89bf192d72da84",
+    "reviewedCandidateSourceFingerprints": {
+      "frontend/package.json": "4c6ca6fd89ab5c1d0bd4402c18453c8912230ba0ad73f5612e90b367bf44f2b8",
+      "frontend/package-lock.json": "905c7d9ea86cf969a70fdf164e19885b053b476d0b58a957690a884361626144",
+      "frontend/scripts/apply-braces-depth.mjs": "a475d38cc3d661b8c38a53a3b04f9f46dda72257023b590e0287e0823a77a9a2",
+      "frontend/scripts/test-braces-depth.mjs": "4a4816cf8f58c5d2d9a549fa6807db00a4ad2a2fc6951580f7f755e9d52476d0",
+      "frontend/scripts/test-braces-patch.mjs": "0e11fd36c68037f416372d6f79f54d147460979f53a107c46edb0ccf098e41a7",
+      "docs/specs/quality-remediation.md": "d115caf46099bc98e7d5e42cee6dbd015221111074ff9b69ecf981e1a24199f6"
+    },
+    "independentReviewFollowup": "Independent review found stdin module import with argv=- causing ENOENT at realpathSync. The fixed candidate adds existsSync before realpathSync; no other installed patch bytes changed."
   }
 }

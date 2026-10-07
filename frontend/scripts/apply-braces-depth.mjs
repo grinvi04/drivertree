@@ -167,6 +167,7 @@ export function applyBracesPatch(packageRoot = installedRoot) {
 
 if (
   process.argv[1] &&
+  existsSync(process.argv[1]) &&
   realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url))
 ) {
   if (process.argv[2] === '--check') {
