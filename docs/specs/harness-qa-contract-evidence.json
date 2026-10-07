@@ -6466,7 +6466,7 @@
   "prismaTransitiveFollowup": {
     "date": "2026-10-07",
     "baseSha": "8c5b4f89ca6b7c3bbb255c89e7dcef5ca60728cc",
-    "candidate": "uncommitted dependency/doc tree identified by sourceFingerprints; resulting commit reported separately",
+    "candidate": "product code and original QA frozen at 0a654e0; current change is documentation-only review reconciliation",
     "scope": "Prisma 7.10.0 maintained; @prisma/config/deepmerge-ts 8.0.0 and prisma/mysql2 3.23.1 scoped overrides; Swagger 5.4.3 unchanged",
     "qaContract": "docs/specs/quality-remediation.md Prisma 내부 전이 보완의 QA 계약",
     "sourceFingerprints": {
@@ -6476,7 +6476,7 @@
       "backend/prisma/schema.prisma": "b575fa334d700e0b3dbcca67f064be89160fb98ed17020818be4466940fe22cb",
       "backend/src/prisma.service.ts": "b9a318ba94a4d2bd571cfbd85666eb852261866365d0679db69f3f1f664e3497",
       "backend/test/swagger-yaml.e2e-spec.ts": "47612c88ee560e47847e07f02edac82da68a711649ce70d54e9949307f94d614",
-      "docs/specs/quality-remediation.md": "a1ddcf84f8c01c1fe01972a9c355c563b8a33bfcb60fa7f0730d2687504a7f10",
+      "docs/specs/quality-remediation.md": "08429133646bf3ff41fbbdbbfa6b99b89f4aaee434497816db5634b2d80f3872",
       "frontend/package.json": "de06dcf27d26d8fa47edd5ff45577f72c83d90620d23773072492a1e91830d41",
       "frontend/package-lock.json": "905c7d9ea86cf969a70fdf164e19885b053b476d0b58a957690a884361626144",
       "backend/prisma/migrations/20260520163143_init/migration.sql": "8debe6e410615e1185062873df5cf940b6579a77d2d42693a2b635387411b4ff",
@@ -6715,7 +6715,40 @@
     },
     "remoteCi": "NOT_RUN/UNVERIFIED",
     "delivery": "NOT_RUN/UNVERIFIED",
-    "independentReview": "PENDING",
-    "securityVerdict": "production dependency audit PASS; full development dependency audit FAIL with 20 moderate; product security overall remains FAIL"
+    "independentReview": "PASS_WITH_LIMITS",
+    "securityVerdict": "production dependency audit PASS; full development dependency audit FAIL with 20 moderate; product security overall remains FAIL",
+    "reviewedCandidateSha": "0a654e0eb74d1ccee671200a776b3245e4affccc",
+    "reviewedCandidateSourceFingerprints": {
+      "backend/package.json": "75bda32e4d8fa16f408fb080471793ef931ef9adf7898cb0f37c97ac45e71543",
+      "backend/package-lock.json": "83985d83b77e1180cfba6ee3e7c30992403dfa7836391becb2747abdf20c033d",
+      "backend/prisma.config.ts": "84670ced77162c8e60ed86084e46ab726a9247aceafd27bc2aa5cb7b6f227eab",
+      "backend/prisma/schema.prisma": "b575fa334d700e0b3dbcca67f064be89160fb98ed17020818be4466940fe22cb",
+      "backend/src/prisma.service.ts": "b9a318ba94a4d2bd571cfbd85666eb852261866365d0679db69f3f1f664e3497",
+      "backend/test/swagger-yaml.e2e-spec.ts": "47612c88ee560e47847e07f02edac82da68a711649ce70d54e9949307f94d614",
+      "docs/specs/quality-remediation.md": "a1ddcf84f8c01c1fe01972a9c355c563b8a33bfcb60fa7f0730d2687504a7f10",
+      "frontend/package.json": "de06dcf27d26d8fa47edd5ff45577f72c83d90620d23773072492a1e91830d41",
+      "frontend/package-lock.json": "905c7d9ea86cf969a70fdf164e19885b053b476d0b58a957690a884361626144",
+      "backend/prisma/migrations/20260520163143_init/migration.sql": "8debe6e410615e1185062873df5cf940b6579a77d2d42693a2b635387411b4ff",
+      "backend/prisma/migrations/20260526091157_add_admin_refresh_token/migration.sql": "1d253bc26e3a5593f84d7568fdf5085f46d483fd09922a5c020690468f0123f6",
+      "backend/prisma/migrations/20260628124528_add_content_soft_delete/migration.sql": "4bb9f5b94eb1e6b0835ac0be93e15b63bceb3b826d2638c1cc120138b6160bba"
+    },
+    "independentReviewEvidence": {
+      "source": "parent handoff of independent reviewer agent report for frozen candidate; no review thread ID supplied",
+      "candidateSha": "0a654e0eb74d1ccee671200a776b3245e4affccc",
+      "verdict": "No additional P1/P2 in the reviewed dependency change and selected local QA scope",
+      "verified": {
+        "sourceFingerprints": 12,
+        "rawExecutionLogs": 21,
+        "researchEntries": 24,
+        "ownFixture": "127.0.0.1:55439; stopped",
+        "newSyntheticDatabase": "dropped",
+        "versions": "Prisma/client/config 7.10.0 and Swagger js-yaml 5.4.3 retained",
+        "changedProductFiles": 4,
+        "lockPackageChanges": "two upgraded transitive packages plus three mysql2 dependency replacements"
+      },
+      "limits": "Current PostgreSQL config and synthetic DB path only; deepmerge Map input, real MySQL, remote CI/PR/merge/deploy unverified. Full backend audit 20 moderate and frontend high 5 remain. Frontend unit 8/Chromium 20 reused, not rerun.",
+      "documentationReconciliation": "This follow-up changes only the product spec and evidence JSON; original 0a654e0 source fingerprints and raw logs are preserved under reviewedCandidateSourceFingerprints and checks. No code/QA rerun."
+    },
+    "documentationSpecSha256": "08429133646bf3ff41fbbdbbfa6b99b89f4aaee434497816db5634b2d80f3872"
   }
 }

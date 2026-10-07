@@ -75,7 +75,9 @@ Swagger YAML 후보 `8c5b4f89ca6b7c3bbb255c89e7dcef5ca60728cc`의 독립 검토�
 
 새 합성 DB `qa_prisma_2cec6e6bbc46`에서 `migrate deploy`가 3개 migration을 적용했고 backend format/lint/build·단위 70·실DB e2e 19가 통과했다. 기존 데이터베이스 행은 시험 대상으로 사용하지 않았다. 새 DB는 삭제하고 pgvector fixture를 종료했다. backend 감사 결과 운영 0/exit 0, 전체 20 moderate/exit 1이다. 남은 `sprintf-js` 등은 Jest 개발 전이에 있으며 [공식 advisory](https://github.com/advisories/GHSA-hp3w-g68c-fv3c)에 수정판이 없다. frontend 이전 검사(단위 8·Chromium 20)는 frontend manifest/lock 지문과 코드가 unchanged여서 기존 `securityFollowup` 증거를 재사용했다; 이번 후보에서 다시 실행하지 않았다. [명령·실행 원문·소스 지문](harness-qa-contract-evidence.json)의 `prismaTransitiveFollowup`에 연결한다.
 
-MySQL 실제 연결은 제품이 PostgreSQL `PrismaPg`만 사용하는 현재 범위에 비적용이며 일반 Prisma CLI의 모든 MySQL 동작을 보증하지 않는다. backend 전체 감사 exit 1과 frontend braces high 5는 남아 있어 제품 전체 보안 gate는 FAIL이다. 로컬 기능·마이그레이션 검사와 원격 CI/PR/병합/배포를 구분하며, 원격은 NOT_RUN/UNVERIFIED다. 독립 후보 검토가 남았다.
+MySQL 실제 연결은 제품이 PostgreSQL `PrismaPg`만 사용하는 현재 범위에 비적용이며 일반 Prisma CLI의 모든 MySQL 동작을 보증하지 않는다. backend 전체 감사 exit 1과 frontend braces high 5는 남아 있어 제품 전체 보안 gate는 FAIL이다. 로컬 기능·마이그레이션 검사와 원격 CI/PR/병합/배포를 구분하며, 원격은 NOT_RUN/UNVERIFIED다.
+
+Prisma 보완 후보 `0a654e0eb74d1ccee671200a776b3245e4affccc`의 독립 검토 결과 추가 P1/P2는 없다. 검토는 소스 12개·실행 원문 21개와 조사 근거 24개 지문 일치, 새 DB 삭제·loopback fixture 종료, 7.10.0/Swagger 5.4.3 유지 및 lock 변경 범위를 확인했다. 이는 현재 PostgreSQL 설정·실DB 흐름의 로컬 후보 판정이다. Map 설정과 실제 MySQL 경로, frontend 경고 5건과 전체 backend 개발 도구 경고 20건, 원격 단계는 해결·검증한 범위가 아니다. 이 문단과 근거 JSON의 후속 갱신은 **문서 전용 커밋**이며 `0a654e0`에서 실행한 제품 검사를 새 코드 후보에서 재실행한 것으로 주장하지 않는다.
 
 ### 신뢰 커밋 검사 전환 — 준비와 활성화 분리
 
