@@ -5136,5 +5136,1114 @@
       "firstRun": "exit 1: daemon not running",
       "recovery": "started Docker Desktop; next read exit 0; created fresh synthetic fixture, loopback port verified"
     }
-  ]
+  ],
+  "securityFollowup": {
+    "date": "2026-10-07",
+    "scope": "user authorized four consumers security/QA adoption; no remote deployment/policy mutation",
+    "baseCommit": "b5fd43792d8a30991792a74ce51aa9bd3a8865a7",
+    "candidate": "base plus dependency input fingerprints",
+    "files": {
+      "backend/package-lock.json": "064c8a4169bda8d14ef8d5dd8ebb50be3cda38bff4376c34856c60bc8502a53b",
+      "frontend/package.json": "de06dcf27d26d8fa47edd5ff45577f72c83d90620d23773072492a1e91830d41",
+      "frontend/package-lock.json": "905c7d9ea86cf969a70fdf164e19885b053b476d0b58a957690a884361626144"
+    },
+    "changes": "proxy-addr 2.0.8; next/eslint-config-next 16.3.6; compatible dependency resolutions regenerated in empty scratch due original incremental-lock optional dependency EUSAGE",
+    "constraints": "no --force, no Prisma major downgrade, no test skip; application runtime/schema unchanged",
+    "checks": [
+      {
+        "cwd": "backend",
+        "command": "npm run format:check",
+        "exitCode": 0,
+        "status": "PASS",
+        "sha256Raw": "72b1de3522e76bda34ecc3f5ea8c1d24910e3caafb9be8bfc9a0e3568249a72d",
+        "output": "\n> backend@1.7.0 format:check\n> prettier --check .\n\nChecking formatting...\nAll matched files use Prettier code style!\n"
+      },
+      {
+        "cwd": "backend",
+        "command": "npm run lint:check",
+        "exitCode": 0,
+        "status": "PASS",
+        "sha256Raw": "d89c7c074c6751fdcb47e3eba0fa00bb055e72cd8934a6721576d6ae4136d4e3",
+        "output": "\n> backend@1.7.0 lint:check\n> eslint \"{src,apps,libs,test}/**/*.ts\"\n\n"
+      },
+      {
+        "cwd": "backend",
+        "command": "npm run build",
+        "exitCode": 0,
+        "status": "PASS",
+        "sha256Raw": "a2ea943010062a3eed22a3d9a4d72127ef2b16723aa90c94b360b69a2f13010f",
+        "output": "\n> backend@1.7.0 build\n> nest build\n\n"
+      },
+      {
+        "cwd": "backend",
+        "command": "npm test -- --runInBand",
+        "exitCode": 0,
+        "status": "PASS",
+        "sha256Raw": "af497c86c909e7103b7ebb77cb6298f18cc4d0aec750b895f9dabe1257cb93e0",
+        "output": "\n> backend@1.7.0 test\n> jest --runInBand\n\n[Nest] 50756  - 10/07/2026, 9:00:32 AM    WARN [AllExceptionsFilter] POST /api/chat/ask → 400 :: Unexpected token in JSON\n[Nest] 50756  - 10/07/2026, 9:00:32 AM    WARN [AllExceptionsFilter] POST /api/chat/ask → 413 :: request entity too large\n[Nest] 50756  - 10/07/2026, 9:00:32 AM   ERROR [AllExceptionsFilter] POST /api/chat/ask → 500 :: boom\nError: boom\n    at Object.<anonymous> (<CONSUMER_ROOT>/backend/src/common/all-exceptions.filter.spec.ts:63:18)\n    at Promise.finally.completed (<CONSUMER_ROOT>/backend/node_modules/jest-circus/build/jestAdapterInit.js:1834:28)\n    at new Promise (<anonymous>)\n    at callAsyncCircusFn (<CONSUMER_ROOT>/backend/node_modules/jest-circus/build/jestAdapterInit.js:1774:10)\n    at _callCircusTest (<CONSUMER_ROOT>/backend/node_modules/jest-circus/build/jestAdapterInit.js:1167:40)\n    at _runTestInContext (<CONSUMER_ROOT>/backend/node_modules/jest-circus/build/jestAdapterInit.js:1103:3)\n    at runTestWithContext (<CONSUMER_ROOT>/backend/node_modules/jest-circus/build/jestAdapterInit.js:996:5)\n    at _runTestsForDescribeBlockOnce (<CONSUMER_ROOT>/backend/node_modules/jest-circus/build/jestAdapterInit.js:1008:11)\n    at _runTestsForDescribeBlock (<CONSUMER_ROOT>/backend/node_modules/jest-circus/build/jestAdapterInit.js:824:5)\n    at _runTestsForDescribeBlockOnce (<CONSUMER_ROOT>/backend/node_modules/jest-circus/build/jestAdapterInit.js:1003:11)\n    at _runTestsForDescribeBlock (<CONSUMER_ROOT>/backend/node_modules/jest-circus/build/jestAdapterInit.js:824:5)\n    at run (<CONSUMER_ROOT>/backend/node_modules/jest-circus/build/jestAdapterInit.js:789:3)\n    at runAndTransformResultsToJestFormat (<CONSUMER_ROOT>/backend/node_modules/jest-circus/build/jestAdapterInit.js:2300:21)\n    at jestAdapter (<CONSUMER_ROOT>/backend/node_modules/jest-circus/build/runner.js:111:19)\n    at runTestInternal (<CONSUMER_ROOT>/backend/node_modules/jest-runner/build/index.js:247:16)\n    at runTest (<CONSUMER_ROOT>/backend/node_modules/jest-runner/build/index.js:315:7)\n[Nest] 50756  - 10/07/2026, 9:00:32 AM   ERROR [AllExceptionsFilter] POST /api/chat/ask → 500 :: boom\nError: boom\n    at Object.<anonymous> (<CONSUMER_ROOT>/backend/src/common/all-exceptions.filter.spec.ts:68:18)\n    at Promise.finally.completed (<CONSUMER_ROOT>/backend/node_modules/jest-circus/build/jestAdapterInit.js:1834:28)\n    at new Promise (<anonymous>)\n    at callAsyncCircusFn (<CONSUMER_ROOT>/backend/node_modules/jest-circus/build/jestAdapterInit.js:1774:10)\n    at _callCircusTest (<CONSUMER_ROOT>/backend/node_modules/jest-circus/build/jestAdapterInit.js:1167:40)\n    at _runTestInContext (<CONSUMER_ROOT>/backend/node_modules/jest-circus/build/jestAdapterInit.js:1103:3)\n    at runTestWithContext (<CONSUMER_ROOT>/backend/node_modules/jest-circus/build/jestAdapterInit.js:996:5)\n    at _runTestsForDescribeBlockOnce (<CONSUMER_ROOT>/backend/node_modules/jest-circus/build/jestAdapterInit.js:1008:11)\n    at _runTestsForDescribeBlock (<CONSUMER_ROOT>/backend/node_modules/jest-circus/build/jestAdapterInit.js:824:5)\n    at _runTestsForDescribeBlockOnce (<CONSUMER_ROOT>/backend/node_modules/jest-circus/build/jestAdapterInit.js:1003:11)\n    at _runTestsForDescribeBlock (<CONSUMER_ROOT>/backend/node_modules/jest-circus/build/jestAdapterInit.js:824:5)\n    at run (<CONSUMER_ROOT>/backend/node_modules/jest-circus/build/jestAdapterInit.js:789:3)\n    at runAndTransformResultsToJestFormat (<CONSUMER_ROOT>/backend/node_modules/jest-circus/build/jestAdapterInit.js:2300:21)\n    at jestAdapter (<CONSUMER_ROOT>/backend/node_modules/jest-circus/build/runner.js:111:19)\n    at runTestInternal (<CONSUMER_ROOT>/backend/node_modules/jest-runner/build/index.js:247:16)\n    at runTest (<CONSUMER_ROOT>/backend/node_modules/jest-runner/build/index.js:315:7)\n[Nest] 50756  - 10/07/2026, 9:00:32 AM    WARN [AllExceptionsFilter] POST /api/chat/ask → 429 :: rate\n[Nest] 50756  - 10/07/2026, 9:00:32 AM   ERROR [AllExceptionsFilter] POST /api/chat/ask → 500 :: upstream 503\nError: upstream 503\n    at Object.<anonymous> (<CONSUMER_ROOT>/backend/src/common/all-exceptions.filter.spec.ts:79:31)\n    at Promise.finally.completed (<CONSUMER_ROOT>/backend/node_modules/jest-circus/build/jestAdapterInit.js:1834:28)\n    at new Promise (<anonymous>)\n    at callAsyncCircusFn (<CONSUMER_ROOT>/backend/node_modules/jest-circus/build/jestAdapterInit.js:1774:10)\n    at _callCircusTest (<CONSUMER_ROOT>/backend/node_modules/jest-circus/build/jestAdapterInit.js:1167:40)\n    at _runTestInContext (<CONSUMER_ROOT>/backend/node_modules/jest-circus/build/jestAdapterInit.js:1103:3)\n    at runTestWithContext (<CONSUMER_ROOT>/backend/node_modules/jest-circus/build/jestAdapterInit.js:996:5)\n    at _runTestsForDescribeBlockOnce (<CONSUMER_ROOT>/backend/node_modules/jest-circus/build/jestAdapterInit.js:1008:11)\n    at _runTestsForDescribeBlock (<CONSUMER_ROOT>/backend/node_modules/jest-circus/build/jestAdapterInit.js:824:5)\n    at _runTestsForDescribeBlockOnce (<CONSUMER_ROOT>/backend/node_modules/jest-circus/build/jestAdapterInit.js:1003:11)\n    at _runTestsForDescribeBlock (<CONSUMER_ROOT>/backend/node_modules/jest-circus/build/jestAdapterInit.js:824:5)\n    at run (<CONSUMER_ROOT>/backend/node_modules/jest-circus/build/jestAdapterInit.js:789:3)\n    at runAndTransformResultsToJestFormat (<CONSUMER_ROOT>/backend/node_modules/jest-circus/build/jestAdapterInit.js:2300:21)\n    at jestAdapter (<CONSUMER_ROOT>/backend/node_modules/jest-circus/build/runner.js:111:19)\n    at runTestInternal (<CONSUMER_ROOT>/backend/node_modules/jest-runner/build/index.js:247:16)\n    at runTest (<CONSUMER_ROOT>/backend/node_modules/jest-runner/build/index.js:315:7)\n[Nest] 50756  - 10/07/2026, 9:00:32 AM    WARN [AllExceptionsFilter] POST /api/chat/ask → 400 :: bad\n\nTest Suites: 8 passed, 8 total\nTests:       70 passed, 70 total\nSnapshots:   0 total\nTime:        4.154 s\nRan all test suites.\n"
+      },
+      {
+        "cwd": "backend",
+        "command": "npm run test:e2e -- --runInBand",
+        "exitCode": 0,
+        "status": "PASS",
+        "sha256Raw": "a676c2913406f59ebbb2a0329a697a998526756da18cadb077e947c4ca1bdba6",
+        "output": "\n> backend@1.7.0 test:e2e\n> jest --config ./test/jest-e2e.json --runInBand\n\n\nTest Suites: 5 passed, 5 total\nTests:       17 passed, 17 total\nSnapshots:   0 total\nTime:        2.275 s\nRan all test suites.\n"
+      },
+      {
+        "cwd": "backend",
+        "command": "npm ci",
+        "attempt": "security-install",
+        "exitCode": 1,
+        "status": "FAIL",
+        "sha256Raw": "aed92f820d376a1cd3292706eac8f582171c3c44928660cebc1c2cad6fd2b9d7",
+        "output": "npm error code EUSAGE\nnpm error\nnpm error `npm ci` can only install packages when your package.json and package-lock.json or npm-shrinkwrap.json are in sync. Please update your lock file with `npm install` before continuing.\nnpm error\nnpm error Invalid: lock file's @emnapi/wasi-threads@1.2.1 does not satisfy @emnapi/wasi-threads@1.2.3\nnpm error Missing: @emnapi/core@1.10.0 from lock file\nnpm error Missing: @emnapi/runtime@1.10.0 from lock file\nnpm error Missing: @emnapi/wasi-threads@1.2.1 from lock file\nnpm error\nnpm error Clean install a project\nnpm error\nnpm error Usage:\nnpm error npm ci\nnpm error\nnpm error Options:\nnpm error [--install-strategy <hoisted|nested|shallow|linked>] [--legacy-bundling]\nnpm error [--global-style] [--omit <dev|optional|peer> [--omit <dev|optional|peer> ...]]\nnpm error [--include <prod|dev|optional|peer> [--include <prod|dev|optional|peer> ...]]\nnpm error [--strict-peer-deps] [--foreground-scripts] [--ignore-scripts] [--no-audit]\nnpm error [--no-bin-links] [--no-fund] [--dry-run]\nnpm error [-w|--workspace <workspace-name> [-w|--workspace <workspace-name> ...]]\nnpm error [--workspaces] [--include-workspace-root] [--install-links]\nnpm error\nnpm error aliases: clean-install, ic, install-clean, isntall-clean\nnpm error\nnpm error Run \"npm help ci\" for more info\nnpm error A complete log of this run can be found in: <USER_ROOT>/.npm/_logs/2026-10-06T23_57_32_735Z-debug-0.log\n"
+      },
+      {
+        "cwd": "backend",
+        "command": "npm ci",
+        "attempt": "clean-install",
+        "exitCode": 0,
+        "status": "PASS",
+        "sha256Raw": "7651c70fccfc290e21fcbc5fac1f3c8c1cfdce6fb8828b8c800f0ed5bc926e6a",
+        "output": "npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me\nnpm warn deprecated eslint@9.39.5: This version is no longer supported. Please see https://eslint.org/version-support for other options.\n\n> backend@1.7.0 postinstall\n> prisma generate\n\nLoaded Prisma config from prisma.config.ts.\n\nPrisma schema loaded from prisma/schema.prisma.\nwarn Preview feature \"driverAdapters\" is deprecated. The functionality can be used without specifying it as a preview feature.\n\n✔ Generated Prisma Client (v7.10.0) to ./node_modules/@prisma/client in 53ms\n\nStart by importing your Prisma Client (See: https://pris.ly/d/importing-client)\n\n\n\nadded 888 packages, and audited 889 packages in 27s\n\n166 packages are looking for funding\n  run `npm fund` for details\n\n25 vulnerabilities (21 moderate, 4 high)\n\nTo address issues that do not require attention, run:\n  npm audit fix\n\nTo address all issues (including breaking changes), run:\n  npm audit fix --force\n\nRun `npm audit` for details.\n"
+      },
+      {
+        "cwd": "frontend",
+        "command": "npm run format:check",
+        "exitCode": 0,
+        "status": "PASS",
+        "sha256Raw": "002c014304d8d33fea1bf353067c069fcab2fb71ce13f00a5d54fd4ff97a203f",
+        "output": "\n> frontend@1.7.0 format:check\n> prettier --check .\n\nChecking formatting...\nAll matched files use Prettier code style!\n"
+      },
+      {
+        "cwd": "frontend",
+        "command": "npm run lint",
+        "exitCode": 0,
+        "status": "PASS",
+        "sha256Raw": "259003c148efb132787bf125338f211ea063fa22f1a9bdd7fc8d278ff1d78950",
+        "output": "\n> frontend@1.7.0 lint\n> eslint\n\n"
+      },
+      {
+        "cwd": "frontend",
+        "command": "npm run build",
+        "exitCode": 0,
+        "status": "PASS",
+        "sha256Raw": "54502ca3e92ed5c616cc4e96f7e0f025b300fb24ee32d41c78aa75f373f7a93f",
+        "output": "\n> frontend@1.7.0 build\n> next build\n\n▲ Next.js 16.3.6 (Turbopack)\n- Environments: .env.local\n✓ Running next.config.ts took 1333ms\n\n  Creating an optimized production build ...\n✓ Compiled successfully in 7.2s\n  Running TypeScript ...\n  Finished TypeScript in 3.0s ...\n  Collecting page data using 9 workers ...\n  Generating static pages using 9 workers (0/9) ...\n  Generating static pages using 9 workers (2/9) \r\n  Generating static pages using 9 workers (4/9) \r\n  Generating static pages using 9 workers (6/9) \r\n✓ Generating static pages using 9 workers (9/9) in 235ms\n  Finalizing page optimization ...\n\nRoute (app)\n┌ ○ /\n├ ○ /_not-found\n├ ○ /admin/dashboard\n├ ○ /admin/login\n├ ○ /calculators\n├ ● /content/[slug]\n├ ○ /robots.txt\n└ ○ /sitemap.xml\n\n\n○  (Static)  prerendered as static content\n●  (SSG)     prerendered as static HTML (uses generateStaticParams)\n\n"
+      },
+      {
+        "cwd": "frontend",
+        "command": "npm run test:unit",
+        "exitCode": 0,
+        "status": "PASS",
+        "sha256Raw": "26d07b5a4fd19184e14ea281e45d9cb870bc15089aafc1a38a7e80d5f678d0aa",
+        "output": "\n> frontend@1.7.0 test:unit\n> vitest run\n\n(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:\n  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `\"type\": \"module\"` in the closest package.json\nSet `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.\n\n RUN  v4.1.11 <CONSUMER_ROOT>/frontend\n\n\n Test Files  2 passed (2)\n      Tests  8 passed (8)\n   Start at  09:00:19\n   Duration  2.22s (transform 81ms, setup 224ms, import 113ms, tests 10ms, environment 3.53s)\n\n"
+      },
+      {
+        "cwd": "frontend",
+        "command": "CI=true npm run test:e2e -- --retries=0",
+        "exitCode": 0,
+        "status": "PASS",
+        "sha256Raw": "af8d57647234d1fe5a3ec06db7871c4b09aa36ab932ca3094627e903ddcd4848",
+        "output": "\n> frontend@1.7.0 test:e2e\n> playwright test --retries=0\n\n[WebServer] (node:51403) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)\n\nRunning 20 tests using 2 workers\n(node:51404) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:51405) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n(Use `node --trace-warnings ...` to show where the warning was created)\n····················\n  20 passed (5.9s)\n::notice title=🎭 Playwright Run Summary::  20 passed (5.9s)\n"
+      },
+      {
+        "cwd": "frontend",
+        "command": "npm ci",
+        "attempt": "security-install",
+        "exitCode": 1,
+        "status": "FAIL",
+        "sha256Raw": "9ac1d6b88e13e51713714cd6867ebcec5f455ea7f342e55b9461fdb8660c8fb2",
+        "output": "npm error code EUSAGE\nnpm error\nnpm error `npm ci` can only install packages when your package.json and package-lock.json or npm-shrinkwrap.json are in sync. Please update your lock file with `npm install` before continuing.\nnpm error\nnpm error Invalid: lock file's @emnapi/wasi-threads@1.2.1 does not satisfy @emnapi/wasi-threads@1.2.3\nnpm error Missing: @emnapi/runtime@1.11.1 from lock file\nnpm error Missing: @emnapi/core@1.10.0 from lock file\nnpm error Missing: @emnapi/wasi-threads@1.2.1 from lock file\nnpm error\nnpm error Clean install a project\nnpm error\nnpm error Usage:\nnpm error npm ci\nnpm error\nnpm error Options:\nnpm error [--install-strategy <hoisted|nested|shallow|linked>] [--legacy-bundling]\nnpm error [--global-style] [--omit <dev|optional|peer> [--omit <dev|optional|peer> ...]]\nnpm error [--include <prod|dev|optional|peer> [--include <prod|dev|optional|peer> ...]]\nnpm error [--strict-peer-deps] [--foreground-scripts] [--ignore-scripts] [--no-audit]\nnpm error [--no-bin-links] [--no-fund] [--dry-run]\nnpm error [-w|--workspace <workspace-name> [-w|--workspace <workspace-name> ...]]\nnpm error [--workspaces] [--include-workspace-root] [--install-links]\nnpm error\nnpm error aliases: clean-install, ic, install-clean, isntall-clean\nnpm error\nnpm error Run \"npm help ci\" for more info\nnpm error A complete log of this run can be found in: <USER_ROOT>/.npm/_logs/2026-10-06T23_57_32_736Z-debug-0.log\n"
+      },
+      {
+        "cwd": "frontend",
+        "command": "npm ci",
+        "attempt": "clean-install",
+        "exitCode": 0,
+        "status": "PASS",
+        "sha256Raw": "316ad9e3e4be4a0bf26a5b273bdabb90b6ebf8505724367a26dd0365a381e575",
+        "output": "npm warn deprecated eslint@9.39.5: This version is no longer supported. Please see https://eslint.org/version-support for other options.\n\nadded 486 packages, and audited 487 packages in 25s\n\n176 packages are looking for funding\n  run `npm fund` for details\n\n5 high severity vulnerabilities\n\nTo address all issues (including breaking changes), run:\n  npm audit fix --force\n\nRun `npm audit` for details.\n"
+      },
+      {
+        "cwd": "backend",
+        "command": "node assertion using proxy-addr.compile('::ffff:10.0.0.0/8') and compile('10.0.0.0/8')",
+        "exitCode": 0,
+        "status": "PASS",
+        "observation": "incorrect IPv4-mapped subnet rejects 203.0.113.10; valid IPv4 subnet accepts 10.2.3.4 and rejects outsider",
+        "source": "direct tool stdout, no retained raw file"
+      }
+    ],
+    "audits": [
+      {
+        "cwd": "backend",
+        "command": "npm audit --json",
+        "exitCode": 1,
+        "metadata": {
+          "vulnerabilities": {
+            "info": 0,
+            "low": 0,
+            "moderate": 21,
+            "high": 4,
+            "critical": 0,
+            "total": 25
+          },
+          "dependencies": {
+            "prod": 300,
+            "dev": 603,
+            "optional": 43,
+            "peer": 40,
+            "peerOptional": 0,
+            "total": 925
+          }
+        },
+        "sha256Raw": "6c35d0558ff5c1c49ab9f037118d6fdbe9276e1ee8e44d2f24cb502568113e0c",
+        "vulnerabilities": {
+          "@istanbuljs/load-nyc-config": {
+            "name": "@istanbuljs/load-nyc-config",
+            "severity": "moderate",
+            "isDirect": false,
+            "via": [
+              "js-yaml"
+            ],
+            "effects": [
+              "babel-plugin-istanbul"
+            ],
+            "range": "*",
+            "nodes": [
+              "node_modules/@istanbuljs/load-nyc-config"
+            ],
+            "fixAvailable": {
+              "name": "ts-jest",
+              "version": "29.1.2",
+              "isSemVerMajor": true
+            }
+          },
+          "@jest/core": {
+            "name": "@jest/core",
+            "severity": "moderate",
+            "isDirect": false,
+            "via": [
+              "@jest/reporters",
+              "@jest/transform",
+              "jest-config",
+              "jest-resolve-dependencies",
+              "jest-runner",
+              "jest-runtime",
+              "jest-snapshot"
+            ],
+            "effects": [
+              "jest",
+              "jest-cli"
+            ],
+            "range": ">=25.1.0",
+            "nodes": [
+              "node_modules/@jest/core"
+            ],
+            "fixAvailable": {
+              "name": "jest",
+              "version": "25.0.0",
+              "isSemVerMajor": true
+            }
+          },
+          "@jest/expect": {
+            "name": "@jest/expect",
+            "severity": "moderate",
+            "isDirect": false,
+            "via": [
+              "jest-snapshot"
+            ],
+            "effects": [
+              "@jest/globals",
+              "jest-circus"
+            ],
+            "range": "*",
+            "nodes": [
+              "node_modules/@jest/expect"
+            ],
+            "fixAvailable": {
+              "name": "jest",
+              "version": "25.0.0",
+              "isSemVerMajor": true
+            }
+          },
+          "@jest/globals": {
+            "name": "@jest/globals",
+            "severity": "moderate",
+            "isDirect": false,
+            "via": [
+              "@jest/expect"
+            ],
+            "effects": [
+              "jest-runtime"
+            ],
+            "range": ">=28.0.0-alpha.0",
+            "nodes": [
+              "node_modules/@jest/globals"
+            ],
+            "fixAvailable": {
+              "name": "jest",
+              "version": "25.0.0",
+              "isSemVerMajor": true
+            }
+          },
+          "@jest/reporters": {
+            "name": "@jest/reporters",
+            "severity": "moderate",
+            "isDirect": false,
+            "via": [
+              "@jest/transform"
+            ],
+            "effects": [],
+            "range": ">=25.1.0",
+            "nodes": [
+              "node_modules/@jest/reporters"
+            ],
+            "fixAvailable": true
+          },
+          "@jest/transform": {
+            "name": "@jest/transform",
+            "severity": "moderate",
+            "isDirect": false,
+            "via": [
+              "babel-plugin-istanbul"
+            ],
+            "effects": [
+              "@jest/core",
+              "@jest/reporters",
+              "jest-runner",
+              "jest-runtime",
+              "jest-snapshot",
+              "ts-jest"
+            ],
+            "range": ">=25.1.0",
+            "nodes": [
+              "node_modules/@jest/transform"
+            ],
+            "fixAvailable": {
+              "name": "ts-jest",
+              "version": "29.1.2",
+              "isSemVerMajor": true
+            }
+          },
+          "@nestjs/swagger": {
+            "name": "@nestjs/swagger",
+            "severity": "moderate",
+            "isDirect": true,
+            "via": [
+              "js-yaml"
+            ],
+            "effects": [],
+            "range": "11.4.6 - 12.0.0",
+            "nodes": [
+              "node_modules/@nestjs/swagger"
+            ],
+            "fixAvailable": true
+          },
+          "@prisma/config": {
+            "name": "@prisma/config",
+            "severity": "high",
+            "isDirect": false,
+            "via": [
+              "deepmerge-ts"
+            ],
+            "effects": [
+              "prisma"
+            ],
+            "range": "6.13.0-dev.1 - 8.1.0-dev.4",
+            "nodes": [
+              "node_modules/@prisma/config"
+            ],
+            "fixAvailable": {
+              "name": "prisma",
+              "version": "6.19.3",
+              "isSemVerMajor": true
+            }
+          },
+          "argparse": {
+            "name": "argparse",
+            "severity": "moderate",
+            "isDirect": false,
+            "via": [
+              "sprintf-js"
+            ],
+            "effects": [
+              "js-yaml"
+            ],
+            "range": "1.0.0 - 1.0.10",
+            "nodes": [
+              "node_modules/@istanbuljs/load-nyc-config/node_modules/argparse"
+            ],
+            "fixAvailable": {
+              "name": "ts-jest",
+              "version": "29.1.2",
+              "isSemVerMajor": true
+            }
+          },
+          "babel-jest": {
+            "name": "babel-jest",
+            "severity": "moderate",
+            "isDirect": false,
+            "via": [
+              "@jest/transform",
+              "babel-plugin-istanbul"
+            ],
+            "effects": [
+              "jest-config",
+              "ts-jest"
+            ],
+            "range": ">=25.1.0",
+            "nodes": [
+              "node_modules/babel-jest"
+            ],
+            "fixAvailable": {
+              "name": "ts-jest",
+              "version": "29.1.2",
+              "isSemVerMajor": true
+            }
+          },
+          "babel-plugin-istanbul": {
+            "name": "babel-plugin-istanbul",
+            "severity": "moderate",
+            "isDirect": false,
+            "via": [
+              "@istanbuljs/load-nyc-config"
+            ],
+            "effects": [
+              "@jest/transform",
+              "babel-jest"
+            ],
+            "range": ">=6.0.0-beta.0",
+            "nodes": [
+              "node_modules/babel-plugin-istanbul"
+            ],
+            "fixAvailable": {
+              "name": "ts-jest",
+              "version": "29.1.2",
+              "isSemVerMajor": true
+            }
+          },
+          "deepmerge-ts": {
+            "name": "deepmerge-ts",
+            "severity": "high",
+            "isDirect": false,
+            "via": [
+              {
+                "source": 1145093,
+                "name": "deepmerge-ts",
+                "dependency": "deepmerge-ts",
+                "title": "DeepmergeTS has stack exhaustion when merging recursive object graphs",
+                "url": "https://github.com/advisories/GHSA-ggr8-5vv4-36mx",
+                "severity": "high",
+                "cwe": [
+                  "CWE-674"
+                ],
+                "cvss": {
+                  "score": 0,
+                  "vectorString": null
+                },
+                "range": "<8.0.0"
+              }
+            ],
+            "effects": [
+              "@prisma/config"
+            ],
+            "range": "<8.0.0",
+            "nodes": [
+              "node_modules/deepmerge-ts"
+            ],
+            "fixAvailable": {
+              "name": "prisma",
+              "version": "6.19.3",
+              "isSemVerMajor": true
+            }
+          },
+          "jest": {
+            "name": "jest",
+            "severity": "moderate",
+            "isDirect": true,
+            "via": [
+              "@jest/core",
+              "jest-cli"
+            ],
+            "effects": [
+              "ts-jest"
+            ],
+            "range": ">=25.1.0",
+            "nodes": [
+              "node_modules/jest"
+            ],
+            "fixAvailable": {
+              "name": "jest",
+              "version": "25.0.0",
+              "isSemVerMajor": true
+            }
+          },
+          "jest-circus": {
+            "name": "jest-circus",
+            "severity": "moderate",
+            "isDirect": false,
+            "via": [
+              "@jest/expect",
+              "jest-runtime",
+              "jest-snapshot"
+            ],
+            "effects": [
+              "jest-config"
+            ],
+            "range": ">=25.2.4",
+            "nodes": [
+              "node_modules/jest-circus"
+            ],
+            "fixAvailable": true
+          },
+          "jest-cli": {
+            "name": "jest-cli",
+            "severity": "moderate",
+            "isDirect": false,
+            "via": [
+              "@jest/core",
+              "jest-config"
+            ],
+            "effects": [],
+            "range": ">=25.1.0",
+            "nodes": [
+              "node_modules/jest-cli"
+            ],
+            "fixAvailable": true
+          },
+          "jest-config": {
+            "name": "jest-config",
+            "severity": "moderate",
+            "isDirect": false,
+            "via": [
+              "babel-jest",
+              "jest-circus",
+              "jest-runner"
+            ],
+            "effects": [],
+            "range": ">=25.1.0",
+            "nodes": [
+              "node_modules/jest-config"
+            ],
+            "fixAvailable": true
+          },
+          "jest-resolve-dependencies": {
+            "name": "jest-resolve-dependencies",
+            "severity": "moderate",
+            "isDirect": false,
+            "via": [
+              "jest-snapshot"
+            ],
+            "effects": [],
+            "range": ">=27.0.0-next.0",
+            "nodes": [
+              "node_modules/jest-resolve-dependencies"
+            ],
+            "fixAvailable": true
+          },
+          "jest-runner": {
+            "name": "jest-runner",
+            "severity": "moderate",
+            "isDirect": false,
+            "via": [
+              "@jest/transform",
+              "jest-runtime"
+            ],
+            "effects": [
+              "@jest/core",
+              "jest-config"
+            ],
+            "range": ">=25.1.0",
+            "nodes": [
+              "node_modules/jest-runner"
+            ],
+            "fixAvailable": {
+              "name": "jest",
+              "version": "25.0.0",
+              "isSemVerMajor": true
+            }
+          },
+          "jest-runtime": {
+            "name": "jest-runtime",
+            "severity": "moderate",
+            "isDirect": false,
+            "via": [
+              "@jest/globals",
+              "@jest/transform",
+              "jest-snapshot"
+            ],
+            "effects": [
+              "jest-circus",
+              "jest-runner"
+            ],
+            "range": ">=25.1.0",
+            "nodes": [
+              "node_modules/jest-runtime"
+            ],
+            "fixAvailable": {
+              "name": "jest",
+              "version": "25.0.0",
+              "isSemVerMajor": true
+            }
+          },
+          "jest-snapshot": {
+            "name": "jest-snapshot",
+            "severity": "moderate",
+            "isDirect": false,
+            "via": [
+              "@jest/transform"
+            ],
+            "effects": [
+              "@jest/expect",
+              "jest-circus",
+              "jest-resolve-dependencies",
+              "jest-runtime"
+            ],
+            "range": ">=27.0.0-next.0",
+            "nodes": [
+              "node_modules/jest-snapshot"
+            ],
+            "fixAvailable": {
+              "name": "jest",
+              "version": "25.0.0",
+              "isSemVerMajor": true
+            }
+          },
+          "js-yaml": {
+            "name": "js-yaml",
+            "severity": "moderate",
+            "isDirect": false,
+            "via": [
+              {
+                "source": 1239991,
+                "name": "js-yaml",
+                "dependency": "js-yaml",
+                "title": "js-yaml: maxTotalMergeKeys does not limit CPU use for empty merge sources",
+                "url": "https://github.com/advisories/GHSA-r3ph-w7gj-g6xm",
+                "severity": "moderate",
+                "cwe": [
+                  "CWE-400",
+                  "CWE-407"
+                ],
+                "cvss": {
+                  "score": 5.3,
+                  "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
+                },
+                "range": ">=5.0.0 <=5.4.0"
+              },
+              "argparse"
+            ],
+            "effects": [
+              "@istanbuljs/load-nyc-config",
+              "@nestjs/swagger"
+            ],
+            "range": "3.2.7 - 3.15.2 || 5.0.0 - 5.4.0",
+            "nodes": [
+              "node_modules/@istanbuljs/load-nyc-config/node_modules/js-yaml",
+              "node_modules/@nestjs/swagger/node_modules/js-yaml"
+            ],
+            "fixAvailable": {
+              "name": "ts-jest",
+              "version": "29.1.2",
+              "isSemVerMajor": true
+            }
+          },
+          "mysql2": {
+            "name": "mysql2",
+            "severity": "high",
+            "isDirect": false,
+            "via": [
+              {
+                "source": 1153173,
+                "name": "mysql2",
+                "dependency": "mysql2",
+                "title": "MySQL2: Auth Plugin Downgrade to mysql_clear_password Leaks Plaintext Credentials",
+                "url": "https://github.com/advisories/GHSA-3f6p-5ww8-9rcr",
+                "severity": "high",
+                "cwe": [
+                  "CWE-522"
+                ],
+                "cvss": {
+                  "score": 0,
+                  "vectorString": null
+                },
+                "range": "<3.22.0"
+              },
+              {
+                "source": 1158532,
+                "name": "mysql2",
+                "dependency": "mysql2",
+                "title": "MySQL2: Unbounded zlib inflate in compressed MySQL protocol handler allows decompression-bomb DoS",
+                "url": "https://github.com/advisories/GHSA-rgwj-5xj2-c3m3",
+                "severity": "moderate",
+                "cwe": [
+                  "CWE-409"
+                ],
+                "cvss": {
+                  "score": 5.9,
+                  "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H"
+                },
+                "range": "<=3.23.0"
+              }
+            ],
+            "effects": [
+              "prisma"
+            ],
+            "range": "<=3.23.0",
+            "nodes": [
+              "node_modules/mysql2"
+            ],
+            "fixAvailable": {
+              "name": "prisma",
+              "version": "6.19.3",
+              "isSemVerMajor": true
+            }
+          },
+          "prisma": {
+            "name": "prisma",
+            "severity": "high",
+            "isDirect": true,
+            "via": [
+              "@prisma/config",
+              "mysql2"
+            ],
+            "effects": [],
+            "range": "6.13.0-dev.1 - 8.1.0-dev.6",
+            "nodes": [
+              "node_modules/prisma"
+            ],
+            "fixAvailable": {
+              "name": "prisma",
+              "version": "6.19.3",
+              "isSemVerMajor": true
+            }
+          },
+          "sprintf-js": {
+            "name": "sprintf-js",
+            "severity": "moderate",
+            "isDirect": false,
+            "via": [
+              {
+                "source": 1241202,
+                "name": "sprintf-js",
+                "dependency": "sprintf-js",
+                "title": "sprintf-js vulnerable to denial of service through unbounded precision specifiers",
+                "url": "https://github.com/advisories/GHSA-hp3w-g68c-fv3c",
+                "severity": "moderate",
+                "cwe": [
+                  "CWE-1284"
+                ],
+                "cvss": {
+                  "score": 5.3,
+                  "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
+                },
+                "range": "<=1.1.3"
+              }
+            ],
+            "effects": [
+              "argparse"
+            ],
+            "range": "*",
+            "nodes": [
+              "node_modules/sprintf-js"
+            ],
+            "fixAvailable": {
+              "name": "ts-jest",
+              "version": "29.1.2",
+              "isSemVerMajor": true
+            }
+          },
+          "ts-jest": {
+            "name": "ts-jest",
+            "severity": "moderate",
+            "isDirect": true,
+            "via": [
+              "@jest/transform",
+              "babel-jest",
+              "jest"
+            ],
+            "effects": [],
+            "range": ">=25.10.0-alpha.1",
+            "nodes": [
+              "node_modules/ts-jest"
+            ],
+            "fixAvailable": {
+              "name": "ts-jest",
+              "version": "29.1.2",
+              "isSemVerMajor": true
+            }
+          }
+        }
+      },
+      {
+        "cwd": "backend",
+        "command": "npm audit --omit=dev --json",
+        "exitCode": 1,
+        "metadata": {
+          "vulnerabilities": {
+            "info": 0,
+            "low": 0,
+            "moderate": 2,
+            "high": 4,
+            "critical": 0,
+            "total": 6
+          },
+          "dependencies": {
+            "prod": 300,
+            "dev": 603,
+            "optional": 43,
+            "peer": 40,
+            "peerOptional": 0,
+            "total": 925
+          }
+        },
+        "sha256Raw": "7f8dca42bec950d440b5006495a71f40e6eca59447b0dd6545acaddcdf81168b",
+        "vulnerabilities": {
+          "@nestjs/swagger": {
+            "name": "@nestjs/swagger",
+            "severity": "moderate",
+            "isDirect": true,
+            "via": [
+              "js-yaml"
+            ],
+            "effects": [],
+            "range": "11.4.6 - 12.0.0",
+            "nodes": [
+              "node_modules/@nestjs/swagger"
+            ],
+            "fixAvailable": true
+          },
+          "@prisma/config": {
+            "name": "@prisma/config",
+            "severity": "high",
+            "isDirect": false,
+            "via": [
+              "deepmerge-ts"
+            ],
+            "effects": [
+              "prisma"
+            ],
+            "range": "6.13.0-dev.1 - 8.1.0-dev.4",
+            "nodes": [
+              "node_modules/@prisma/config"
+            ],
+            "fixAvailable": {
+              "name": "prisma",
+              "version": "6.19.3",
+              "isSemVerMajor": true
+            }
+          },
+          "deepmerge-ts": {
+            "name": "deepmerge-ts",
+            "severity": "high",
+            "isDirect": false,
+            "via": [
+              {
+                "source": 1145093,
+                "name": "deepmerge-ts",
+                "dependency": "deepmerge-ts",
+                "title": "DeepmergeTS has stack exhaustion when merging recursive object graphs",
+                "url": "https://github.com/advisories/GHSA-ggr8-5vv4-36mx",
+                "severity": "high",
+                "cwe": [
+                  "CWE-674"
+                ],
+                "cvss": {
+                  "score": 0,
+                  "vectorString": null
+                },
+                "range": "<8.0.0"
+              }
+            ],
+            "effects": [
+              "@prisma/config"
+            ],
+            "range": "<8.0.0",
+            "nodes": [
+              "node_modules/deepmerge-ts"
+            ],
+            "fixAvailable": {
+              "name": "prisma",
+              "version": "6.19.3",
+              "isSemVerMajor": true
+            }
+          },
+          "js-yaml": {
+            "name": "js-yaml",
+            "severity": "moderate",
+            "isDirect": false,
+            "via": [
+              {
+                "source": 1239991,
+                "name": "js-yaml",
+                "dependency": "js-yaml",
+                "title": "js-yaml: maxTotalMergeKeys does not limit CPU use for empty merge sources",
+                "url": "https://github.com/advisories/GHSA-r3ph-w7gj-g6xm",
+                "severity": "moderate",
+                "cwe": [
+                  "CWE-400",
+                  "CWE-407"
+                ],
+                "cvss": {
+                  "score": 5.3,
+                  "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
+                },
+                "range": ">=5.0.0 <=5.4.0"
+              }
+            ],
+            "effects": [
+              "@nestjs/swagger"
+            ],
+            "range": "5.0.0 - 5.4.0",
+            "nodes": [
+              "node_modules/@nestjs/swagger/node_modules/js-yaml"
+            ],
+            "fixAvailable": true
+          },
+          "mysql2": {
+            "name": "mysql2",
+            "severity": "high",
+            "isDirect": false,
+            "via": [
+              {
+                "source": 1153173,
+                "name": "mysql2",
+                "dependency": "mysql2",
+                "title": "MySQL2: Auth Plugin Downgrade to mysql_clear_password Leaks Plaintext Credentials",
+                "url": "https://github.com/advisories/GHSA-3f6p-5ww8-9rcr",
+                "severity": "high",
+                "cwe": [
+                  "CWE-522"
+                ],
+                "cvss": {
+                  "score": 0,
+                  "vectorString": null
+                },
+                "range": "<3.22.0"
+              },
+              {
+                "source": 1158532,
+                "name": "mysql2",
+                "dependency": "mysql2",
+                "title": "MySQL2: Unbounded zlib inflate in compressed MySQL protocol handler allows decompression-bomb DoS",
+                "url": "https://github.com/advisories/GHSA-rgwj-5xj2-c3m3",
+                "severity": "moderate",
+                "cwe": [
+                  "CWE-409"
+                ],
+                "cvss": {
+                  "score": 5.9,
+                  "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H"
+                },
+                "range": "<=3.23.0"
+              }
+            ],
+            "effects": [
+              "prisma"
+            ],
+            "range": "<=3.23.0",
+            "nodes": [
+              "node_modules/mysql2"
+            ],
+            "fixAvailable": {
+              "name": "prisma",
+              "version": "6.19.3",
+              "isSemVerMajor": true
+            }
+          },
+          "prisma": {
+            "name": "prisma",
+            "severity": "high",
+            "isDirect": true,
+            "via": [
+              "@prisma/config",
+              "mysql2"
+            ],
+            "effects": [],
+            "range": "6.13.0-dev.1 - 8.1.0-dev.6",
+            "nodes": [
+              "node_modules/prisma"
+            ],
+            "fixAvailable": {
+              "name": "prisma",
+              "version": "6.19.3",
+              "isSemVerMajor": true
+            }
+          }
+        }
+      },
+      {
+        "cwd": "frontend",
+        "command": "npm audit --json",
+        "exitCode": 1,
+        "metadata": {
+          "vulnerabilities": {
+            "info": 0,
+            "low": 0,
+            "moderate": 0,
+            "high": 5,
+            "critical": 0,
+            "total": 5
+          },
+          "dependencies": {
+            "prod": 80,
+            "dev": 468,
+            "optional": 122,
+            "peer": 23,
+            "peerOptional": 0,
+            "total": 593
+          }
+        },
+        "sha256Raw": "ddc8b843df815b50fa51f16805f1fb3ebe2ff9061935b077261b2ca74631094a",
+        "vulnerabilities": {
+          "@next/eslint-plugin-next": {
+            "name": "@next/eslint-plugin-next",
+            "severity": "high",
+            "isDirect": false,
+            "via": [
+              "fast-glob"
+            ],
+            "effects": [
+              "eslint-config-next"
+            ],
+            "range": ">=14.3.0-canary.0",
+            "nodes": [
+              "node_modules/@next/eslint-plugin-next"
+            ],
+            "fixAvailable": {
+              "name": "eslint-config-next",
+              "version": "14.2.35",
+              "isSemVerMajor": true
+            }
+          },
+          "braces": {
+            "name": "braces",
+            "severity": "high",
+            "isDirect": false,
+            "via": [
+              {
+                "source": 1240992,
+                "name": "braces",
+                "dependency": "braces",
+                "title": "braces vulnerable to stack-exhaustion denial of service through deeply nested patterns",
+                "url": "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm",
+                "severity": "high",
+                "cwe": [
+                  "CWE-674"
+                ],
+                "cvss": {
+                  "score": 7.5,
+                  "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+                },
+                "range": "<=3.0.3"
+              }
+            ],
+            "effects": [
+              "micromatch"
+            ],
+            "range": "*",
+            "nodes": [
+              "node_modules/braces"
+            ],
+            "fixAvailable": {
+              "name": "eslint-config-next",
+              "version": "14.2.35",
+              "isSemVerMajor": true
+            }
+          },
+          "eslint-config-next": {
+            "name": "eslint-config-next",
+            "severity": "high",
+            "isDirect": true,
+            "via": [
+              "@next/eslint-plugin-next"
+            ],
+            "effects": [],
+            "range": ">=14.3.0-canary.0",
+            "nodes": [
+              "node_modules/eslint-config-next"
+            ],
+            "fixAvailable": {
+              "name": "eslint-config-next",
+              "version": "14.2.35",
+              "isSemVerMajor": true
+            }
+          },
+          "fast-glob": {
+            "name": "fast-glob",
+            "severity": "high",
+            "isDirect": false,
+            "via": [
+              "micromatch"
+            ],
+            "effects": [
+              "@next/eslint-plugin-next"
+            ],
+            "range": "*",
+            "nodes": [
+              "node_modules/fast-glob"
+            ],
+            "fixAvailable": {
+              "name": "eslint-config-next",
+              "version": "14.2.35",
+              "isSemVerMajor": true
+            }
+          },
+          "micromatch": {
+            "name": "micromatch",
+            "severity": "high",
+            "isDirect": false,
+            "via": [
+              "braces"
+            ],
+            "effects": [
+              "fast-glob"
+            ],
+            "range": ">=0.2.0",
+            "nodes": [
+              "node_modules/micromatch"
+            ],
+            "fixAvailable": {
+              "name": "eslint-config-next",
+              "version": "14.2.35",
+              "isSemVerMajor": true
+            }
+          }
+        }
+      },
+      {
+        "cwd": "frontend",
+        "command": "npm audit --omit=dev --json",
+        "exitCode": 0,
+        "metadata": {
+          "vulnerabilities": {
+            "info": 0,
+            "low": 0,
+            "moderate": 0,
+            "high": 0,
+            "critical": 0,
+            "total": 0
+          },
+          "dependencies": {
+            "prod": 80,
+            "dev": 468,
+            "optional": 122,
+            "peer": 23,
+            "peerOptional": 0,
+            "total": 593
+          }
+        },
+        "sha256Raw": "b2fbe9c71f78d45d8b7d71d5ef89a92e7a21c218a9bcc3f93cef851aa8ccf397",
+        "vulnerabilities": {}
+      }
+    ],
+    "sources": [
+      "https://github.com/advisories/GHSA-jqcg-44mw-7w3h",
+      "https://github.com/advisories/GHSA-vcvr-r3jv-pc5j"
+    ],
+    "review": "pending independent fixed dependency candidate review",
+    "verdict": "critical findings removed; complete dependency audit remains FAIL; product full security/deployment not complete"
+  }
 }

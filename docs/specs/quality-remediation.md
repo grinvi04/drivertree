@@ -26,7 +26,7 @@
 
 증거는 이 절에 cwd·명령·후보·최초/최종 결과로 기록한다. 기대값은 §2 AC와 기존 단언이 근거이며 실패 뒤 약화하지 않는다. 추가 공백은 해당 경계만 보완하고 제품 전체 무결함으로 확대하지 않는다.
 
-### 실행 증거와 잔여 (2026-10-07)
+### 최초 로컬 후보 b5fd437의 실행 증거와 잔여 (2026-10-07)
 
 [실행 원문·명령·지문](harness-qa-contract-evidence.json)은 기준 SHA와 변경 파일 지문으로 후보를 식별한다. Node 22.18.0/npm 11.6.2, `npm ci`로 양쪽 lock을 설치했고 모든 검사는 해당 backend/frontend에서 실행했다. 새 pgvector/pg16 container의 합성 DB를 `127.0.0.1:55439`에만 노출하고 Gemini/Sentry 키를 비워 운영 외부 호출을 차단했다. DB 정리 시험은 `--runInBand`로 실행했다.
 
@@ -35,6 +35,16 @@
 **보안 잔여:** npm audit exit 1. backend 전체 28(critical 1/high 15), 운영 의존성 19(critical 1/high 9); frontend 전체 20(critical 1/high 13), 운영 의존성 9(critical 1/high 5). critical 보고 자산은 backend `proxy-addr`, frontend `next`다. 실제 악용 가능성은 이 감사로 확정하지 않는다. 의존성 수정은 이번 QA 계약 변경과 분리하고 배포 전 영향·수정 후보·회귀 검증을 확인한다. 전체 보안/배포 준비는 FAIL이며 기능 검사 PASS로 덮지 않는다.
 
 현재는 로컬 기능/품질 검증과 자산 준비 단계다. 원격 CI/병합/target 활성화/배포는 미실행이며 전체 채택 완료가 아니다. 독립 재검토에서 새 P1/P2 finding 없음으로 확인했다. 다음은 변경 후보 전달, 배포 영향 승인, 기존 보호를 보존하는 실제 원격 전환이다.
+
+### 네 소비 보강 승인 후 의존성 보완 (2026-10-07)
+
+사용자 승인 후 `proxy-addr` 2.0.8과 `next`/`eslint-config-next` 16.3.6의 공식 수정 범위를 확인했다. 기존 manifest의 호환 범위 안에서 취약 transitive 의존성을 갱신했다. 증분 잠금 갱신 뒤 `npm ci`의 optional wasm 의존성 EUSAGE가 발생해 당시 실패를 보존하고, 빈 scratch에 manifest만 넣어 잠금 파일을 재생성했다. 양쪽 최종 `npm ci` PASS이며 테스트/skip/설치 기준을 약화하지 않았다.
+
+수정 후보에서 양쪽 format/lint/build·backend 단위 70/실DB e2e 17·frontend 단위 8/Chromium 20(재시도 0)을 다시 통과했다. 실제 proxy subnet의 허용/거부 경계도 확인했다. 제품 runtime/schema는 변경하지 않았다. source/audit/명령/candidate 지문은 실행 근거 JSON의 `securityFollowup`에 연결한다.
+
+**현재 감사:** backend 전체 25(moderate 21/high 4/critical 0), 운영 6(moderate 2/high 4/critical 0); frontend 전체 high 5/critical 0, 운영 0. 이전 critical 경고는 해소됐지만 전체 의존성 감사는 여전히 FAIL이다. backend Prisma 전이의 deepmerge-ts/mysql2 등과 Swagger YAML, frontend 개발 도구의 braces 전이는 잔여다. 감사의 Prisma major 다운그레이드/강제 수정을 적용하지 않는다. 샘플의 local braces patch를 이 제품에 자동 복사하지 않는다. 실제 악용 가능성과 별도 주요 버전/보완 채택은 추가 호환성·범위 검토가 필요하다.
+
+독립 의존성 후보 검토 진행 중이다. 원격 CI/병합·default branch 배치·필수 검사 전환·staging/production 배포는 여전히 NOT_RUN/UNVERIFIED다. 로컬 기능 품질 PASS와 전체 보안/배포 FAIL을 구분한다.
 
 ### 신뢰 커밋 검사 전환 — 준비와 활성화 분리
 
