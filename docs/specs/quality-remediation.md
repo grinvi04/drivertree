@@ -58,7 +58,24 @@
 
 첫 증분 잠금파일 갱신은 선택적 `@emnapi` 항목이 빠져 `npm ci`가 EUSAGE로 실패했다. 빈 디렉터리에서 동일 `package.json`으로 잠금파일을 재생성하자 원래 lock 대비 Swagger YAML 세 값(version/resolved/integrity)만 바뀌었고, 그 파일로 `npm ci`가 통과했다. backend format/lint/build·단위 70·실DB e2e 19(새 2 포함)도 통과했다. 실DB는 기존 합성 전용 pgvector fixture의 127.0.0.1:55439 노출을 검사하고 실행 후 중지했다. 감사는 전체 24(moderate 20/high 4), 운영 4(high 4)로 각각 exit 1이며 남은 Prisma 전이 등은 이 후보에서 미수정이다. 전체 감사의 `js-yaml` moderate는 Jest 개발 전이 `@istanbuljs/load-nyc-config`의 3.15.2에 대한 `argparse` 경고이고 운영 감사에는 없다. [실행 원문·지문](harness-qa-contract-evidence.json)의 `swaggerYamlFollowup`에 각 후보·명령·실패·종료 상태를 연결한다. 원격 CI·PR·병합·배포는 미실행/UNVERIFIED다.
 
-독립 의존성 후보 검토 진행 중이다. 원격 CI/병합·default branch 배치·필수 검사 전환·staging/production 배포는 여전히 NOT_RUN/UNVERIFIED다. 로컬 기능 품질 PASS와 전체 보안/배포 FAIL을 구분한다.
+Swagger YAML 후보 `8c5b4f89ca6b7c3bbb255c89e7dcef5ca60728cc`의 독립 검토에서 추가 P1/P2는 발견되지 않았다. 검토 원문은 [실행 근거 JSON](harness-qa-contract-evidence.json)의 `swaggerYamlFollowup.independentReviewEvidence`에 연결한다. 당시 커밋의 소스 지문 4개와 실행 원문 18개를 대조했으며, 후속 미커밋 변경은 이 검토의 통과 범위에 포함하지 않는다. 원격 CI/병합·default branch 배치·필수 검사 전환·staging/production 배포는 여전히 NOT_RUN/UNVERIFIED다. 로컬 기능 품질 PASS와 전체 보안/배포 FAIL을 구분한다.
+
+#### Prisma 내부 전이 보완의 QA 계약 (실행 전 고정)
+
+이번 후보는 Prisma·`@prisma/config`·`@prisma/client` 7.10.0을 유지하면서 Prisma CLI의 정확한 하위 전이 `deepmerge-ts` 7.1.5→8.0.0, `mysql2` 3.15.3→3.23.1만 바꾼다. 기존 Swagger override와 제품 TypeScript·schema·시험·frontend 파일은 그대로 둔다. 원래 재현은 현 잠금파일의 네 가지 high 감사 항목과 `npm ls` 실제 전이이다. 정상 유지 시험은 이미 있는 품질·실DB e2e를 재사용한다.
+
+| 요구·위험 / 선정 이유 | 조건·행동 / 환경 | 기대 결과·관찰 경계 | 필수 | 증거·판정 |
+|---|---|---|---|---|
+| 취약 전이 제거 / deepmerge 재귀 객체·mysql 인증/압축 경고 | clean lock·`npm ci`, `npm ls`와 `npm audit` 전체/운영 | CLI 두 전이만 공식 수정판으로 resolve; 기존 Prisma 7.10.0·Swagger 유지. 운영 감사 0, 전체 감사의 개발 도구 잔여는 별도 FAIL로 보고 | 필수 | 로컬 PASS; 전체 감사 20 moderate/exit 1은 별도 잔여 |
+| deepmerge 8 Map 병합 의미 변경 / 설정 적재 호환 | `.env`를 읽지 않는 합성 Postgres URL로 실제 제품 config/schema의 `prisma validate`·`generate` | 둘 다 exit 0, 생성 클라이언트 7.10.0. 현재 설정에 Map이 없다는 정적 경계만 주장 | 필수 | 로컬 PASS; 실제 Map 설정 호환성은 미시험 |
+| Prisma runtime·마이그레이션 유지 / SQL·데이터 경계 | 기존 전용 127.0.0.1:55439 pgvector 컨테이너의 **새 합성 DB**에 `migrate deploy` 후 backend format/lint/build/unit/e2e | migration deploy exit 0, 단위 70·실DB e2e 19 및 나머지 품질 명령 exit 0; 새 DB 외 행 미변경 | 필수 | 로컬 PASS; 생성한 DB 삭제·fixture 종료 |
+| MySQL 패키지 자체 변경 / 제품 비적용 경계 | 제품은 `PrismaPg`/Postgres만 호출하며 MySQL endpoint·DB 없음 | 제품 Postgres 경로만 확인. 실제 MySQL 연결 호환성은 이번 제품 범위에 비적용, 일반 MySQL 지원 주장 금지 | 비적용 | 실제 MySQL 시험 SKIP; 별도 사용 시 재검증 |
+
+**로컬 결과 (2026-10-07):** [deepmerge 취약점](https://github.com/advisories/GHSA-ggr8-5vv4-36mx)은 8.0.0에서, [mysql2 평문 인증](https://github.com/advisories/GHSA-3f6p-5ww8-9rcr)은 3.22.0에서, [mysql2 압축 해제](https://github.com/advisories/GHSA-rgwj-5xj2-c3m3)는 3.23.1에서 각각 수정됐다. 실제 제품의 clean `npm ci`·resolve에서 Prisma와 client 7.10.0, Swagger YAML 5.4.3을 유지하고 두 Prisma 내부 전이만 8.0.0/3.23.1로 교체했다. npm lock의 추가 차이는 mysql2 전이의 `sqlstring`·`seq-queue` 제거와 `sql-escaper` 추가뿐이다. 이번 제품 config는 plain object이며 Map이 없고 `prisma validate`·`generate`가 합성 URL로 통과했다. Map 값의 깊은 병합 변경 자체는 프로젝트 설정에서 관찰되지 않았다.
+
+새 합성 DB `qa_prisma_2cec6e6bbc46`에서 `migrate deploy`가 3개 migration을 적용했고 backend format/lint/build·단위 70·실DB e2e 19가 통과했다. 기존 데이터베이스 행은 시험 대상으로 사용하지 않았다. 새 DB는 삭제하고 pgvector fixture를 종료했다. backend 감사 결과 운영 0/exit 0, 전체 20 moderate/exit 1이다. 남은 `sprintf-js` 등은 Jest 개발 전이에 있으며 [공식 advisory](https://github.com/advisories/GHSA-hp3w-g68c-fv3c)에 수정판이 없다. frontend 이전 검사(단위 8·Chromium 20)는 frontend manifest/lock 지문과 코드가 unchanged여서 기존 `securityFollowup` 증거를 재사용했다; 이번 후보에서 다시 실행하지 않았다. [명령·실행 원문·소스 지문](harness-qa-contract-evidence.json)의 `prismaTransitiveFollowup`에 연결한다.
+
+MySQL 실제 연결은 제품이 PostgreSQL `PrismaPg`만 사용하는 현재 범위에 비적용이며 일반 Prisma CLI의 모든 MySQL 동작을 보증하지 않는다. backend 전체 감사 exit 1과 frontend braces high 5는 남아 있어 제품 전체 보안 gate는 FAIL이다. 로컬 기능·마이그레이션 검사와 원격 CI/PR/병합/배포를 구분하며, 원격은 NOT_RUN/UNVERIFIED다. 독립 후보 검토가 남았다.
 
 ### 신뢰 커밋 검사 전환 — 준비와 활성화 분리
 

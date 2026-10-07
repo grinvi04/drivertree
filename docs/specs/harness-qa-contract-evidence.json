@@ -6450,6 +6450,272 @@
     },
     "remoteCi": "NOT_RUN/UNVERIFIED",
     "delivery": "NOT_RUN/UNVERIFIED",
-    "independentReview": "PENDING"
+    "independentReview": "PASS",
+    "independentReviewEvidence": {
+      "candidateSha": "8c5b4f89ca6b7c3bbb255c89e7dcef5ca60728cc",
+      "reviewThreadId": "01a113b4-95f7-7ac0-8dce-e143c5bb2b53",
+      "reviewTurnId": "01a113f9-4a0b-76b0-b1b1-0c744a57d827",
+      "reviewMessageId": "msg_005c6a9f7821aecf016ac5a034062c819198b1f15c877a5cba",
+      "verdict": "추가 P1/P2 없음",
+      "scope": "Swagger 의존성 보완과 선정한 backend 회귀. frontend 이전 증거 재사용. 전체 감사 FAIL; 원격 CI·병합·배포 UNVERIFIED.",
+      "reconciledAt": "2026-10-07T01:43:55.927113+00:00",
+      "verification": "검토 후보 커밋의 소스 지문 4개와 보존된 실행 원문 18개 일치. 제품 검사 재실행 없음.",
+      "currentChanges": "후속 미커밋 변경은 이 검토 범위에 포함하지 않음. sourceFingerprints는 검토 당시 값을 보존."
+    }
+  },
+  "prismaTransitiveFollowup": {
+    "date": "2026-10-07",
+    "baseSha": "8c5b4f89ca6b7c3bbb255c89e7dcef5ca60728cc",
+    "candidate": "uncommitted dependency/doc tree identified by sourceFingerprints; resulting commit reported separately",
+    "scope": "Prisma 7.10.0 maintained; @prisma/config/deepmerge-ts 8.0.0 and prisma/mysql2 3.23.1 scoped overrides; Swagger 5.4.3 unchanged",
+    "qaContract": "docs/specs/quality-remediation.md Prisma 내부 전이 보완의 QA 계약",
+    "sourceFingerprints": {
+      "backend/package.json": "75bda32e4d8fa16f408fb080471793ef931ef9adf7898cb0f37c97ac45e71543",
+      "backend/package-lock.json": "83985d83b77e1180cfba6ee3e7c30992403dfa7836391becb2747abdf20c033d",
+      "backend/prisma.config.ts": "84670ced77162c8e60ed86084e46ab726a9247aceafd27bc2aa5cb7b6f227eab",
+      "backend/prisma/schema.prisma": "b575fa334d700e0b3dbcca67f064be89160fb98ed17020818be4466940fe22cb",
+      "backend/src/prisma.service.ts": "b9a318ba94a4d2bd571cfbd85666eb852261866365d0679db69f3f1f664e3497",
+      "backend/test/swagger-yaml.e2e-spec.ts": "47612c88ee560e47847e07f02edac82da68a711649ce70d54e9949307f94d614",
+      "docs/specs/quality-remediation.md": "a1ddcf84f8c01c1fe01972a9c355c563b8a33bfcb60fa7f0730d2687504a7f10",
+      "frontend/package.json": "de06dcf27d26d8fa47edd5ff45577f72c83d90620d23773072492a1e91830d41",
+      "frontend/package-lock.json": "905c7d9ea86cf969a70fdf164e19885b053b476d0b58a957690a884361626144",
+      "backend/prisma/migrations/20260520163143_init/migration.sql": "8debe6e410615e1185062873df5cf940b6579a77d2d42693a2b635387411b4ff",
+      "backend/prisma/migrations/20260526091157_add_admin_refresh_token/migration.sql": "1d253bc26e3a5593f84d7568fdf5085f46d483fd09922a5c020690468f0123f6",
+      "backend/prisma/migrations/20260628124528_add_content_soft_delete/migration.sql": "4bb9f5b94eb1e6b0835ac0be93e15b63bceb3b826d2638c1cc120138b6160bba"
+    },
+    "checks": [
+      {
+        "name": "clean-lock",
+        "cwd": "/tmp/drivetree-prisma-adoption-20261007/lock",
+        "command": "npm install --package-lock-only --ignore-scripts --no-audit --no-fund",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-prisma-adoption-20261007/01-clean-lock.log",
+        "sha256": "a909d4d897bcdf41b0ecb9596ab27719db796549a25a093d61df6fba4043b0ba"
+      },
+      {
+        "name": "product-clean-install",
+        "cwd": "/Users/grinvi04/project/DriveTree/backend",
+        "command": "DATABASE_URL=<synthetic-loopback> DOTENV_CONFIG_PATH=/dev/null GEMINI_API_KEY= SENTRY_DSN= npm ci --no-audit --no-fund",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-prisma-adoption-20261007/02-product-npm-ci.log",
+        "sha256": "74e9ea320afa927489a84da726906027194b7c048e47b71aec29ad2a23751e62"
+      },
+      {
+        "name": "resolved-transitives",
+        "cwd": "/Users/grinvi04/project/DriveTree/backend",
+        "command": "npm ls prisma @prisma/config @prisma/client deepmerge-ts mysql2 @nestjs/swagger js-yaml --depth=4",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-prisma-adoption-20261007/03-resolution.log",
+        "sha256": "aa378819925fc57178201ea125bb7fd8b85fdebfddd521f537293d4fa04acdf9"
+      },
+      {
+        "name": "config-validate",
+        "cwd": "/Users/grinvi04/project/DriveTree/backend",
+        "command": "DATABASE_URL=<synthetic-loopback> DOTENV_CONFIG_PATH=/dev/null ./node_modules/.bin/prisma validate",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-prisma-adoption-20261007/04-validate.log",
+        "sha256": "fae4f390c672dbc06fa55ae8509fb2d3abf605208c7377d111ce2ebdbbb09df5"
+      },
+      {
+        "name": "client-generate",
+        "cwd": "/Users/grinvi04/project/DriveTree/backend",
+        "command": "DATABASE_URL=<synthetic-loopback> DOTENV_CONFIG_PATH=/dev/null ./node_modules/.bin/prisma generate",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-prisma-adoption-20261007/05-generate.log",
+        "sha256": "d5a741890b1a1f8803ab8b57cd8f72b4ae2d04920dabc89a35ce09402eb009c7"
+      },
+      {
+        "name": "format",
+        "cwd": "/Users/grinvi04/project/DriveTree/backend",
+        "command": "npm run format:check",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-prisma-adoption-20261007/06-format.log",
+        "sha256": "72b1de3522e76bda34ecc3f5ea8c1d24910e3caafb9be8bfc9a0e3568249a72d"
+      },
+      {
+        "name": "lint",
+        "cwd": "/Users/grinvi04/project/DriveTree/backend",
+        "command": "npm run lint:check",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-prisma-adoption-20261007/06-lint.log",
+        "sha256": "d89c7c074c6751fdcb47e3eba0fa00bb055e72cd8934a6721576d6ae4136d4e3"
+      },
+      {
+        "name": "build",
+        "cwd": "/Users/grinvi04/project/DriveTree/backend",
+        "command": "npm run build",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-prisma-adoption-20261007/06-build.log",
+        "sha256": "a2ea943010062a3eed22a3d9a4d72127ef2b16723aa90c94b360b69a2f13010f"
+      },
+      {
+        "name": "unit-70",
+        "cwd": "/Users/grinvi04/project/DriveTree/backend",
+        "command": "npm test -- --runInBand",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-prisma-adoption-20261007/06-unit.log",
+        "sha256": "2c0328638b2f369fa16658f473b31173ed79bede1e9a884d0a6737a78f0ead99"
+      },
+      {
+        "name": "fixture-before",
+        "cwd": "/Users/grinvi04/project/DriveTree/backend",
+        "command": "docker inspect drivertree-harness-qa-20261007 --format image-status-bindings",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-prisma-adoption-20261007/07-fixture-before.log",
+        "sha256": "2a9eb8e492c28acea510db61b3e79ebb73d67d58f7f6667b6a994ebfe8d23461"
+      },
+      {
+        "name": "fixture-active-loopback",
+        "cwd": "/Users/grinvi04/project/DriveTree/backend",
+        "command": "docker inspect drivertree-harness-qa-20261007 --format status-NetworkSettings.Ports",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-prisma-adoption-20261007/07-fixture-active.log",
+        "sha256": "7e2320b29ebe567eddb00028be7d671c2cd60a759d70edea0b8749b88cad6107"
+      },
+      {
+        "name": "create-new-synthetic-db",
+        "cwd": "/Users/grinvi04/project/DriveTree/backend",
+        "command": "docker exec drivertree-harness-qa-20261007 psql -U <fixture-user> -d postgres -c CREATE DATABASE <generated-qa-name>",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-prisma-adoption-20261007/08-create-db.log",
+        "sha256": "691e4b64d448c6cffd680247056c2f445e4fbf2dcbc9be821934064e906d1ce7"
+      },
+      {
+        "name": "migrate-new-db",
+        "cwd": "/Users/grinvi04/project/DriveTree/backend",
+        "command": "DATABASE_URL=<new-synthetic-loopback-db> DOTENV_CONFIG_PATH=/dev/null ./node_modules/.bin/prisma migrate deploy",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-prisma-adoption-20261007/09-migrate-deploy.log",
+        "sha256": "257a52dc71a7ccb6f4ecd77bbd8f4ef62b65eff59a2226daa372245541722429"
+      },
+      {
+        "name": "real-db-e2e-19",
+        "cwd": "/Users/grinvi04/project/DriveTree/backend",
+        "command": "DATABASE_URL=<new-synthetic-loopback-db> DOTENV_CONFIG_PATH=/dev/null npm run test:e2e -- --runInBand",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-prisma-adoption-20261007/10-realdb-e2e.log",
+        "sha256": "365a7da2c4102f7fe86b3ed8cbe1a5300304486b78bcb00898e82c3d5b4baea1"
+      },
+      {
+        "name": "drop-only-new-db",
+        "cwd": "/Users/grinvi04/project/DriveTree/backend",
+        "command": "docker exec drivertree-harness-qa-20261007 psql -U <fixture-user> -d postgres -c DROP DATABASE <generated-qa-name>",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-prisma-adoption-20261007/11-drop-db.log",
+        "sha256": "6e0504038d9284f24a4e629866b4a95050b3e6c28d03d72a3068b6023026ad30"
+      },
+      {
+        "name": "fixture-final",
+        "cwd": "/Users/grinvi04/project/DriveTree/backend",
+        "command": "docker inspect drivertree-harness-qa-20261007 --format status-NetworkSettings.Ports",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-prisma-adoption-20261007/11-fixture-final.log",
+        "sha256": "dad4fc2724a25b67e4885941ed10261b60f25e6c00f953d2704b4ded7db6af50"
+      },
+      {
+        "name": "audit-full",
+        "cwd": "/Users/grinvi04/project/DriveTree/backend",
+        "command": "npm audit --json",
+        "exitCode": 1,
+        "rawPath": "/tmp/drivetree-prisma-adoption-20261007/12-audit-full.json",
+        "sha256": "645ebb0f0692af7097097b2006bcc15904989ff30119ebd9f39484cdfb63d5b8"
+      },
+      {
+        "name": "audit-production",
+        "cwd": "/Users/grinvi04/project/DriveTree/backend",
+        "command": "npm audit --omit=dev --json",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-prisma-adoption-20261007/12-audit-prod.json",
+        "sha256": "1c172f093119fabedd3d634e33f1458140d7abc28cabdf5086990104ec8a694c"
+      },
+      {
+        "name": "credential-log-scan",
+        "cwd": "/Users/grinvi04/project/DriveTree/backend",
+        "command": "rg -l connection-string-or-credential-value /tmp/drivetree-prisma-adoption-20261007/*.log *.json",
+        "exitCode": 1,
+        "rawPath": "/tmp/drivetree-prisma-adoption-20261007/13-redaction-matches.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "dependency-diff",
+        "cwd": "/Users/grinvi04/project/DriveTree",
+        "command": "git diff -- backend/package.json backend/package-lock.json",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-prisma-adoption-20261007/13-dependency-diff.log",
+        "sha256": "0d12f826e8e4e7ce62e6fe2beb8a37c46c8071b78ab3cfb39f8c7b8e9b632a5b"
+      },
+      {
+        "name": "diff-check",
+        "cwd": "/Users/grinvi04/project/DriveTree",
+        "command": "git diff --check",
+        "exitCode": 0,
+        "rawPath": "/tmp/drivetree-prisma-adoption-20261007/13-diff-check.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "baselineAuditFromPriorCandidate": {
+      "evidenceField": "swaggerYamlFollowup",
+      "auditFullTotal": 24,
+      "auditFullHigh": 4,
+      "auditProductionTotal": 4,
+      "auditProductionHigh": 4
+    },
+    "counts": {
+      "unit": {
+        "passed": 70,
+        "failed": 0
+      },
+      "realDbE2E": {
+        "passed": 19,
+        "failed": 0
+      },
+      "migrationApplied": 3,
+      "auditFull": {
+        "moderate": 20,
+        "high": 0,
+        "critical": 0,
+        "total": 20,
+        "exitCode": 1
+      },
+      "auditProduction": {
+        "moderate": 0,
+        "high": 0,
+        "critical": 0,
+        "total": 0,
+        "exitCode": 0
+      }
+    },
+    "fixture": {
+      "name": "drivertree-harness-qa-20261007",
+      "image": "pgvector/pgvector:pg16",
+      "host": "127.0.0.1",
+      "port": 55439,
+      "newDatabase": "qa_prisma_2cec6e6bbc46",
+      "credentialSource": "existing synthetic Docker fixture; suppressed from logs",
+      "otherDatabaseTouched": false,
+      "newDatabaseDropped": true,
+      "finalStatus": "exited; no listener"
+    },
+    "frontendReuse": {
+      "source": "securityFollowup",
+      "manifestSha256": "de06dcf27d26d8fa47edd5ff45577f72c83d90620d23773072492a1e91830d41",
+      "lockSha256": "905c7d9ea86cf969a70fdf164e19885b053b476d0b58a957690a884361626144",
+      "unitPassed": 8,
+      "chromiumPassed": 20,
+      "newRun": false,
+      "reason": "frontend source and dependency inputs unchanged from prior candidate"
+    },
+    "redaction": {
+      "scanMatchCount": 0,
+      "credentialValuesInEvidence": false
+    },
+    "research": {
+      "rawPath": "/tmp/drivetree-prisma-compat-20261007/research.json",
+      "sha256": "373247c95be2ea8f9720518cbebca6c814006e6fa6f417b706d958c9ee956cd8"
+    },
+    "remoteCi": "NOT_RUN/UNVERIFIED",
+    "delivery": "NOT_RUN/UNVERIFIED",
+    "independentReview": "PENDING",
+    "securityVerdict": "production dependency audit PASS; full development dependency audit FAIL with 20 moderate; product security overall remains FAIL"
   }
 }
