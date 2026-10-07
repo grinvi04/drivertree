@@ -10,18 +10,18 @@
 
 staging 복구 요청으로 현재 API·Railway 설정·계정 자격을 다시 읽었다. `/api/health`는 HTTP 404 `Application not found`, staging 활성 배포는 0, 마지막 배포는 2026-06-08 FAILED/stopped다. 실제 서비스 설정의 `rootDirectory`는 `/backend`이지만 `source`가 null이어서 저장소 소스 연결이 비어 있다. 별도 repoTrigger에는 `develop`→staging·`main`→production이 여전히 있으므로 트리거 존재를 소스 연결이나 배포 성공으로 취급하지 않는다.
 
-현재 Railway 배포 자격은 비활성이다: 구독 상태 INACTIVE·체험 남은 기간 0·체험 중 아님·활성 subscription 없음으로 조회됐다. [Railway 공식 안내](https://docs.railway.com/pricing/plans)는 활성 구독을 요구한다. 소스 연결 누락과 계정 비활성은 현재 확인된 복구 선행 조건이며, 당시 6월 배포 실패/연결 제거의 역사상 원인은 확인되지 않았다. 해당 옛 build 로그 조회는 exit 0/0줄로 반환돼 원인 증거로 사용할 수 없다. 이번에는 Railway·결제·DB·인증·보호 설정을 쓰지 않았고 자동 재시도·새 계정/플랜/우회 배포를 만들지 않았다.
+현재 Railway 배포 자격은 비활성이다: 구독 상태 INACTIVE·체험 남은 기간 0·체험 중 아님·활성 subscription 없음으로 조회됐다. [Railway 공식 안내](https://docs.railway.com/pricing/plans)는 활성 구독을 요구한다. 소스 연결 누락과 계정 비활성은 현재 확인된 복구 선행 조건이며, 당시 6월 배포 실패/연결 제거의 역사상 원인은 확인되지 않았다. 보존한 옛 build 로그 파일은 0바이트라 원인 증거로 사용할 수 없다. 이번에는 Railway·결제·DB·인증·보호 설정을 쓰지 않았고 자동 재시도·새 계정/플랜/우회 배포를 만들지 않았다.
 
 | 복구 수용 조건 | 관찰 경계와 현재 판정 |
 |---|---|
-| 배포 자격·소스 연결 | 계정 활성화 뒤 staging만 `grinvi04/drivertree`·develop·`/backend` 연결 및 현재 API/CLI의 환경 격리 의미를 확인. 현재 복구 UNVERIFIED; 결제/구독 변경은 사용자 작업이며 production 재시작 영향부터 재확인 |
+| 배포 자격·소스 연결 | 활성화 전 workspace의 production 재개·비용 영향과 무료 플랜 적용 가능성을 확인하고 사용자가 선택한 뒤, staging만 `grinvi04/drivertree`·develop·`/backend` 연결 및 현재 API/CLI의 환경 격리 의미를 확인. 현재 복구 UNVERIFIED; 결제/구독 변경은 사용자 작업이며 production 재시작 영향부터 재확인 |
 | 최신 배포·기동 | exact develop SHA의 build·migration·deployment SUCCESS와 같은 배포의 health 200. 현재 배포 UNVERIFIED/health FAIL. 200만으로 배포 신선도를 대체하지 않음 |
 | 실제 계산·거부 | 기존 Vercel preview→staging의 정상 유지비 계산: annual 합계=항목 합, monthly 합계=연간/12 반올림; 잘못된 차종 HTTP 400, penalties의 기존 정적 규칙 응답. 기존 controller/service 시험을 판정자로 연결하며 현재 원격 기능 FAIL/미재검증 |
 | 안전한 재개 | 기존 production 설정/배포 전후 동일 및 staging DB 참조 분리 확인 후 기존 배포 절차만 적용. DB reset·운영 migrate·seed·새 비밀키·보호 완화 제외. 이번 읽기 전용 단계의 서버 변경은 0 |
 
-재개 순서는 사용자 계정 활성화와 그 workspace 영향 확인 → 양 환경 설정 보관·staging DB 분리 → 환경 단독 소스 복원 → 고정 SHA 배포와 실제 기능 재검증이다. `serviceInstanceUpdate`의 현재 schema 설명에는 fork가 아닌 환경에서 다중 환경 적용 가능성이 있어 의미를 확인하지 않고 호출하지 않는다. [현재 CLI의 환경 설정](https://docs.railway.com/cli/environment)과 [서비스 소스](https://docs.railway.com/services)를 대조한 안전한 환경 경로를 사용하고 production 전후를 확인한다. backend/railway.json의 `npm install`과 기존 `npm ci` 정책 차이는 배포 재개 시 별도 검증 항목이며 이번 무배포 진단에서 임의로 변경하지 않았다.
+계정 활성화·결제는 현재 미승인·미실행이다. 재개 순서는 활성화 전 workspace/production 영향·플랜 선택·비용 확인 → 사용자 결정과 필요한 범위 승인 → 사용자 활성화 후 자격 readback → 양 환경 설정 보관·staging DB 분리 → 환경 단독 소스 복원 → 고정 SHA 배포와 실제 기능 재검증이다. `serviceInstanceUpdate`의 현재 schema 설명에는 fork가 아닌 환경에서 다중 환경 적용 가능성이 있어 의미를 확인하지 않고 호출하지 않는다. [현재 CLI의 환경 설정](https://docs.railway.com/cli/environment)과 [서비스 소스](https://docs.railway.com/services)를 대조한 안전한 환경 경로를 사용하고 production 전후를 확인한다. backend/railway.json의 `npm install`과 기존 `npm ci` 정책 차이는 배포 재개 시 별도 검증 항목이며 이번 무배포 진단에서 임의로 변경하지 않았다.
 
-명령·후보·현재 응답·원본 schema와 재개 계획은 `$HOME/Documents/Codex/2026-10-08/drivetree-staging-recovery/`에 보존한다. 아래 병합/이전 QA 결과는 당시 검증을 유지한다. 현재 장애는 **복구 미완료**, 다음 행동은 활성화 여부 결정이다. 결제 없이 진행하는 로컬 QA는 원격 staging 복구의 대체 증거가 아니다.
+명령·후보·현재 응답·원본 schema와 재개 계획은 `$HOME/Documents/Codex/2026-10-08/drivetree-staging-recovery/`에 보존한다. 아래 병합/이전 QA 결과는 당시 검증을 유지한다. 현재 장애는 **복구 미완료**, 다음 행동은 활성화 전 영향·플랜·비용을 확인하고 활성화 여부를 결정하는 것이다. 결제 없이 진행하는 로컬 QA는 원격 staging 복구의 대체 증거가 아니다.
 
 ### 병합 후 현재 상태 (2026-10-08)
 
@@ -35,7 +35,7 @@ staging 복구 요청으로 현재 API·Railway 설정·계정 자격을 다시 
 | 의존성 감사 | 2026-10-08 전체 감사: backend moderate 20, frontend high 5로 각각 FAIL. 운영 의존성 감사는 backend/frontend 모두 0/exit 0. 전체 보안 gate를 PASS로 표시하지 않으며 잔여 전이의 영향·수정 여부는 별도 판단한다. |
 | 운영 | main 병합·production 배포·운영 DB 변경은 이번 병합 범위 밖이며 NOT_RUN. |
 
-다음은 staging에 병합 SHA의 배포가 생기지 않은 원인을 승인된 범위에서 조사하고, 연결된 백엔드 기능을 재확인하는 것이다. 신뢰 검사 파일의 main/default 배치와 실제 이벤트·보호 설정 전환은 별도 승인 범위로 남는다. 실패·미확인 단계는 제품 QA 통과나 `develop` 병합으로 대체하지 않는다.
+당시 다음 단계는 staging 미배포 원인 조사였으며, 현재 진단과 재개 순서는 위 첫 진단 절을 따른다. 신뢰 검사 파일의 main/default 배치와 실제 이벤트·보호 설정 전환은 별도 승인 범위로 남는다. 실패·미확인 단계는 제품 QA 통과나 `develop` 병합으로 대체하지 않는다.
 
 ### 로컬 후보의 QA 계약과 당시 판정 (2026-10-07)
 
