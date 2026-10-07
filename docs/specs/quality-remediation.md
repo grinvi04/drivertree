@@ -1,11 +1,25 @@
 # 품질 리메디에이션 로드맵 — DriveTree
 
-> 상태: 부분 구현됨; 현재 후보 QA와 Harness 검사 단계 전환 진행. 과거 정적 감사는 당시 기록이며 현재 결함 목록으로 재해석하지 않는다.
+> 상태 (2026-10-08): [PR #85](https://github.com/grinvi04/drivertree/pull/85)의 QA/의존성 보완과 신뢰 검사 파일은 `develop`에 병합됨. 신뢰 검사 target 전환·배포 신선도·전체 의존성 감사는 미완료. 과거 정적 감사는 당시 기록이며 현재 결함 목록으로 재해석하지 않는다.
 > 작성 근거: 자매 프로젝트 erp 품질 감사에서 도출된 결함 클래스 + team-harness 표준.
 
 ## §0 Context / Why
 
-### 현재 상태와 QA 계약 (2026-10-07)
+### 병합 후 현재 상태 (2026-10-08)
+
+[PR #85](https://github.com/grinvi04/drivertree/pull/85)의 고정 head `907ea04529f4ca4bb8b2c003f2eb3a8a886ae551`는 필수 검사 6/6 PASS와 미해결 스레드 0을 거쳐 2026-10-07 18:20:58 UTC에 `develop` 병합 커밋 `a355bd25166e285d899430464e5e311f37b55d5d`로 반영됐다. 아래 2026-10-07 절의 `NOT_RUN/UNVERIFIED`는 각 로컬 후보를 기록한 **당시 원격 상태**다. 로컬 QA의 명령·후보·최초 실패·재시도 증거는 [실행 근거 JSON](harness-qa-contract-evidence.json)에 보존한다.
+
+| 경계 | 현재 판정과 한계 |
+|---|---|
+| 제품 품질·PR 전달 | PR head의 필수 CI 6/6 PASS와 `develop` 병합 확인. 이 문서 전용 후속 후보의 CI는 별도 판정한다. |
+| 미리보기·staging | PR head의 Vercel Preview 응답 200은 확인했으나 병합 커밋의 배포 신선도와 Railway staging 실행 결과는 아직 UNVERIFIED. 응답 200만으로 최신 배포를 주장하지 않는다. |
+| 신뢰 커밋 검사 | `.github/workflows/commitlint-trusted.yml` 파일이 `develop`에 들어갔다. main/default 배치와 실제 후속 PR 이벤트 PASS, 새 required context 추가·기존 context 제거/readback은 아직 UNVERIFIED; 기존 `commitlint` 필수 검사는 유지한다. |
+| 의존성 감사 | 2026-10-08 전체 감사: backend moderate 20, frontend high 5로 각각 FAIL. 운영 의존성 감사는 backend/frontend 모두 0/exit 0. 전체 보안 gate를 PASS로 표시하지 않으며 잔여 전이의 영향·수정 여부는 별도 판단한다. |
+| 운영 | main 병합·production 배포·운영 DB 변경은 이번 병합 범위 밖이며 NOT_RUN. |
+
+다음은 병합 커밋과 실제 staging/preview 배포 SHA를 대조하고, 별도 승인 범위에서 신뢰 검사 파일을 main/default에 배치한 뒤 실제 이벤트와 보호 설정을 순서대로 확인하는 것이다. 미확인 단계는 제품 QA 통과나 `develop` 병합으로 대체하지 않는다.
+
+### 로컬 후보의 QA 계약과 당시 판정 (2026-10-07)
 
 기준 소스는 `bd634e62b2902cbd843a2d9bac9766464d06f9b6`이다. 사용자 승인으로 QA/문서 계약 연결과 격리 검증을 진행한다. 운영 배포·main/default 배치·브랜치 보호/이벤트 정책 변경은 별도 범위다.
 
